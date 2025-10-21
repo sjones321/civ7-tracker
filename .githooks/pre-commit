@@ -1,0 +1,10 @@
+#!/bin/sh
+# Git hook launcher (works on Git for Windows). Calls PowerShell script.
+HOOK_DIR="$(dirname "$0")"
+powershell -NoProfile -ExecutionPolicy Bypass -File "$HOOK_DIR/pre-commit.ps1"
+RC=$?
+if [ $RC -ne 0 ]; then
+  echo "Pre-commit hook failed. Aborting commit." 1>&2
+  exit $RC
+fi
+exit 0
