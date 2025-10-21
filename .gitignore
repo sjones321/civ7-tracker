@@ -1,16 +1,20 @@
-# OS
+# OS junk
 .DS_Store
 Thumbs.db
 
-# Editors
+# Editors / IDE
 .vscode/
 .idea/
+*.iml
 
-# Logs / junk
+# Logs / scratch
 *.log
 logs/
+tmp/
 
-# (Only if you later add these)
+# Build outputs (if you ever add tooling later)
 dist/
 build/
-tmp/
+
+# Images cache placeholders
+*.tmp
