@@ -1,0 +1,724 @@
+{
+  "time": "2025-10-21T00:42:37.558Z",
+  "href": "file:///C:/Users/s_jon/OneDrive/Desktop/Civ%207%20Tracker/independent_peoples.html",
+  "title": "Independent Peoples — S2 Core Fix",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "scripts": [
+    "file:///C:/Users/s_jon/OneDrive/Desktop/Civ%207%20Tracker/results_core.js",
+    "file:///C:/Users/s_jon/OneDrive/Desktop/Civ%207%20Tracker/auth.js",
+    "file:///C:/Users/s_jon/OneDrive/Desktop/Civ%207%20Tracker/require-auth.js",
+    "file:///C:/Users/s_jon/OneDrive/Desktop/Civ%207%20Tracker/common.store.js",
+    "file:///C:/Users/s_jon/OneDrive/Desktop/Civ%207%20Tracker/topbar.js",
+    "[inline]",
+    "file:///C:/Users/s_jon/OneDrive/Desktop/Civ%207%20Tracker/civ7_debug_core.js",
+    "file:///C:/Users/s_jon/OneDrive/Desktop/Civ%207%20Tracker/civ7_debug_overlay.js"
+  ],
+  "cssRules": [
+    {
+      "selector": ":root",
+      "css": ":root { --bg: #0f1216; --panel: #171b21; --text: #e6edf3; --muted: #9aa4b2; --border: #242a33; --accent: #4aa3ff; --steve: #f2880f; --tiny: #001a07; --tinyText: #b8ffd2; }"
+    },
+    {
+      "selector": "*",
+      "css": "* { box-sizing: border-box; }"
+    },
+    {
+      "selector": "body",
+      "css": "body { margin: 0px; background: var(--bg); color: var(--text); font: 14px / 1.45 system-ui, \"Segoe UI\", Roboto, Helvetica, Arial; }"
+    },
+    {
+      "selector": ".wrap",
+      "css": ".wrap { max-width: 1100px; margin: 0px auto; padding: 16px; }"
+    },
+    {
+      "selector": ".card",
+      "css": ".card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }"
+    },
+    {
+      "selector": ".row",
+      "css": ".row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }"
+    },
+    {
+      "selector": "input, select",
+      "css": "input, select { background: rgb(11, 15, 20); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 8px 10px; }"
+    },
+    {
+      "selector": ".btn",
+      "css": ".btn { background: var(--accent); color: rgb(0, 19, 41); border: none; border-radius: 10px; padding: 8px 12px; font-weight: 700; cursor: pointer; }"
+    },
+    {
+      "selector": ".btn.small",
+      "css": ".btn.small { padding: 4px 8px; font-size: 12px; border-radius: 8px; }"
+    },
+    {
+      "selector": ".small",
+      "css": ".small { font-size: 12px; color: var(--muted); }"
+    },
+    {
+      "selector": ".ide-label",
+      "css": ".ide-label { font-weight: 800; }"
+    },
+    {
+      "selector": ".ide-Culture",
+      "css": ".ide-Culture { color: rgb(216, 200, 255); }"
+    },
+    {
+      "selector": ".ide-Diplomatic",
+      "css": ".ide-Diplomatic { color: rgb(188, 212, 255); }"
+    },
+    {
+      "selector": ".ide-Scientific",
+      "css": ".ide-Scientific { color: rgb(209, 231, 255); }"
+    },
+    {
+      "selector": ".ide-Expansionist",
+      "css": ".ide-Expansionist { color: rgb(201, 255, 217); }"
+    },
+    {
+      "selector": ".ide-Military",
+      "css": ".ide-Military { color: rgb(255, 209, 209); }"
+    },
+    {
+      "selector": ".ide-Economic",
+      "css": ".ide-Economic { color: rgb(255, 232, 184); }"
+    },
+    {
+      "selector": "label.small:has(#hostile)",
+      "css": "label.small:has(#hostile) { display: inline-flex; align-items: center; gap: 6px; }"
+    },
+    {
+      "selector": "#hostile",
+      "css": "#hostile { margin: 0px; }"
+    },
+    {
+      "selector": ".sections",
+      "css": ".sections { display: grid; gap: 16px; margin-top: 12px; }"
+    },
+    {
+      "selector": ".section",
+      "css": ".section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }"
+    },
+    {
+      "selector": ".section .head",
+      "css": ".section .head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }"
+    },
+    {
+      "selector": ".list",
+      "css": ".list { display: grid; gap: 8px; }"
+    },
+    {
+      "selector": ".item",
+      "css": ".item { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; background: rgb(11, 15, 20); }"
+    },
+    {
+      "selector": ".badge",
+      "css": ".badge { padding: 2px 6px; border-radius: 999px; border: 1px solid var(--border); font-size: 11px; }"
+    },
+    {
+      "selector": ".badge.hostile",
+      "css": ".badge.hostile { background: rgb(59, 17, 17); border-color: rgb(128, 61, 61); color: rgb(255, 180, 180); }"
+    },
+    {
+      "selector": ".badge.region",
+      "css": ".badge.region { background: rgb(16, 32, 26); border-color: rgb(29, 58, 46); color: rgb(184, 255, 210); }"
+    },
+    {
+      "selector": ".typeahead",
+      "css": ".typeahead { position: relative; display: inline-block; min-width: 220px; }"
+    },
+    {
+      "selector": ".typeahead-list",
+      "css": ".typeahead-list { position: absolute; top: 100%; left: 0px; right: 0px; background: rgb(11, 15, 20); border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-top: none; max-height: 220px; overflow: auto; z-index: 20; border-radius: 0px 0px 10px 10px; display: none; }"
+    },
+    {
+      "selector": ".typeahead-item",
+      "css": ".typeahead-item { padding: 8px 10px; cursor: pointer; }"
+    },
+    {
+      "selector": ".typeahead-item:hover",
+      "css": ".typeahead-item:hover { background: rgb(17, 22, 31); }"
+    },
+    {
+      "selector": ".typeahead-empty",
+      "css": ".typeahead-empty { padding: 8px 10px; color: rgb(107, 116, 131); }"
+    },
+    {
+      "selector": ":root",
+      "css": ":root { --bg: #0f1216; --panel: #171b21; --text: #e6edf3; --muted: #9aa4b2; --border: #242a33; --accent: #4aa3ff; }"
+    },
+    {
+      "selector": "#c7-topbar",
+      "css": "#c7-topbar { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, Arial; }"
+    },
+    {
+      "selector": "#c7-topbar .wrap",
+      "css": "#c7-topbar .wrap { max-width: 1200px; margin: 0px auto; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid rgb(20, 24, 33); }"
+    },
+    {
+      "selector": "#c7-topbar .title",
+      "css": "#c7-topbar .title { font-size: 18px; font-weight: 800; }"
+    },
+    {
+      "selector": "#c7-topbar nav",
+      "css": "#c7-topbar nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }"
+    },
+    {
+      "selector": "#c7-topbar nav a",
+      "css": "#c7-topbar nav a { margin-right: 0px; text-decoration: none; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; color: rgb(203, 213, 225); }"
+    },
+    {
+      "selector": "#c7-topbar nav a.active",
+      "css": "#c7-topbar nav a.active { border-color: rgb(59, 130, 246); color: rgb(230, 237, 243); }"
+    },
+    {
+      "selector": "#c7-topbar nav a:hover",
+      "css": "#c7-topbar nav a:hover { border-color: rgb(51, 65, 85); }"
+    },
+    {
+      "selector": "#c7-topbar .row",
+      "css": "#c7-topbar .row { display: flex; gap: 8px; align-items: center; }"
+    },
+    {
+      "selector": "#c7-topbar button",
+      "css": "#c7-topbar button { background: transparent; border: 1px solid var(--border); color: rgb(203, 213, 225); padding: 6px 10px; border-radius: 8px; cursor: pointer; }"
+    },
+    {
+      "selector": "#c7-topbar button:hover",
+      "css": "#c7-topbar button:hover { border-color: rgb(51, 65, 85); }"
+    },
+    {
+      "selector": "#c7-topbar input[type=\"file\"]",
+      "css": "#c7-topbar input[type=\"file\"] { display: none; }"
+    },
+    {
+      "selector": ".c7dbg",
+      "css": ".c7dbg { position: fixed; top: 12px; right: 12px; width: 440px; z-index: 999999; font: 12px / 1.5 ui-monospace, monospace; color: rgb(230, 237, 243); }"
+    },
+    {
+      "selector": ".c7card",
+      "css": ".c7card { background: rgb(23, 27, 33); border: 1px solid rgb(36, 42, 51); border-radius: 12px; padding: 10px; box-shadow: rgba(0, 0, 0, 0.45) 0px 6px 24px; }"
+    },
+    {
+      "selector": ".c7row",
+      "css": ".c7row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }"
+    },
+    {
+      "selector": ".c7btn",
+      "css": ".c7btn { background: rgb(74, 163, 255); color: rgb(0, 19, 41); border: 0px; padding: 6px 10px; border-radius: 8px; font-weight: 800; cursor: pointer; }"
+    },
+    {
+      "selector": ".c7btn.ghost",
+      "css": ".c7btn.ghost { background: transparent; color: rgb(154, 164, 178); border: 1px solid rgb(36, 42, 51); }"
+    },
+    {
+      "selector": ".c7pre",
+      "css": ".c7pre { background: rgb(11, 15, 20); border: 1px solid rgb(36, 42, 51); border-radius: 8px; padding: 8px; max-height: 300px; overflow: auto; white-space: pre-wrap; }"
+    },
+    {
+      "selector": ".c7pill",
+      "css": ".c7pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 999px; border: 1px solid rgb(36, 42, 51); }"
+    },
+    {
+      "selector": ".ok",
+      "css": ".ok { background: rgba(23, 201, 100, 0.12); color: rgb(23, 201, 100); border-color: rgba(23, 201, 100, 0.35); }"
+    },
+    {
+      "selector": ".err",
+      "css": ".err { background: rgba(243, 18, 96, 0.12); color: rgb(243, 18, 96); border-color: rgba(243, 18, 96, 0.35); }"
+    },
+    {
+      "selector": ".warn",
+      "css": ".warn { background: rgba(245, 165, 36, 0.12); color: rgb(245, 165, 36); border-color: rgba(245, 165, 36, 0.35); }"
+    }
+  ],
+  "nodes": {
+    "#topbar-root": [
+      {
+        "id": "topbar-root",
+        "class": null,
+        "tag": "DIV",
+        "outer": "<div id=\"topbar-root\">\n  <div id=\"c7-topbar\" role=\"banner\">\n    <div class=\"wrap\">\n      <div class=\"title\">Civilization 7 Tracker</div>\n      <nav role=\"navigation\" aria-label=\"Primary\">\n        <a href=\"index.html\">Home</a>\n        <a href=\"world_wonders.html\">World Wonders</a>\n        <a href=\"natural_wonders.html\">Natural Wonders</a>\n        <a href=\"independent_peoples.html\" class=\"active\">Independent Peoples</a>\n        <a href=\"results.html\">Results</a>\n        <a href=\"data_editor.html\">Data Editor</a>\n      </nav>\n      <div class=\"row\">\n        <button id=\"c7-export\" title=\"Export da"
+      }
+    ],
+    "[class*=\"topbar\"]": [],
+    ".karma": [],
+    "[id*=\"karma\"]": [],
+    "label.small": [
+      {
+        "id": null,
+        "class": "small",
+        "tag": "LABEL",
+        "outer": "<label class=\"small\" for=\"cityName\">City</label>"
+      },
+      {
+        "id": null,
+        "class": "small",
+        "tag": "LABEL",
+        "outer": "<label class=\"small\" for=\"ideo\">Ideology</label>"
+      },
+      {
+        "id": null,
+        "class": "small",
+        "tag": "LABEL",
+        "outer": "<label class=\"small\" for=\"region\">Region</label>"
+      },
+      {
+        "id": null,
+        "class": "small",
+        "tag": "LABEL",
+        "outer": "<label class=\"small\" for=\"age\">Discovered Age</label>"
+      },
+      {
+        "id": null,
+        "class": "small",
+        "tag": "LABEL",
+        "outer": "<label class=\"small\"><input type=\"checkbox\" id=\"hostile\"> Hostile</label>"
+      }
+    ],
+    "#hostile": [
+      {
+        "id": "hostile",
+        "class": null,
+        "tag": "INPUT",
+        "outer": "<input type=\"checkbox\" id=\"hostile\">"
+      }
+    ],
+    "select#ideo": [
+      {
+        "id": "ideo",
+        "class": null,
+        "tag": "SELECT",
+        "outer": "<select id=\"ideo\">\n          <option class=\"ide-Culture\">Culture</option>\n          <option class=\"ide-Diplomatic\">Diplomatic</option>\n          <option class=\"ide-Economic\">Economic</option>\n          <option class=\"ide-Expansionist\">Expansionist</option>\n          <option class=\"ide-Military\">Military</option>\n          <option class=\"ide-Scientific\">Scientific</option>\n        </select>"
+      }
+    ],
+    "#cityName": [
+      {
+        "id": "cityName",
+        "class": null,
+        "tag": "INPUT",
+        "outer": "<input id=\"cityName\" placeholder=\"Type a city name\" autocomplete=\"off\">"
+      }
+    ],
+    ".typeahead": [
+      {
+        "id": null,
+        "class": "typeahead",
+        "tag": "SPAN",
+        "outer": "<span class=\"typeahead\">\n          <input id=\"cityName\" placeholder=\"Type a city name\" autocomplete=\"off\">\n          <div id=\"cityTA\" class=\"typeahead-list\"></div>\n        </span>"
+      }
+    ],
+    "#cityTA": [
+      {
+        "id": "cityTA",
+        "class": "typeahead-list",
+        "tag": "DIV",
+        "outer": "<div id=\"cityTA\" class=\"typeahead-list\"></div>"
+      }
+    ],
+    "datalist#cityNameList": []
+  },
+  "hostileGap": "6px",
+  "localStorage": {
+    "civ7_world_wonders_last_txn_v4": "{\"Forbidden City\":{\"prevLast\":{\"owner\":null,\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"prevWins\":{\"steve\":0,\"tiny\":0},\"age\":\"Antiquity\",\"usedPA\":null,\"usedVeto\":null}}",
+    "civ7_world_wonders_last_txn_v2": "{\"Test\":null,\"Forbidden City\":null,\"Battersea Power Station\":null}",
+    "civ7_last_owner_drought_natural_wonders_v3": "{\"Great Barrier Reef\":{\"owner\":\"steve\",\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"Redwood Forest\":{\"owner\":\"tiny\",\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"Vinicunca\":{\"owner\":\"steve\",\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"Uluru\":{\"owner\":\"tiny\",\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"Vihren\":{\"owner\":\"tiny\",\"ai\":false,\"sDrought\":0,\"tDrought\":0}}",
+    "civ7_world_wonders_last_txn_v1": "{\"Forbidden City\":null,\"Battersea Power Station\":null,\"Test\":null}",
+    "civ7_user_v1": "{\"name\":\"Steve\",\"readonly\":false,\"loggedInAt\":1760828780199}",
+    "civ7_data_store_v1": "{\"leaders\":[\"Ada Lovelace\",\"Ashoka\",\"Augustus\",\"Catherine the Great\",\"Charlemagne\",\"Confucius\",\"Genghis Khan\",\"Hatshepsut\",\"Isabella\",\"Joan of Arc\",\"Julius Caesar\",\"Mansa Musa\",\"Napoleon\",\"Qin Shi Huang\",\"Tokugawa\"],\"civs\":{\"Antiquity\":[\"Aksum\",\"Assyria\",\"Carthage\",\"Egypt\",\"Greece\",\"Maurya\",\"Maya\",\"Persia\",\"Rome\",\"Shawnee\"],\"Exploration\":[\"Aztec\",\"Byzantium\",\"Inca\",\"Japan\",\"Khmer\",\"Mali\",\"Mughals\",\"Norse\",\"Ottomans\",\"Songhai\"],\"Modern\":[\"America\",\"Brazil\",\"China\",\"Ethiopia\",\"France\",\"Germany\",\"Mexico\",\"Russia\",\"Spain\",\"United Kingdom\"]},\"mementos\":[{\"name\":\"Antikythera Mechanism\",\"effect\":\"+1 Scientific Attribute Point.\",\"icon\":\"\"},{\"name\":\"Bifocals\",\"effect\":\"Gain 50 Influence after a Tech or Civic Mastery.\",\"icon\":\"\"},{\"name\":\"Glass Armonica\",\"effect\":\"+10% Science and +10% Happiness when in an Alliance (both sides).\",\"icon\":\"\"},{\"name\":\"Kite & Key\",\"effect\":\"+10% Science toward Tech Masteries.\",\"icon\":\"\"},{\"name\":\"Imago Mundi\",\"effect\":\"+2 Scout Sight on Search/Lookout.\",\"icon\":\"\"},{\"name\":\"Treaty of Kadesh\",\"effect\":\"+1 Diplomatic Attribute Point.\",\"icon\":\"\"},{\"name\":\"Inscribed Sling Bullet\",\"effect\":\"+1 Military Attribute Point.\",\"icon\":\"\"},{\"name\":\"Groma\",\"effect\":\"+1 Expansionist Attribute Point.\",\"icon\":\"\"},{\"name\":\"Shakokidogu\",\"effect\":\"+1 Cultural Attribute Point.\",\"icon\":\"\"},{\"name\":\"Lydian Lion\",\"effect\":\"+200 Gold per Age at the start of an Age.\",\"icon\":\"\"},{\"name\":\"Royal Mace\",\"effect\":\"+1 Gold per Age for each imported Resource.\",\"icon\":\"\"},{\"name\":\"Gold Fluted Phiale\",\"effect\":\"+1 Trade Route Limit with all other Leaders.\",\"icon\":\"\"},{\"name\":\"Green Colonel's Jacket\",\"effect\":\"+1 Gold per Age per active Trade Route (doubled if you have the most).\",\"icon\":\"\"},{\"name\":\"Kwalkwali\",\"effect\":\"+1 Gold per Age for each Resource assigned to Cities.\",\"icon\":\"\"},{\"name\":\"Corona Civica\",\"effect\":\"+1 Settlement Limit per Age; +50% Convert to City cost.\",\"icon\":\"\"},{\"name\":\"Clipeus Virtutis\",\"effect\":\"+1 Production in the Capital for every Town.\",\"icon\":\"\"},{\"name\":\"Breastplate\",\"effect\":\"+2 Food per Age in Towns.\",\"icon\":\"\"},{\"name\":\"Padrón Real\",\"effect\":\"+2 Happiness per Age on Natural Wonders.\",\"icon\":\"\"}],\"icons\":{\"leaders\":{},\"civs\":{},\"mementos\":{}}}",
+    "civ7_home_state_v3": "{\"games\":[],\"current\":{\"id\":\"game_1760818438023\",\"age\":\"Antiquity\",\"players\":{\"steve\":{\"leaders\":[],\"civs\":[],\"mementos\":[]},\"tiny\":{\"leaders\":[],\"civs\":[],\"mementos\":[]}},\"wins\":{\"World Wonders\":{\"steve\":0,\"tiny\":0},\"Natural Wonders\":{\"steve\":1,\"tiny\":0},\"Independent People: Culture\":{\"steve\":0,\"tiny\":0},\"Independent People: Diplomatic\":{\"steve\":0,\"tiny\":0},\"Independent People: Economic\":{\"steve\":0,\"tiny\":0},\"Independent People: Expansionist\":{\"steve\":0,\"tiny\":0},\"Independent People: Military\":{\"steve\":0,\"tiny\":0},\"Independents\":{\"steve\":0,\"tiny\":0,\"Military\":{\"steve\":0,\"tiny\":0},\"Economic\":{\"steve\":0,\"tiny\":0},\"Culture\":{\"steve\":0,\"tiny\":0},\"Diplomatic\":{\"steve\":0,\"tiny\":0},\"Science\":{\"steve\":0,\"tiny\":0},\"Expansionist\":{\"steve\":0,\"tiny\":0}},\"Independent People: Scientific\":{\"steve\":0,\"tiny\":0}},\"pools\":{\"steve\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]},\"tiny\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]}},\"history\":[{\"ts\":1760921144829,\"msg\":\"Removed: test1\"},{\"ts\":1760921143849,\"msg\":\"Steve memento: test1\"},{\"ts\":1760921142032,\"msg\":\"Removed: test1\"},{\"ts\":1760921138777,\"msg\":\"Steve leader: test1\"},{\"ts\":1760917188243,\"msg\":\"Priority Acquisition (Tiny) toggled available\"},{\"ts\":1760917187761,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760916718444,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760916718088,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760914443605,\"msg\":\"Veto (Steve) toggled available\"},{\"ts\":1760914440097,\"msg\":\"Starting Age set: Antiquity\"},{\"ts\":1760845439558,\"msg\":\"Starting Age set: Modern\"},{\"ts\":1760845436482,\"msg\":\"Starting Age set: Exploration\"},{\"ts\":1760836308848,\"msg\":\"Veto (Steve) toggled used\"},{\"ts\":1760834880314,\"msg\":\"Karma counters reset.\"},{\"ts\":1760834844299,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760834843932,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760834700579,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760834700353,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760834678213,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760834677707,\"msg\":\"Priority Acquisition (Tiny) toggled used\"},{\"ts\":1760834677272,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760834606850,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760834606649,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760834606463,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760834551379,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760834551183,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760834156053,\"msg\":\"Veto (Steve) toggled available\"},{\"ts\":1760834155857,\"msg\":\"Veto (Steve) toggled used\"},{\"ts\":1760834155368,\"msg\":\"Priority Acquisition (Tiny) toggled available\"},{\"ts\":1760834155179,\"msg\":\"Priority Acquisition (Tiny) toggled used\"},{\"ts\":1760834154598,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760834154418,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760818453850,\"msg\":\"Veto (Tiny) toggled available\"},{\"ts\":1760818453610,\"msg\":\"Veto (Tiny) toggled used\"}]}}",
+    "civ7_natural_wonders_last_txn_v1": "{\"Great Barrier Reef\":null,\"Mount Roraima\":null}",
+    "civ7_home_state_v1": "{\"games\":[],\"current\":{\"id\":\"game_1760491068237\",\"age\":\"Antiquity\",\"players\":{\"steve\":{\"leaders\":[],\"civs\":[],\"mementos\":[]},\"tiny\":{\"leaders\":[],\"civs\":[],\"mementos\":[]}},\"wins\":{\"World Wonders\":{\"steve\":0,\"tiny\":0},\"Natural Wonders\":{\"steve\":0,\"tiny\":0},\"Independent People: Culture\":{\"steve\":0,\"tiny\":0},\"Independent People: Diplomatic\":{\"steve\":0,\"tiny\":0},\"Independent People: Economic\":{\"steve\":0,\"tiny\":0},\"Independent People: Expansionist\":{\"steve\":0,\"tiny\":0},\"Independent People: Military\":{\"steve\":0,\"tiny\":0},\"Independent People: Science\":{\"steve\":0,\"tiny\":0}},\"pools\":{\"steve\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]},\"tiny\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]}},\"history\":[{\"ts\":1760491074830,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760491074494,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760491074185,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760491073385,\"msg\":\"Priority Acquisition (Steve) toggled available\"},{\"ts\":1760491072820,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760491072473,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760491072116,\"msg\":\"Priority Acquisition (Steve) toggled used\"},{\"ts\":1760491071695,\"msg\":\"Priority Acquisition (Steve) toggled used\"}]}}",
+    "civ7_audit_log_v1": "[{\"ts\":1760508704034,\"user\":\"Steve\",\"action\":\"login\",\"role\":\"player\"},{\"ts\":1760508726571,\"user\":\"Steve\",\"action\":\"add_citystate_name\",\"name\":\"Test\"},{\"ts\":1760508855620,\"user\":\"Guest\",\"action\":\"login\",\"role\":\"guest\"},{\"ts\":1760508862499,\"user\":\"Steve\",\"action\":\"login\",\"role\":\"player\"},{\"ts\":1760828035678,\"user\":\"Steve\",\"action\":\"login\",\"role\":\"player\"},{\"ts\":1760828040325,\"user\":\"Steve\",\"action\":\"login\",\"role\":\"player\"},{\"ts\":1760828523483,\"user\":\"Steve\",\"action\":\"login\",\"role\":\"player\"},{\"ts\":1760828780200,\"user\":\"Steve\",\"action\":\"login\",\"role\":\"player\"}]",
+    "civ7_indp_last_owner_per_city_v1": "{\"indp:Venice\":{\"owner\":null,\"ai\":false,\"type\":\"Science\",\"hostile\":true,\"homelands\":false,\"distant\":false},\"indp:Arboretum\":{\"owner\":null,\"ai\":false,\"type\":\"Economic\",\"hostile\":false,\"homelands\":false,\"distant\":false},\"indp:Tollan-Xicocotitlan\":{\"owner\":\"tiny\",\"ai\":false,\"type\":\"Culture\",\"hostile\":true,\"homelands\":true,\"distant\":false},\"indp:Hattusa\":{\"owner\":\"tiny\",\"ai\":false,\"type\":\"Expansionist\",\"hostile\":true,\"homelands\":true,\"distant\":false}}",
+    "civ7_home_v4": "{\"games\":[],\"current\":{\"id\":\"game_1760490172726\",\"age\":\"Antiquity\",\"players\":{\"steve\":{\"leaders\":[],\"civs\":[],\"mementos\":[]},\"tiny\":{\"leaders\":[],\"civs\":[],\"mementos\":[]}},\"wins\":{\"World Wonders\":{\"steve\":0,\"tiny\":0},\"Natural Wonders\":{\"steve\":0,\"tiny\":0},\"Independent People: Culture\":{\"steve\":0,\"tiny\":0},\"Independent People: Diplomatic\":{\"steve\":0,\"tiny\":0},\"Independent People: Economic\":{\"steve\":0,\"tiny\":0},\"Independent People: Expansionist\":{\"steve\":0,\"tiny\":0},\"Independent People: Military\":{\"steve\":0,\"tiny\":0},\"Independent People: Science\":{\"steve\":0,\"tiny\":0}},\"pools\":{\"steve\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]},\"tiny\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]}},\"history\":[{\"ts\":1760490639021,\"msg\":\"Removed: Inca\"},{\"ts\":1760490636446,\"msg\":\"Added civ (Steve): Inca\"},{\"ts\":1760490482982,\"msg\":\"Import completed.\"},{\"ts\":1760490470139,\"msg\":\"Bulk added mementos: 4\"},{\"ts\":1760490454379,\"msg\":\"Bulk added mementos: 4\"},{\"ts\":1760490180072,\"msg\":\"Priority Acquisition (Steve) #4 available\"},{\"ts\":1760490179523,\"msg\":\"Priority Acquisition (Steve) #3 available\"},{\"ts\":1760490179099,\"msg\":\"Priority Acquisition (Steve) #2 available\"},{\"ts\":1760490178683,\"msg\":\"Priority Acquisition (Steve) #1 available\"},{\"ts\":1760490178024,\"msg\":\"Priority Acquisition (Steve) #4 used\"},{\"ts\":1760490177408,\"msg\":\"Priority Acquisition (Steve) #3 used\"},{\"ts\":1760490176846,\"msg\":\"Priority Acquisition (Steve) #2 used\"},{\"ts\":1760490176349,\"msg\":\"Priority Acquisition (Steve) #1 used\"}]}}",
+    "civ7_data_store_v2": "{\"leaders\":[\"Ada Lovelace\",\"Ashoka\",\"Augustus\",\"Catherine the Great\",\"Charlemagne\",\"Confucius\",\"Genghis Khan\",\"Hatshepsut\",\"Isabella\",\"Joan of Arc\",\"Julius Caesar\",\"Mansa Musa\",\"Napoleon\",\"Qin Shi Huang\",\"Tokugawa\"],\"civs\":{\"Antiquity\":[\"Aksum\",\"Assyria\",\"Carthage\",\"Egypt\",\"Greece\",\"Maurya\",\"Maya\",\"Persia\",\"Rome\",\"Shawnee\"],\"Exploration\":[\"Aztec\",\"Byzantium\",\"Inca\",\"Japan\",\"Khmer\",\"Mali\",\"Mughals\",\"Norse\",\"Ottomans\",\"Songhai\"],\"Modern\":[\"America\",\"Brazil\",\"China\",\"Ethiopia\",\"France\",\"Germany\",\"Mexico\",\"Russia\",\"Spain\",\"United Kingdom\"]},\"mementos\":[{\"name\":\"Antikythera Mechanism\",\"effect\":\"+1 Scientific Attribute Point.\",\"icon\":\"\"},{\"name\":\"Bifocals\",\"effect\":\"Gain 50 Influence after a Tech or Civic Mastery.\",\"icon\":\"\"},{\"name\":\"Glass Armonica\",\"effect\":\"+10% Science and +10% Happiness when in an Alliance (both sides).\",\"icon\":\"\"},{\"name\":\"Kite & Key\",\"effect\":\"+10% Science toward Tech Masteries.\",\"icon\":\"\"},{\"name\":\"Imago Mundi\",\"effect\":\"+2 Scout Sight on Search/Lookout.\",\"icon\":\"\"},{\"name\":\"Treaty of Kadesh\",\"effect\":\"+1 Diplomatic Attribute Point.\",\"icon\":\"\"},{\"name\":\"Inscribed Sling Bullet\",\"effect\":\"+1 Military Attribute Point.\",\"icon\":\"\"},{\"name\":\"Groma\",\"effect\":\"+1 Expansionist Attribute Point.\",\"icon\":\"\"},{\"name\":\"Shakokidogu\",\"effect\":\"+1 Cultural Attribute Point.\",\"icon\":\"\"},{\"name\":\"Lydian Lion\",\"effect\":\"+200 Gold per Age at the start of an Age.\",\"icon\":\"\"},{\"name\":\"Royal Mace\",\"effect\":\"+1 Gold per Age for each imported Resource.\",\"icon\":\"\"},{\"name\":\"Gold Fluted Phiale\",\"effect\":\"+1 Trade Route Limit with all other Leaders.\",\"icon\":\"\"},{\"name\":\"Green Colonel's Jacket\",\"effect\":\"+1 Gold per Age per active Trade Route (doubled if you have the most).\",\"icon\":\"\"},{\"name\":\"Kwalkwali\",\"effect\":\"+1 Gold per Age for each Resource assigned to Cities.\",\"icon\":\"\"},{\"name\":\"Corona Civica\",\"effect\":\"+1 Settlement Limit per Age; +50% Convert to City cost.\",\"icon\":\"\"},{\"name\":\"Clipeus Virtutis\",\"effect\":\"+1 Production in the Capital for every Town.\",\"icon\":\"\"},{\"name\":\"Breastplate\",\"effect\":\"+2 Food per Age in Towns.\",\"icon\":\"\"},{\"name\":\"Padrón Real\",\"effect\":\"+2 Happiness per Age on Natural Wonders.\",\"icon\":\"\"}],\"icons\":{\"leaders\":{},\"civs\":{},\"mementos\":{}}}",
+    "civ7_game_state_v3": "{\"current\":{\"id\":\"game_1760510225098\",\"startedAt\":1760510225098,\"age\":\"Antiquity\",\"picks\":{\"steve\":{\"age\":\"Antiquity\",\"civ\":\"\",\"leader\":\"\",\"m1\":\"\",\"m2\":\"\"},\"tiny\":{\"age\":\"Antiquity\",\"civ\":\"\",\"leader\":\"\",\"m1\":\"\",\"m2\":\"\"}},\"pools\":{\"steve\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]},\"tiny\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]}}}}",
+    "civ7_last_owner_drought_natural_wonders_v2": "{\"Great Barrier Reef\":{\"owner\":null,\"ai\":false,\"sDrought\":0,\"tDrought\":0}}",
+    "c7_store": "{\"schemaVersion\":2,\"editor\":{\"data\":{\"leaders\":[],\"civs\":[],\"mementos\":[],\"worldWonders\":[],\"naturalWonders\":[],\"cityStates\":[]}},\"civs\":{\"Antiquity\":[],\"Exploration\":[],\"Modern\":[]},\"civMeta\":{},\"leaders\":{},\"mementos\":{},\"current\":{\"players\":{\"steve\":{\"leaders\":[],\"mementos\":[],\"civs\":[]},\"tiny\":{\"leaders\":[],\"mementos\":[],\"civs\":[]}},\"karma\":{\"wonders\":{\"steve\":0,\"tiny\":0},\"natural\":{\"steve\":0,\"tiny\":0},\"independents\":{\"steve\":0,\"tiny\":0}}}}",
+    "civ7_natural_wonders_last_txn_v3": "{\"Great Barrier Reef\":{\"prevLast\":{\"owner\":null,\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"prevWins\":{\"steve\":0,\"tiny\":0},\"age\":\"Antiquity\",\"usedPA\":null,\"usedVeto\":null,\"winner\":\"steve\"},\"Redwood Forest\":{\"prevLast\":{\"owner\":null,\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"prevWins\":{\"steve\":0,\"tiny\":0},\"age\":\"Antiquity\",\"usedPA\":null,\"usedVeto\":null,\"winner\":\"tiny\"},\"Vinicunca\":{\"prevLast\":{\"owner\":\"steve\",\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"prevWins\":{\"steve\":0,\"tiny\":0},\"age\":\"Antiquity\",\"usedPA\":null,\"usedVeto\":null},\"Uluru\":{\"prevLast\":{\"owner\":null,\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"prevWins\":{\"steve\":1,\"tiny\":1},\"age\":\"Antiquity\",\"usedPA\":null,\"usedVeto\":null},\"Vihren\":{\"prevLast\":{\"owner\":null,\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"prevWins\":{\"steve\":1,\"tiny\":2},\"age\":\"Antiquity\",\"usedPA\":null,\"usedVeto\":null}}",
+    "civ7_last_game_seen_v1": "game_1760496021044",
+    "civ7_veto_refunded_age_flag": "false",
+    "civ7_roll_tracker_v1": "{\"players\":{\"A\":\"Steve\",\"B\":\"Tiny\"},\"age\":\"Exploration\",\"pools\":{\"A\":{\"acq\":4,\"veto\":5},\"B\":{\"acq\":4,\"veto\":5}},\"vetoUsedThisAge\":false,\"items\":[{\"id\":\"i_1760485357032_o4kc5x\",\"name\":\"Pyramids\",\"cat\":\"World Wonder\",\"sub\":\"\",\"voidAI\":false,\"last\":{\"winner\":\"B\",\"ts\":1760485375519}}],\"results\":[{\"id\":\"r_1760485375519\",\"ts\":1760485375519,\"itemId\":\"i_1760485357032_o4kc5x\",\"name\":\"Pyramids\",\"cat\":\"World Wonder\",\"winner\":\"B\",\"method\":\"Standard Roll\",\"declaring\":\"A\",\"karmaUsed\":false,\"voidAI\":false}]}",
+    "civ7_last_owner_drought_world_wonders_v2": "{\"Test\":{\"owner\":\"tiny\",\"ai\":false,\"sDrought\":1,\"tDrought\":0}}",
+    "civ7_big_ticket_drought_v1": "{\"Battersea Power Station\":{\"steve\":0,\"tiny\":0,\"lastOwner\":null,\"aiLast\":false,\"txn\":null},\"Forbidden City\":{\"steve\":0,\"tiny\":0,\"lastOwner\":null,\"aiLast\":false,\"txn\":null}}",
+    "civ7_last_owner_drought_natural_wonders_v1": "{\"Great Barrier Reef\":{\"owner\":\"steve\",\"ai\":true,\"sDrought\":0,\"tDrought\":1}}",
+    "civ7_data_store_v3": "{\"results\":{\"game_1760510225098\":{}},\"history\":{},\"bigTicketDrought\":{},\"leaders\":[{\"name\":\"test1\",\"desc\":\"test1\"},{\"name\":\"test2\",\"desc\":\"test2\"},{\"name\":\"test3\",\"desc\":\"test3\"}],\"civMeta\":{\"Testa\":{\"desc\":\"test\"},\"teste\":{\"desc\":\"test\"},\"testm\":{\"desc\":\"test\"}},\"wonders\":[{\"name\":\"testa\",\"age\":\"Antiquity\",\"big\":false,\"desc\":\"antiquity\",\"unlocks\":[],\"civReq\":[]},{\"name\":\"teste\",\"age\":\"Exploration\",\"big\":false,\"desc\":\"exploration\",\"unlocks\":[],\"civReq\":[]},{\"name\":\"testm\",\"age\":\"Modern\",\"big\":false,\"desc\":\"modern\",\"unlocks\":[],\"civReq\":[]}],\"naturalWonders\":[{\"name\":\"Vinicunca\",\"desc\":\"+2 Production, Happiness, and Science per age. +2 Culture to adjacent Rural tiles.\",\"tiles\":4,\"terrain\":[\"Mountainous\",\"Vegetated\"],\"big\":false},{\"name\":\"Redwood Forest\",\"desc\":\"+2 Food, Happiness, and Production. + 1 Science and +1 Culture to all Vegetated terrain in this Settlement\",\"tiles\":3,\"terrain\":[\"Vegetated\",\"Grassland\"],\"big\":false},{\"name\":\"Vihren\",\"desc\":\"+4 Food, and +2 Production. Additional +1 Culture and +1 Happiness per Age for every time a natural disaster has provided yields in your empire. Bonus Resets upon new Age.\",\"tiles\":3,\"terrain\":[\"Mountainous\",\"Plains\"],\"big\":false},{\"name\":\"Uluru\",\"desc\":\"+6 Happiness. +2 Culture on Desert terrain in this Settlement.\",\"tiles\":1,\"terrain\":[\"Rough\",\"Desert\"],\"big\":false}],\"cityStates\":[],\"icons\":{\"wonders\":{},\"natural\":{},\"city\":{},\"leaders\":{},\"civs\":{},\"mementos\":{},\"independent\":{}},\"independentCities\":[\"Tollan-Xicocotitlan\",\"Hattusa\"],\"independents\":[{\"name\":\"Tollan-Xicocotitlan\",\"type\":\"Culture\",\"hostile\":true,\"homelands\":true,\"distant\":false},{\"name\":\"Hattusa\",\"type\":\"Expansionist\",\"hostile\":true,\"homelands\":true,\"distant\":false}],\"civs\":{\"Antiquity\":[\"Testa\"],\"Exploration\":[\"teste\"],\"Modern\":[\"testm\"]},\"mementos\":[{\"name\":\"test1\",\"effect\":\"test1\"},{\"name\":\"test2\",\"effect\":\"test2\"},{\"name\":\"test3\",\"effect\":\"test3\"}],\"ipIdeologies\":[\"Culture\",\"Diplomatic\",\"Economic\",\"Expansionist\",\"Military\",\"Scientific\"],\"ipStats\":{\"test\":{\"name\":\"Test\",\"seenCount\":8,\"lastSeen\":{\"date\":1760930436087,\"game\":\"\",\"age\":\"Antiquity\"},\"ideologyCounts\":{\"Culture\":6,\"Diplomatic\":1,\"Economic\":1,\"Expansionist\":0,\"Military\":0,\"Science\":0,\"Scientific\":0},\"lastIdeology\":{\"ideology\":\"Culture\",\"date\":1760930436087,\"game\":\"\",\"age\":\"Antiquity\",\"winner\":\"\"},\"lastKilled\":{\"date\":0,\"game\":\"\"}},\"test2\":{\"name\":\"test2\",\"seenCount\":1,\"lastSeen\":{\"date\":1760925586338,\"game\":\"\",\"age\":\"Antiquity\"},\"ideologyCounts\":{\"Culture\":0,\"Diplomatic\":0,\"Economic\":0,\"Expansionist\":0,\"Military\":1,\"Science\":0,\"Scientific\":0},\"lastIdeology\":{\"ideology\":\"Military\",\"date\":1760925586338,\"game\":\"\",\"age\":\"Antiquity\",\"winner\":\"\"},\"lastKilled\":{\"date\":0,\"game\":\"\"}},\"test3\":{\"name\":\"test3\",\"seenCount\":1,\"lastSeen\":{\"date\":1760976651940,\"game\":\"\",\"age\":\"Exploration\"},\"ideologyCounts\":{\"Culture\":0,\"Diplomatic\":0,\"Economic\":0,\"Expansionist\":0,\"Military\":0,\"Science\":0,\"Scientific\":1},\"lastIdeology\":{\"ideology\":\"Scientific\",\"date\":1760976651940,\"game\":\"\",\"age\":\"Exploration\",\"winner\":\"\"},\"lastKilled\":{\"date\":0,\"game\":\"\"}}},\"meta\":{\"version\":3},\"state\":{\"current\":{\"gameName\":\"\",\"age\":\"Antiquity\",\"ipGame\":[{\"name\":\"Test\",\"ideology\":\"Culture\",\"region\":\"Homelands\",\"hostile\":false,\"discoveredAge\":\"Antiquity\",\"owner\":\"Steve\",\"lastRoll\":{\"steve\":14,\"tiny\":5,\"kbS\":0,\"kbT\":0,\"when\":1760930405267},\"droughtS\":0,\"droughtT\":1},{\"name\":\"test2\",\"ideology\":\"Military\",\"region\":\"Homelands\",\"hostile\":false,\"discoveredAge\":\"Antiquity\",\"owner\":\"\"},{\"name\":\"test1\",\"ideology\":\"Culture\",\"region\":\"Homelands\",\"hostile\":false,\"discoveredAge\":\"Antiquity\",\"owner\":\"\"},{\"name\":\"test3\",\"ideology\":\"Scientific\",\"region\":\"Homelands\",\"age\":\"Antiquity\",\"hostile\":false,\"owner\":\"\"}],\"ipDrought\":{\"Culture\":{\"steve\":0,\"tiny\":0},\"Diplomatic\":{\"steve\":0,\"tiny\":0},\"Economic\":{\"steve\":0,\"tiny\":0},\"Expansionist\":{\"steve\":0,\"tiny\":0},\"Military\":{\"steve\":0,\"tiny\":0},\"Scientific\":{\"steve\":0,\"tiny\":0}}}},\"editor\":{\"data\":{\"cityStates\":[{\"name\":\"test3\",\"notes\":\"\",\"appearedByAge\":{\"Antiquity\":1,\"Exploration\":1,\"Modern\":0},\"appearedByType\":{\"Military\":0,\"Economic\":0,\"Culture\":0,\"Diplomatic\":0,\"Science\":1,\"Expansionist\":0},\"homeCount\":2,\"distantCount\":0,\"hostileCount\":0,\"lastSeen\":\"2025-10-20T17:58:48.027Z\"}]}}}",
+    "civ7_signal_v1": "{\"ts\":1760558713967,\"type\":\"karma-reset\",\"payload\":{\"gid\":\"game_1760510225098\"}}",
+    "civ7_natural_wonders_last_txn_v2": "{}",
+    "civ7_world_wonders_last_txn_v3": "{\"Test\":null,\"Forbidden City\":null,\"Battersea Power Station\":null}",
+    "civ7_last_owner_drought_world_wonders_v3": "{\"Test\":{\"owner\":null,\"ai\":false,\"sDrought\":0,\"tDrought\":0}}",
+    "civ7_last_owner_drought_world_wonders_v4": "{\"Forbidden City\":{\"owner\":\"steve\",\"ai\":false,\"sDrought\":0,\"tDrought\":0},\"Test\":{\"owner\":null,\"ai\":false,\"sDrought\":0,\"tDrought\":0}}",
+    "civ7_home_v3": "{\"games\":[],\"current\":{\"id\":\"game_1760489899889\",\"age\":\"Antiquity\",\"players\":{\"steve\":{\"leaders\":[],\"civs\":[],\"mementos\":[]},\"tiny\":{\"leaders\":[],\"civs\":[],\"mementos\":[]}},\"wins\":{\"World Wonders\":{\"steve\":0,\"tiny\":0},\"Natural Wonders\":{\"steve\":0,\"tiny\":0},\"Independent People: Culture\":{\"steve\":0,\"tiny\":0},\"Independent People: Diplomatic\":{\"steve\":0,\"tiny\":0},\"Independent People: Economic\":{\"steve\":0,\"tiny\":0},\"Independent People: Expansionist\":{\"steve\":0,\"tiny\":0},\"Independent People: Military\":{\"steve\":0,\"tiny\":0},\"Independent People: Science\":{\"steve\":0,\"tiny\":0}},\"pools\":{\"steve\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]},\"tiny\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]}},\"history\":[{\"ts\":1760489927562,\"msg\":\"Removed memento from Tiny: Globus Cruciger\"},{\"ts\":1760489926595,\"msg\":\"Removed memento from Tiny: Gold Fluted Phiale\"},{\"ts\":1760489925962,\"msg\":\"Removed memento from Tiny: Groma\"},{\"ts\":1760489924691,\"msg\":\"Added memento to Tiny: Groma\"},{\"ts\":1760489922232,\"msg\":\"Added memento to Tiny: Gold Fluted Phiale\"},{\"ts\":1760489921233,\"msg\":\"Added memento to Tiny: Globus Cruciger\"}]}}",
+    "civ7_site_state_v2": "{\"games\":[],\"current\":{\"id\":\"game_1760486928718\",\"age\":\"Antiquity\",\"players\":{\"steve\":{\"leaders\":[],\"civs\":[],\"mementos\":[]},\"tiny\":{\"leaders\":[],\"civs\":[],\"mementos\":[]}},\"wins\":{\"World Wonders\":{\"steve\":0,\"tiny\":0},\"Natural Wonders\":{\"steve\":0,\"tiny\":0},\"Independent People: Culture\":{\"steve\":0,\"tiny\":0},\"Independent People: Diplomatic\":{\"steve\":0,\"tiny\":0},\"Independent People: Economic\":{\"steve\":0,\"tiny\":0},\"Independent People: Expansionist\":{\"steve\":0,\"tiny\":0},\"Independent People: Military\":{\"steve\":0,\"tiny\":0},\"Independent People: Science\":{\"steve\":0,\"tiny\":0}},\"pools\":{\"steve\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]},\"tiny\":{\"acq\":[false,false,false,false],\"veto\":[false,false,false,false,false]}},\"history\":[{\"ts\":1760487484854,\"msg\":\"Removed tag: Gold Fluted Phiale\"},{\"ts\":1760487483921,\"msg\":\"Added tag: Gold Fluted Phiale\"},{\"ts\":1760487349616,\"msg\":\"Removed tag: Gold Fluted Phiale\"},{\"ts\":1760487347691,\"msg\":\"Added tag: Gold Fluted Phiale\"},{\"ts\":1760486960848,\"msg\":\"Priority Acquisition (Steve) toggled available.\"},{\"ts\":1760486960182,\"msg\":\"Priority Acquisition (Steve) toggled used.\"},{\"ts\":1760486937498,\"msg\":\"Removed tag: Ada Lovelace\"},{\"ts\":1760486936124,\"msg\":\"Added tag: Ada Lovelace\"}]}}"
+  },
+  "sessionStorage": {},
+  "cookies": "",
+  "store": {
+    "available": true,
+    "hasSubscribe": true,
+    "hasUpdate": true,
+    "snapshot": {
+      "results": {
+        "game_1760510225098": {}
+      },
+      "history": {},
+      "bigTicketDrought": {},
+      "leaders": [
+        {
+          "name": "test1",
+          "desc": "test1"
+        },
+        {
+          "name": "test2",
+          "desc": "test2"
+        },
+        {
+          "name": "test3",
+          "desc": "test3"
+        }
+      ],
+      "civMeta": {
+        "Testa": {
+          "desc": "test"
+        },
+        "teste": {
+          "desc": "test"
+        },
+        "testm": {
+          "desc": "test"
+        }
+      },
+      "wonders": [
+        {
+          "name": "testa",
+          "age": "Antiquity",
+          "big": false,
+          "desc": "antiquity",
+          "unlocks": [],
+          "civReq": []
+        },
+        {
+          "name": "teste",
+          "age": "Exploration",
+          "big": false,
+          "desc": "exploration",
+          "unlocks": [],
+          "civReq": []
+        },
+        {
+          "name": "testm",
+          "age": "Modern",
+          "big": false,
+          "desc": "modern",
+          "unlocks": [],
+          "civReq": []
+        }
+      ],
+      "naturalWonders": [
+        {
+          "name": "Vinicunca",
+          "desc": "+2 Production, Happiness, and Science per age. +2 Culture to adjacent Rural tiles.",
+          "tiles": 4,
+          "terrain": [
+            "Mountainous",
+            "Vegetated"
+          ],
+          "big": false
+        },
+        {
+          "name": "Redwood Forest",
+          "desc": "+2 Food, Happiness, and Production. + 1 Science and +1 Culture to all Vegetated terrain in this Settlement",
+          "tiles": 3,
+          "terrain": [
+            "Vegetated",
+            "Grassland"
+          ],
+          "big": false
+        },
+        {
+          "name": "Vihren",
+          "desc": "+4 Food, and +2 Production. Additional +1 Culture and +1 Happiness per Age for every time a natural disaster has provided yields in your empire. Bonus Resets upon new Age.",
+          "tiles": 3,
+          "terrain": [
+            "Mountainous",
+            "Plains"
+          ],
+          "big": false
+        },
+        {
+          "name": "Uluru",
+          "desc": "+6 Happiness. +2 Culture on Desert terrain in this Settlement.",
+          "tiles": 1,
+          "terrain": [
+            "Rough",
+            "Desert"
+          ],
+          "big": false
+        }
+      ],
+      "cityStates": [],
+      "icons": {
+        "wonders": {},
+        "natural": {},
+        "city": {},
+        "leaders": {},
+        "civs": {},
+        "mementos": {},
+        "independent": {}
+      },
+      "independentCities": [
+        "Tollan-Xicocotitlan",
+        "Hattusa"
+      ],
+      "independents": [
+        {
+          "name": "Tollan-Xicocotitlan",
+          "type": "Culture",
+          "hostile": true,
+          "homelands": true,
+          "distant": false
+        },
+        {
+          "name": "Hattusa",
+          "type": "Expansionist",
+          "hostile": true,
+          "homelands": true,
+          "distant": false
+        }
+      ],
+      "civs": {
+        "Antiquity": [
+          "Testa"
+        ],
+        "Exploration": [
+          "teste"
+        ],
+        "Modern": [
+          "testm"
+        ]
+      },
+      "mementos": [
+        {
+          "name": "test1",
+          "effect": "test1"
+        },
+        {
+          "name": "test2",
+          "effect": "test2"
+        },
+        {
+          "name": "test3",
+          "effect": "test3"
+        }
+      ],
+      "ipIdeologies": [
+        "Culture",
+        "Diplomatic",
+        "Economic",
+        "Expansionist",
+        "Military",
+        "Scientific"
+      ],
+      "ipStats": {
+        "test": {
+          "name": "Test",
+          "seenCount": 8,
+          "lastSeen": {
+            "date": 1760930436087,
+            "game": "",
+            "age": "Antiquity"
+          },
+          "ideologyCounts": {
+            "Culture": 6,
+            "Diplomatic": 1,
+            "Economic": 1,
+            "Expansionist": 0,
+            "Military": 0,
+            "Science": 0,
+            "Scientific": 0
+          },
+          "lastIdeology": {
+            "ideology": "Culture",
+            "date": 1760930436087,
+            "game": "",
+            "age": "Antiquity",
+            "winner": ""
+          },
+          "lastKilled": {
+            "date": 0,
+            "game": ""
+          }
+        },
+        "test2": {
+          "name": "test2",
+          "seenCount": 1,
+          "lastSeen": {
+            "date": 1760925586338,
+            "game": "",
+            "age": "Antiquity"
+          },
+          "ideologyCounts": {
+            "Culture": 0,
+            "Diplomatic": 0,
+            "Economic": 0,
+            "Expansionist": 0,
+            "Military": 1,
+            "Science": 0,
+            "Scientific": 0
+          },
+          "lastIdeology": {
+            "ideology": "Military",
+            "date": 1760925586338,
+            "game": "",
+            "age": "Antiquity",
+            "winner": ""
+          },
+          "lastKilled": {
+            "date": 0,
+            "game": ""
+          }
+        },
+        "test3": {
+          "name": "test3",
+          "seenCount": 1,
+          "lastSeen": {
+            "date": 1760976651940,
+            "game": "",
+            "age": "Exploration"
+          },
+          "ideologyCounts": {
+            "Culture": 0,
+            "Diplomatic": 0,
+            "Economic": 0,
+            "Expansionist": 0,
+            "Military": 0,
+            "Science": 0,
+            "Scientific": 1
+          },
+          "lastIdeology": {
+            "ideology": "Scientific",
+            "date": 1760976651940,
+            "game": "",
+            "age": "Exploration",
+            "winner": ""
+          },
+          "lastKilled": {
+            "date": 0,
+            "game": ""
+          }
+        }
+      },
+      "meta": {
+        "version": 3
+      },
+      "state": {
+        "current": {
+          "gameName": "",
+          "age": "Antiquity",
+          "ipGame": [
+            {
+              "name": "Test",
+              "ideology": "Culture",
+              "region": "Homelands",
+              "hostile": false,
+              "discoveredAge": "Antiquity",
+              "owner": "Steve",
+              "lastRoll": {
+                "steve": 14,
+                "tiny": 5,
+                "kbS": 0,
+                "kbT": 0,
+                "when": 1760930405267
+              },
+              "droughtS": 0,
+              "droughtT": 1
+            },
+            {
+              "name": "test2",
+              "ideology": "Military",
+              "region": "Homelands",
+              "hostile": false,
+              "discoveredAge": "Antiquity",
+              "owner": ""
+            },
+            {
+              "name": "test1",
+              "ideology": "Culture",
+              "region": "Homelands",
+              "hostile": false,
+              "discoveredAge": "Antiquity",
+              "owner": ""
+            },
+            {
+              "name": "test3",
+              "ideology": "Scientific",
+              "region": "Homelands",
+              "age": "Antiquity",
+              "hostile": false,
+              "owner": ""
+            }
+          ],
+          "ipDrought": {
+            "Culture": {
+              "steve": 0,
+              "tiny": 0
+            },
+            "Diplomatic": {
+              "steve": 0,
+              "tiny": 0
+            },
+            "Economic": {
+              "steve": 0,
+              "tiny": 0
+            },
+            "Expansionist": {
+              "steve": 0,
+              "tiny": 0
+            },
+            "Military": {
+              "steve": 0,
+              "tiny": 0
+            },
+            "Scientific": {
+              "steve": 0,
+              "tiny": 0
+            }
+          }
+        }
+      },
+      "editor": {
+        "data": {
+          "cityStates": [
+            {
+              "name": "test3",
+              "notes": "",
+              "appearedByAge": {
+                "Antiquity": 1,
+                "Exploration": 1,
+                "Modern": 0
+              },
+              "appearedByType": {
+                "Military": 0,
+                "Economic": 0,
+                "Culture": 0,
+                "Diplomatic": 0,
+                "Science": 1,
+                "Expansionist": 0
+              },
+              "homeCount": 2,
+              "distantCount": 0,
+              "hostileCount": 0,
+              "lastSeen": "2025-10-20T17:58:48.027Z"
+            }
+          ]
+        }
+      }
+    },
+    "snapshotError": null
+  },
+  "flags": {
+    "hasScience": true,
+    "hasScientific": true
+  },
+  "summary": "Topbar nodes: 0\nKarma blocks: 0\nHostile gap: 6px\nStore: ok | sub:Y | upd:Y\nScience present: Y | Scientific: Y"
+}

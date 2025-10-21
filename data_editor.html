@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Civilization 7 Tracker — Data Editor (IP UI Refresh)</title>
+<style>
+:root{ --bg:#0f1216; --panel:#171b21; --text:#e6edf3; --muted:#9aa4b2; --border:#242a33; --accent:#4aa3ff; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+.wrap{max-width:1200px;margin:0 auto;padding:18px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap}
+.title{font-size:22px;font-weight:800}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px}
+h2{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input,select,textarea{background:#0b0e12;color:var(--text);border:1px solid var(--border);padding:8px;border-radius:8px}
+input[type="search"]{width:100%}
+textarea{width:100%;min-height:92px}
+button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+button.ghost{background:transparent;border:1px solid var(--border);color:#cbd5e1}
+.iconPreview{width:40px;height:40px;border-radius:6px;border:1px solid var(--border);background:#0b0e12;object-fit:cover}
+.tabs{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.tabs button{background:#0f1622;border:1px solid #273142;color:#dbe2ea}
+.tabs button.active{background:#1a2332;border-color:#344358}
+.help{font-size:12px;color:#93a0af}
+.listbox{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.listbox table{width:100%;border-collapse:collapse}
+.listbox th,.listbox td{padding:8px;border-bottom:1px solid #263041;vertical-align:top}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.addbar{display:flex;gap:6px;align-items:center;margin:6px 0}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px;color:#b7c2d0}
+.kv{display:grid;grid-template-columns:180px 1fr;gap:6px;align-items:center}
+.kv label{color:#cbd5e1}
+.kv small{color:#9aa4b2}
+.table-small td, .table-small th{font-size:13px}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #334155;color:#cbd5e1;background:#0f1622;margin:2px 4px 2px 0}
+.sep{height:1px;background:#2a3340;margin:8px 0}
+.note{color:#9aa4b2;font-size:12px}
+.badge-ide{}
+.badge-ide b{opacity:.9;margin-right:4px}
+.badge-ide { color:#e6edf3; }
+.badge-ide.ide-Culture     { border-color:#7e57c2; background:rgba(126,87,194,.18); color:#d8c8ff; }
+.badge-ide.ide-Diplomatic  { border-color:#1f4f9a; background:rgba(31,79,154,.22); color:#bcd4ff; }
+.badge-ide.ide-Scientific  { border-color:#4aa3ff; background:rgba(74,163,255,.20); color:#d1e7ff; }
+.badge-ide.ide-Expansionist{ border-color:#22c55e; background:rgba(34,197,94,.20);  color:#c9ffd9; }
+.badge-ide.ide-Military    { border-color:#ef4444; background:rgba(239,68,68,.20);  color:#ffd1d1; }
+.badge-ide.ide-Economic    { border-color:#f59e0b; background:rgba(245,158,11,.22); color:#ffe8b8; }
+
+.flex-wrap{display:flex;flex-wrap:wrap;gap:4px}
+.small{font-size:12px;color:#a9b5c3}
+</style>
+</head>
+<body>
+<div id="topbar-root"></div>
+<div class="wrap">
+  <div class="card">
+    <div class="tabs">
+      <button data-tab="leaders" class="active">Leaders</button>
+      <button data-tab="civs">Civilizations</button>
+      <button data-tab="mementos">Mementos</button>
+      <button data-tab="ww">World Wonders</button>
+      <button data-tab="nw">Natural Wonders</button>
+      <button data-tab="ip">Independent Peoples (Stats)</button>
+    </div>
+
+    <!-- Leaders -->
+    <section id="tab-leaders">
+      <div class="row">
+        <div style="flex:1"><input id="leadersSearch" type="search" placeholder="Search leaders by name/description..."></div>
+        <div class="row">
+          <button id="newLeader" class="ghost">New</button>
+          <span class="note" id="leadersCount"></span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="listbox">
+          <table id="leadersTable" class="table-small">
+            <thead><tr><th>Name</th><th>Description</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div>
+          <div class="kv">
+            <label for="leaderName">Leader name</label><input id="leaderName" placeholder="Leader name">
+            <label for="leaderDesc">Description</label><textarea id="leaderDesc" placeholder="Traits / notes"></textarea>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button id="addLeader">Save</button>
+            <button id="delLeader" class="ghost">Delete</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Civs -->
+    <section id="tab-civs" style="display:none">
+      <div class="row">
+        <div style="flex:1"><input id="civsSearch" type="search" placeholder="Search civs by name/description..."></div>
+        <div class="row">
+          <button id="newCiv" class="ghost">New</button>
+          <span class="note" id="civsCount"></span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="listbox">
+          <table id="civsTable" class="table-small">
+            <thead><tr><th>Name</th><th>Age</th><th>Description</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div>
+          <div class="kv">
+            <label for="civName">Civ name</label><input id="civName" placeholder="Civilization name">
+            <label for="civAge">Age</label>
+            <select id="civAge"><option>Antiquity</option><option>Exploration</option><option>Modern</option></select>
+            <small></small>
+            <label for="civDesc">Description</label><textarea id="civDesc" placeholder="Uniques / notes"></textarea>
+            <label for="newAge">Add new Age</label>
+            <div class="row"><input id="newAge" placeholder="e.g., Industrial" style="flex:1"><button id="addAge" class="ghost">+ Age</button></div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button id="addCiv">Save</button>
+            <button id="delCiv" class="ghost">Delete</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mementos -->
+    <section id="tab-mementos" style="display:none">
+      <div class="row">
+        <div style="flex:1"><input id="memsSearch" type="search" placeholder="Search mementos by name or effect..."></div>
+        <div class="row">
+          <button id="newMem" class="ghost">New</button>
+          <span class="note" id="memsCount"></span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="listbox">
+          <table id="memsTable" class="table-small">
+            <thead><tr><th>Name</th><th>Effect</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div>
+          <div class="kv">
+            <label for="memName">Memento name</label><input id="memName" placeholder="Memento name">
+            <label for="memEffect">Effect</label><textarea id="memEffect" placeholder="Effect text"></textarea>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button id="addMem">Save</button>
+            <button id="delMem" class="ghost">Delete</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- World Wonders -->
+    <section id="tab-ww" style="display:none">
+      <div class="row">
+        <div style="flex:1"><input id="wSearch" type="search" placeholder="Search world wonders (name / age / unlock / civ)..."></div>
+        <div class="row">
+          <button id="wNew" class="ghost">New</button>
+          <span class="note" id="wCount"></span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="listbox">
+          <table id="wTable" class="table-small">
+            <thead><tr><th>Name</th><th>Age</th><th>Big</th><th>Unlocks</th><th>Civ</th><th>Icon</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div>
+          <div class="kv">
+            <label for="wName">Name</label><input id="wName" placeholder="Wonder name">
+            <label for="wAge">Age</label><select id="wAge"><option>Antiquity</option><option>Exploration</option><option>Modern</option></select>
+            <label>Big Ticket</label><label class="row"><input id="wBig" type="checkbox"> <span>Big Ticket</span></label>
+            <label for="wDesc">Description</label><textarea id="wDesc" placeholder="Description / effects"></textarea>
+            <label for="wUnlocks">Unlocks</label><input id="wUnlocks" placeholder="comma-separated civics/techs">
+            <label for="wCivReq">Civ requirements</label><input id="wCivReq" placeholder="comma-separated civs">
+            <label>Icon</label>
+            <div class="row"><img id="wIconPrev" class="iconPreview" alt=""><input id="wIconFile" type="file" accept="image/*"><input id="wIconUrl" placeholder="...or paste URL" style="flex:1"></div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button id="wSave">Save</button>
+            <button id="wDelete" class="ghost">Delete</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Natural Wonders -->
+    <section id="tab-nw" style="display:none">
+      <div class="row">
+        <div style="flex:1"><input id="nSearch" type="search" placeholder="Search natural wonders (name / terrain / effect)..."></div>
+        <div class="row">
+          <button id="nNew" class="ghost">New</button>
+          <span class="note" id="nCount"></span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="listbox">
+          <table id="nTable" class="table-small">
+            <thead><tr><th>Name</th><th>Tiles</th><th>Terrain</th><th>Big</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div>
+          <div class="kv">
+            <label for="nName">Name</label><input id="nName" placeholder="Natural Wonder name">
+            <label for="nTiles">Tiles</label><input id="nTiles" type="number" min="1" step="1" placeholder="Tiles">
+            <label>Big Ticket</label><label class="row"><input id="nBig" type="checkbox"> <span>Big Ticket</span></label>
+            <label for="nTerrain">Terrain</label><input id="nTerrain" placeholder="comma-separated (e.g., Mountain, Hill)">
+            <label for="nDesc">Description</label><textarea id="nDesc" placeholder="Description / effects"></textarea>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button id="nSave">Save</button>
+            <button id="nDelete" class="ghost">Delete</button>
+          </div>
+          <div class="note">Icons are not collected for Natural Wonders.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Independent Peoples (Stats) -->
+    <section id="tab-ip" style="display:none">
+      <div class="row">
+        <div style="flex:1"><input id="ipSearch" type="search" placeholder="Search city names / ideology / game..."></div>
+        <div class="row">
+          <button id="ipNew" class="ghost">New</button>
+          <span class="note" id="ipCount"></span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="listbox">
+          <table id="ipTable" class="table-small">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Seen</th>
+                <th>Ideologies</th>
+                <th>Last Seen</th>
+                <th>Last Ideology</th>
+                <th>Last Killed</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div>
+          <div class="kv">
+            <label for="ipName">City / People name</label><input id="ipName" placeholder="e.g., Venice">
+            <label for="ipSeen">Seen count</label><input id="ipSeen" type="number" min="0" step="1">
+            <label>Ideology counts</label>
+            <div class="row">
+              <input id="ipcC" type="number" min="0" step="1" placeholder="Culture" style="width:120px">
+              <input id="ipcD" type="number" min="0" step="1" placeholder="Diplomatic" style="width:120px">
+              <input id="ipcE" type="number" min="0" step="1" placeholder="Economic" style="width:120px">
+              <input id="ipcX" type="number" min="0" step="1" placeholder="Expansionist" style="width:140px">
+              <input id="ipcM" type="number" min="0" step="1" placeholder="Military" style="width:120px">
+              <input id="ipcS" type="number" min="0" step="1" placeholder="Scientific" style="width:120px">
+            </div>
+            <label>Last Seen</label>
+            <div class="row">
+              <select id="ipsAge"><option>Antiquity</option><option>Exploration</option><option>Modern</option></select>
+              <input id="ipsDate" type="datetime-local" style="width:220px">
+              <input id="ipsGame" placeholder="Game name" style="flex:1">
+            </div>
+            <label>Last Ideology</label>
+            <div class="row">
+              <select id="iplIde"><option value="">—</option><option>Culture</option><option>Diplomatic</option><option>Economic</option><option>Expansionist</option><option>Military</option><option>Scientific</option></select>
+              <input id="iplDate" type="datetime-local" style="width:220px">
+              <input id="iplGame" placeholder="Game name" style="flex:1">
+              <select id="iplWinner"><option value="">— Winner —</option><option>Steve</option><option>Tiny</option><option>AI</option></select>
+            </div>
+            <label>Last Killed</label>
+            <div class="row">
+              <input id="ipkDate" type="datetime-local" style="width:220px">
+              <input id="ipkGame" placeholder="Game name" style="flex:1">
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button id="ipSave">Save</button>
+            <button id="ipDelete" class="ghost">Delete</button>
+          </div>
+          <div class="sep"></div>
+          <div class="note">Counts show as labeled badges. “Last Seen” now includes the <b>Age</b> next to date/game, matching your other templates.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="common.store.js"></script>
+<script src="topbar.js"></script>
+<script>
+(function(){
+  const IDEOS = ["Culture","Diplomatic","Economic","Expansionist","Military","Scientific"];
+  const norm = (t)=> (t||"").trim().toLowerCase();
+
+  function S(){ return Store.get(); }
+  function U(mut){ Store.update(mut); }
+
+  // One-time migration: Science -> Scientific in ipStats
+  (function migrateScientific(){
+    U(s=>{
+      s.ipStats = s.ipStats || {};
+      Object.values(s.ipStats).forEach(st=>{
+        if(!st) return;
+        const ic = st.ideologyCounts = st.ideologyCounts || {};
+        if(ic.Science){
+          ic.Scientific = (ic.Scientific||0) + ic.Science;
+          delete ic.Science;
+        } else {
+          ic.Scientific = ic.Scientific || 0;
+        }
+        if(st.lastIdeology && st.lastIdeology.ideology === "Science"){
+          st.lastIdeology.ideology = "Scientific";
+        }
+      });
+      if (Array.isArray(s.ipIdeologies)){
+        s.ipIdeologies = s.ipIdeologies.map(x=> x==="Science" ? "Scientific" : x);
+      }
+    });
+  })();
+
+  // ---------- Tab nav ----------
+  document.querySelectorAll(".tabs button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      const tab = btn.dataset.tab;
+      ["leaders","civs","mementos","ww","nw","ip"].forEach(t=>{
+        document.getElementById("tab-"+t).style.display = (t===tab) ? "block" : "none";
+      });
+      if (tab==="leaders") renderLeaders();
+      if (tab==="civs") renderCivs();
+      if (tab==="mementos") renderMems();
+      if (tab==="ww") renderWW();
+      if (tab==="nw") renderNW();
+      if (tab==="ip") renderIP();
+    });
+  });
+
+  // ---------- Helpers ----------
+  const el = (id)=> document.getElementById(id);
+  function fileToDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+  async function iconFromInputs(fileInputId, urlInputId){
+    const fileEl = el(fileInputId);
+    const urlEl  = el(urlInputId);
+    const file = fileEl ? fileEl.files[0] : null;
+    const url  = urlEl ? urlEl.value.trim() : "";
+    if (file) return await fileToDataURL(file);
+    if (url) return url;
+    return "";
+  }
+
+  // ---------- Leaders ----------
+  function renderLeaders(){
+    const s = S();
+    const q = (el("leadersSearch").value||"").toLowerCase();
+    const tbody = el("leadersTable").querySelector("tbody"); tbody.innerHTML="";
+    (s.leaders||[])
+      .filter(l => !q || (l.name||"").toLowerCase().includes(q) || (l.desc||"").toLowerCase().includes(q))
+      .slice().sort((a,b)=> (a.name||"").localeCompare(b.name||""))
+      .forEach(l => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${l.name||""}</td><td>${(l.desc||"").slice(0,140)}</td><td><button class="ghost" data-edit="${l.name||""}">Edit</button></td>`;
+        tbody.appendChild(tr);
+      });
+    el("leadersCount").textContent = (s.leaders||[]).length + " total";
+    tbody.querySelectorAll("button[data-edit]").forEach(b=> b.onclick = ()=>{
+      const l = (S().leaders||[]).find(x=>x.name===b.dataset.edit);
+      el("leaderName").value = l?.name || "";
+      el("leaderDesc").value = l?.desc || "";
+    });
+  }
+  el("leadersSearch").addEventListener("input", renderLeaders);
+  el("newLeader").onclick = ()=>{ el("leaderName").value=""; el("leaderDesc").value=""; el("leaderName").focus(); };
+  el("addLeader").onclick = ()=>{
+    const name = el("leaderName").value.trim(); if(!name) return;
+    const desc = el("leaderDesc").value.trim();
+    U(s=>{
+      s.leaders = s.leaders||[];
+      const idx = s.leaders.findIndex(l=>l.name===name);
+      if (idx<0){ s.leaders.push({name,desc}); } else { s.leaders[idx].desc = desc; }
+    });
+    renderLeaders();
+  };
+  el("delLeader").onclick = ()=>{
+    const name = el("leaderName").value.trim(); if(!name) return;
+    if (!confirm(`Delete leader "${name}"?`)) return;
+    U(s=>{ s.leaders = (s.leaders||[]).filter(l=>l.name!==name); });
+    renderLeaders(); el("leaderName").value=""; el("leaderDesc").value="";
+  };
+
+  // ---------- Civs ----------
+  function renderCivs(){
+    const s = S();
+    const q = (el("civsSearch").value||"").toLowerCase();
+    const tbody = el("civsTable").querySelector("tbody"); tbody.innerHTML="";
+    Object.entries(s.civs||{Antiquity:[],Exploration:[],Modern:[]}).forEach(([age, list])=>{
+      (list||[])
+        .filter(n=>!q || (n||"").toLowerCase().includes(q) || ((s.civMeta&&s.civMeta[n]?.desc||"").toLowerCase().includes(q)))
+        .slice().sort((a,b)=> (a||"").localeCompare(b||""))
+        .forEach(name => {
+          const desc = (s.civMeta && s.civMeta[name]?.desc) || "";
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${name}</td><td>${age}</td><td>${desc.slice(0,140)}</td><td><button class="ghost" data-edit="${name}" data-age="${age}">Edit</button></td>`;
+          tbody.appendChild(tr);
+        });
+    });
+    el("civsCount").textContent = Object.values(s.civs||{}).reduce((a,b)=>a+(b||[]).length,0) + " total";
+    tbody.querySelectorAll("button[data-edit]").forEach(b=> b.onclick = ()=>{
+      const s2 = S();
+      const name = b.dataset.edit; const age = b.dataset.age;
+      el("civName").value = name; el("civAge").value = age;
+      el("civDesc").value = (s2.civMeta && s2.civMeta[name]?.desc) || "";
+    });
+  }
+  el("civsSearch").addEventListener("input", renderCivs);
+  el("newCiv").onclick = ()=>{ ["civName","civDesc","newAge"].forEach(id=>el(id).value=""); el("civName").focus(); };
+  el("addAge").onclick = ()=>{
+    const age = el("newAge").value.trim(); if(!age) return;
+    U(s=>{
+      s.civs = s.civs || {};
+      if (!s.civs[age]) s.civs[age] = [];
+    });
+    if (![...el("civAge").options].map(o=>o.value).includes(age)){
+      const opt = document.createElement("option"); opt.textContent = age; opt.value = age; el("civAge").appendChild(opt);
+      const opt2 = document.createElement("option"); opt2.textContent = age; opt2.value = age; el("wAge").appendChild(opt2);
+      const opt3 = document.createElement("option"); opt3.textContent = age; opt3.value = age; el("ipsAge").appendChild(opt3);
+    }
+    el("civAge").value = age; el("newAge").value="";
+    renderCivs();
+  };
+  el("addCiv").onclick = ()=>{
+    const name = el("civName").value.trim(); const age = el("civAge").value; if(!name) return;
+    U(s=>{
+      s.civs = s.civs || {};
+      const list = s.civs[age] || (s.civs[age]=[]);
+      if (!list.includes(name)) list.push(name);
+      s.civMeta = s.civMeta || {};
+      s.civMeta[name] = { desc: el("civDesc").value.trim() };
+    });
+    renderCivs();
+  };
+  el("delCiv").onclick = ()=>{
+    const name = el("civName").value.trim(); const age = el("civAge").value; if(!name) return;
+    if (!confirm(`Delete civ "${name}" from ${age}?`)) return;
+    U(s=>{
+      s.civs = s.civs || {};
+      s.civs[age] = (s.civs[age]||[]).filter(n=>n!==name);
+      if (s.civMeta && s.civMeta[name]) delete s.civMeta[name];
+    });
+    renderCivs(); ["civName","civDesc"].forEach(id=>el(id).value="");
+  };
+
+  // ---------- Mementos ----------
+  function renderMems(){
+    const s = S();
+    const q = (el("memsSearch").value||"").toLowerCase();
+    const tbody = el("memsTable").querySelector("tbody"); tbody.innerHTML="";
+    (s.mementos||[])
+      .filter(m=>!q || (m.name||"").toLowerCase().includes(q) || (m.effect||"").toLowerCase().includes(q))
+      .slice().sort((a,b)=> (a.name||"").localeCompare(b.name||""))
+      .forEach(m => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${m.name||""}</td><td>${m.effect||""}</td><td><button class="ghost" data-edit="${m.name||""}">Edit</button></td>`;
+        tbody.appendChild(tr);
+      });
+    el("memsCount").textContent = (s.mementos||[]).length + " total";
+    tbody.querySelectorAll("button[data-edit]").forEach(b=> b.onclick = ()=>{
+      const m = (S().mementos||[]).find(x=>x.name===b.dataset.edit);
+      el("memName").value = m?.name || ""; el("memEffect").value = m?.effect || "";
+    });
+  }
+  el("memsSearch").addEventListener("input", renderMems);
+  el("newMem").onclick = ()=>{ el("memName").value=""; el("memEffect").value=""; el("memName").focus(); };
+  el("addMem").onclick = ()=>{
+    const name = el("memName").value.trim(); if(!name) return;
+    const eff = el("memEffect").value.trim();
+    U(s=>{
+      s.mementos = s.mementos || [];
+      let m = s.mementos.find(x=>x.name===name);
+      if (!m){ s.mementos.push({name:name,effect:eff}); }
+      else { m.effect = eff; }
+    });
+    renderMems();
+  };
+  el("delMem").onclick = ()=>{
+    const name = el("memName").value.trim(); if(!name) return;
+    if (!confirm(`Delete memento "${name}"?`)) return;
+    U(s=>{ s.mementos = (s.mementos||[]).filter(x=>x.name!==name); });
+    renderMems(); el("memName").value=""; el("memEffect").value="";
+  };
+
+  // ---------- World Wonders ----------
+  const w = (id)=> document.getElementById(id);
+  let currentW = null;
+  function renderWW(){
+    const s = S();
+    const q = (w("wSearch").value||"").toLowerCase();
+    const tbody = w("wTable").querySelector("tbody"); tbody.innerHTML="";
+    const arr = (s.wonders||[]).slice().sort((a,b)=> (a.age||"")=== (b.age||"") ? (a.name||"").localeCompare(b.name||"") : (a.age||"").localeCompare(b.age||""))
+      .filter(wd=>{
+        const hay = [wd.name, wd.age, (wd.unlocks||[]).join(" "), (wd.civReq||[]).join(" "), (wd.desc||"")].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+    arr.forEach(wd=>{
+      const icon = ((s.icons&&s.icons.wonders)||{})[wd.name] || "";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${wd.name}</td><td>${wd.age}</td><td>${wd.big? "Yes":"No"}</td>
+                      <td>${(wd.unlocks||[]).join(", ")}</td><td>${(wd.civReq||[]).join(", ")}</td>
+                      <td>${icon?'<img src="'+icon+'" class="iconPreview">':''}</td>
+                      <td><button class="ghost" data-w="${wd.name}">Edit</button></td>`;
+      tbody.appendChild(tr);
+    });
+    w("wCount").textContent = arr.length + " shown";
+    tbody.querySelectorAll("button[data-w]").forEach(b=>{
+      b.onclick = ()=>{
+        const name = b.dataset.w;
+        const s2 = S();
+        currentW = (s2.wonders||[]).find(x=>x.name===name) || null;
+        w("wName").value = currentW?.name || "";
+        w("wAge").value  = currentW?.age  || "Antiquity";
+        w("wBig").checked= !!currentW?.big;
+        w("wDesc").value = currentW?.desc || "";
+        w("wUnlocks").value = (currentW?.unlocks||[]).join(", ");
+        w("wCivReq").value  = (currentW?.civReq||[]).join(", ");
+        w("wIconPrev").src  = ((s2.icons&&s2.icons.wonders)||{})[currentW?.name] || "";
+        w("wIconFile").value = ""; w("wIconUrl").value="";
+      };
+    });
+  }
+  if (w("wNew")) w("wNew").onclick = ()=>{ currentW=null; ["wName","wDesc","wUnlocks","wCivReq","wIconUrl"].forEach(k=>w(k).value=""); ["wIconFile"].forEach(k=>w(k).value=""); w("wIconPrev").src=""; w("wAge").value="Antiquity"; w("wBig").checked=false; };
+  if (w("wSearch")) w("wSearch").addEventListener("input", renderWW);
+  if (w("wSave")) w("wSave").onclick = async ()=>{
+    const data = {
+      name: (w("wName").value||"").trim(), age: w("wAge").value, big: !!w("wBig").checked,
+      desc: (w("wDesc").value||"").trim(),
+      unlocks: (w("wUnlocks").value||"").split(",").map(s=>s.trim()).filter(Boolean),
+      civReq:  (w("wCivReq").value||"").split(",").map(s=>s.trim()).filter(Boolean)
+    };
+    if(!data.name){ alert("Name is required."); return; }
+    const icon = await iconFromInputs("wIconFile","wIconUrl");
+    U(s=>{
+      s.wonders = s.wonders||[];
+      const idx = s.wonders.findIndex(x=>x.name===data.name);
+      if (idx<0){
+        if (currentW && currentW.name && currentW.name!==data.name){
+          const oldIdx = s.wonders.findIndex(x=>x.name===currentW.name);
+          if (oldIdx>=0) s.wonders.splice(oldIdx,1);
+          if ((s.icons&&s.icons.wonders||{})[currentW.name]){
+            s.icons.wonders[data.name] = s.icons.wonders[currentW.name];
+            delete s.icons.wonders[currentW.name];
+          }
+        }
+        s.wonders.push(data);
+      }else{
+        s.wonders[idx] = data;
+        if (currentW && currentW.name && currentW.name!==data.name){
+          if ((s.icons&&s.icons.wonders||{})[currentW.name]){
+            s.icons.wonders[data.name] = s.icons.wonders[currentW.name];
+            delete s.icons.wonders[currentW.name];
+          }
+        }
+      }
+      if (icon){ s.icons = s.icons||{wonders:{},natural:{},city:{}}; s.icons.wonders[data.name] = icon; }
+    });
+    renderWW();
+  };
+  if (w("wDelete")) w("wDelete").onclick = ()=>{
+    const name = (w("wName").value||"").trim(); if(!name) return;
+    if (!confirm(`Delete world wonder "${name}"?`)) return;
+    U(s=>{
+      s.wonders = (s.wonders||[]).filter(x=>x.name!==name);
+      if (s.icons?.wonders?.[name]) delete s.icons.wonders[name];
+    });
+    ["wName","wDesc","wUnlocks","wCivReq","wIconUrl"].forEach(k=>w(k).value=""); ["wIconFile"].forEach(k=>w(k).value=""); w("wIconPrev").src=""; renderWW();
+  };
+
+  // ---------- Natural Wonders ----------
+  const n = (id)=> document.getElementById(id);
+  let currentN = null;
+  function renderNW(){
+    const s = S();
+    const q = (n("nSearch").value||"").toLowerCase();
+    const tbody = n("nTable").querySelector("tbody"); tbody.innerHTML="";
+    const arr = (s.naturalWonders||[]).slice().sort((a,b)=> (a.name||"").localeCompare(b.name||""))
+      .filter(it=> [it.name, (it.terrain||[]).join(" "), (it.desc||"")].join(" ").toLowerCase().includes(q));
+    arr.forEach(it=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${it.name||""}</td><td>${it.tiles!=null?it.tiles:"—"}</td><td>${(it.terrain||[]).join(", ")}</td>
+                      <td>${it.big?"Yes":"No"}</td>
+                      <td><button class="ghost" data-n="${it.name||""}">Edit</button></td>`;
+      tbody.appendChild(tr);
+    });
+    n("nCount").textContent = arr.length + " shown";
+    tbody.querySelectorAll("button[data-n]").forEach(b=>{
+      b.onclick = ()=>{
+        const name = b.dataset.n;
+        const s2 = S();
+        currentN = (s2.naturalWonders||[]).find(x=>x.name===name) || null;
+        n("nName").value = currentN?.name || "";
+        n("nTiles").value = (currentN && currentN.tiles!=null)? currentN.tiles : "";
+        n("nTerrain").value = (currentN?.terrain||[]).join(", ");
+        n("nBig").checked = !!currentN?.big;
+        n("nDesc").value = currentN?.desc || "";
+      };
+    });
+  }
+  if (n("nNew")) n("nNew").onclick = ()=>{ currentN=null; ["nName","nTiles","nTerrain","nDesc"].forEach(k=>n(k).value=""); const nb=n("nBig"); if(nb) nb.checked=false; };
+  if (n("nSearch")) n("nSearch").addEventListener("input", renderNW);
+  if (n("nSave")) n("nSave").onclick = ()=>{
+    const data = {
+      name: (n("nName").value||"").trim(),
+      tiles: n("nTiles").value? parseInt(n("nTiles").value,10) : null,
+      terrain: (n("nTerrain").value||"").split(",").map(s=>s.trim()).filter(Boolean),
+      big: !!n("nBig").checked,
+      desc: (n("nDesc").value||"").trim()
+    };
+    if(!data.name){ alert("Name is required."); return; }
+    U(s=>{
+      s.naturalWonders = s.naturalWonders || [];
+      const idx = s.naturalWonders.findIndex(x=>x.name===data.name);
+      if (idx<0){
+        if (currentN && currentN.name && currentN.name!==data.name){
+          const oldIdx = s.naturalWonders.findIndex(x=>x.name===currentN.name);
+          if (oldIdx>=0) s.naturalWonders.splice(oldIdx,1);
+        }
+        s.naturalWonders.push(data);
+      }else{
+        s.naturalWonders[idx] = data;
+      }
+    });
+    renderNW();
+  };
+  if (n("nDelete")) n("nDelete").onclick = ()=>{
+    const name = (n("nName").value||"").trim(); if(!name) return;
+    if (!confirm(`Delete natural wonder "${name}"?`)) return;
+    U(s=>{ s.naturalWonders = (s.naturalWonders||[]).filter(x=>x.name!==name); });
+    ["nName","nTiles","nTerrain","nDesc"].forEach(k=>n(k).value = ""); const nb=n("nBig"); if(nb) nb.checked=false; renderNW();
+  };
+
+  // ---------- Independent Peoples (Stats) ----------
+  const ip = (id)=> document.getElementById(id);
+  let currentIP = null;
+
+  function countsBadges(c){
+    const order = ["Culture","Diplomatic","Economic","Expansionist","Military","Scientific"];
+    return order.map(k=>{
+      const v = (c && typeof c==='object' && k in c) ? (c[k]||0) : 0;
+      const cls = `badge badge-ide ide-${k}`;
+      return `<span class="${cls}"><b>${k}</b> ${v}</span>`;
+    }).join("");
+  }
+  function fmtDate(ms){ return ms ? new Date(ms).toLocaleString() : ""; }
+
+  function renderIP(){
+    const s = S();
+    const q = (ip("ipSearch").value||"").toLowerCase();
+    const tbody = ip("ipTable").querySelector("tbody"); tbody.innerHTML="";
+    const arr = Object.values(s.ipStats||{}).slice().sort((a,b)=> (a.name||"").localeCompare(b.name||""))
+      .filter(it=>{
+        const lastIdeo = it.lastIdeology?.ideology || "";
+        const hay = [it.name, String(it.seenCount||0), lastIdeo, it.lastSeen?.age||"", it.lastSeen?.game||"", it.lastKilled?.game||""].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+    arr.forEach(it=>{
+      const li = it.lastIdeology || {ideology:"",date:0,game:"",winner:""};
+      const ls = it.lastSeen || {date:0,game:"",age:""};
+      const lk = it.lastKilled || {date:0,game:""};
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${it.name||""}</td>
+        <td>${it.seenCount||0}</td>
+        <td><div class="flex-wrap small">${countsBadges(it.ideologyCounts)}</div></td>
+        <td><div><b>${ls.age||"—"}</b> • ${ls.game||"—"}<br><span class="note">${fmtDate(ls.date)}</span></div></td>
+        <td><div><b>${li.ideology||"—"}</b>${li.winner? " • "+li.winner:""}<br><span class="note">${li.game||""}${li.date? " • "+fmtDate(li.date):""}</span></div></td>
+        <td><div>${lk.game||"—"}<br><span class="note">${fmtDate(lk.date)}</span></div></td>
+        <td><button class="ghost" data-ip="${it.name||""}">Edit</button></td>`;
+      tbody.appendChild(tr);
+    });
+    ip("ipCount").textContent = arr.length + " shown";
+    tbody.querySelectorAll("button[data-ip]").forEach(b=>{
+      b.onclick = ()=>{
+        const name = b.dataset.ip;
+        const obj = (S().ipStats||{})[norm(name)];
+        currentIP = norm(name);
+        ip("ipName").value = obj?.name || "";
+        ip("ipSeen").value = obj?.seenCount || 0;
+        const c = obj?.ideologyCounts || {};
+        ip("ipcC").value = c.Culture||0; ip("ipcD").value = c.Diplomatic||0; ip("ipcE").value = c.Economic||0;
+        ip("ipcX").value = c.Expansionist||0; ip("ipcM").value = c.Military||0; ip("ipcS").value = c.Scientific||0;
+        const li = obj?.lastIdeology || {ideology:"",date:0,game:"",winner:""};
+        ip("iplIde").value = li.ideology||"";
+        ip("iplGame").value = li.game||"";
+        ip("iplWinner").value = li.winner||"";
+        ip("iplDate").value = li.date? new Date(li.date).toISOString().slice(0,16) : "";
+        const ls = obj?.lastSeen || {date:0,game:"",age:""};
+        ip("ipsGame").value = ls.game||"";
+        ip("ipsAge").value = ls.age|| (S().state?.current?.age || "Antiquity");
+        ip("ipsDate").value = ls.date? new Date(ls.date).toISOString().slice(0,16) : "";
+        const lk = obj?.lastKilled || {date:0,game:""};
+        ip("ipkGame").value = lk.game||"";
+        ip("ipkDate").value = lk.date? new Date(lk.date).toISOString().slice(0,16) : "";
+      };
+    });
+  }
+  if (ip("ipNew")) ip("ipNew").onclick = ()=>{
+    currentIP = null;
+    ["ipName","ipSeen","ipcC","ipcD","ipcE","ipcX","ipcM","ipcS","iplGame","ipsGame","ipkGame","iplDate","ipsDate","ipkDate"].forEach(k=> ip(k).value = "");
+    ip("iplIde").value = ""; ip("iplWinner").value = "";
+    ip("ipsAge").value = (S().state?.current?.age || "Antiquity");
+  };
+  if (ip("ipSearch")) ip("ipSearch").addEventListener("input", renderIP);
+  if (ip("ipSave")) ip("ipSave").onclick = ()=>{
+    const name = (ip("ipName").value||"").trim();
+    if (!name){ alert("City name is required."); return; }
+    const key = norm(name);
+    const oldKey = currentIP && currentIP!==key ? currentIP : key;
+    const counts = {
+      Culture: parseInt(ip("ipcC").value||0,10),
+      Diplomatic: parseInt(ip("ipcD").value||0,10),
+      Economic: parseInt(ip("ipcE").value||0,10),
+      Expansionist: parseInt(ip("ipcX").value||0,10),
+      Military: parseInt(ip("ipcM").value||0,10),
+      Scientific: parseInt(ip("ipcS").value||0,10)
+    };
+    const liDate = ip("iplDate").value ? new Date(ip("iplDate").value).getTime() : 0;
+    const lsDate = ip("ipsDate").value ? new Date(ip("ipsDate").value).getTime() : 0;
+    const lkDate = ip("ipkDate").value ? new Date(ip("ipkDate").value).getTime() : 0;
+    const obj = {
+      name,
+      seenCount: parseInt(ip("ipSeen").value||0,10),
+      ideologyCounts: counts,
+      lastIdeology: { ideology: ip("iplIde").value||"", date: liDate, game: (ip("iplGame").value||"").trim(), winner: ip("iplWinner").value||"" },
+      lastSeen: { age: ip("ipsAge").value || (S().state?.current?.age || ""), date: lsDate, game: (ip("ipsGame").value||"").trim() },
+      lastKilled: { date: lkDate, game: (ip("ipkGame").value||"").trim() }
+    };
+    U(s=>{
+      s.ipStats = s.ipStats || {};
+      const tmp = {};
+      Object.keys(s.ipStats).forEach(k=>{ if (k!==oldKey) tmp[k]=s.ipStats[k]; });
+      tmp[key] = obj;
+      s.ipStats = tmp;
+    });
+    currentIP = key;
+    renderIP();
+  };
+  if (ip("ipDelete")) ip("ipDelete").onclick = ()=>{
+    const name = (ip("ipName").value||"").trim(); if(!name) return;
+    const key = norm(name);
+    if (!confirm(`Delete stats for "${name}"?`)) return;
+    U(s=>{
+      if (!s.ipStats) return;
+      const tmp = {}; Object.keys(s.ipStats).forEach(k=>{ if(k!==key) tmp[k]=s.ipStats[k]; });
+      s.ipStats = tmp;
+    });
+    currentIP = null;
+    ["ipName","ipSeen","ipcC","ipcD","ipcE","ipcX","ipcM","ipcS","iplGame","ipsGame","ipkGame","iplDate","ipsDate","ipkDate"].forEach(k=> ip(k).value = "");
+    ip("iplIde").value = ""; ip("iplWinner").value = "";
+    ip("ipsAge").value = (S().state?.current?.age || "Antiquity");
+    renderIP();
+  };
+
+  // ---------- Init ----------
+  // Default tab render
+  renderLeaders(); renderCivs(); renderMems(); renderWW(); renderNW(); renderIP();
+
+  // Import/Export (via Store)
+  document.getElementById("exportStore").onclick = ()=>{
+    const blob = new Blob([JSON.stringify(S(),null,2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "civ7-data-store.json"; document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  };
+  document.getElementById("importStore").onclick = ()=> document.getElementById("importStoreFile").click();
+  document.getElementById("importStoreFile").onchange = (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    file.text().then(txt=>{
+      try{
+        const incoming = JSON.parse(txt);
+        U(s=>{ Object.assign(s, incoming); });
+        // Re-run migration in case import had Science keys
+        (function migrateAgain(){
+          U(s=>{
+            s.ipStats = s.ipStats || {};
+            Object.values(s.ipStats).forEach(st=>{
+              if(!st) return;
+              const ic = st.ideologyCounts = st.ideologyCounts || {};
+              if(ic.Science){
+                ic.Scientific = (ic.Scientific||0) + ic.Science;
+                delete ic.Science;
+              } else {
+                ic.Scientific = ic.Scientific || 0;
+              }
+              if(st.lastIdeology && st.lastIdeology.ideology === "Science"){
+                st.lastIdeology.ideology = "Scientific";
+              }
+            });
+          });
+        })();
+        renderLeaders(); renderCivs(); renderMems(); renderWW(); renderNW(); renderIP();
+        alert("Import complete.");
+      }catch(err){
+        alert("Import failed: " + err.message);
+      }
+    });
+  };
+})();
+</script>
+</body>
+</html>

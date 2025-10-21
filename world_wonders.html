@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Civilization 7 Tracker — World Wonders</title>
+<style>
+:root{
+  --bg:#0f1216; --panel:#171b21; --text:#e6edf3; --muted:#9aa4b2; --border:#242a33;
+  --accent:#4aa3ff; --steve:#f2880f; --tiny:#001a07; --tinyText:#b8ffd2;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+.wrap{max-width:1200px;margin:0 auto;padding:18px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.title{font-size:22px;font-weight:800}
+nav a{margin-right:12px;text-decoration:none;border:1px solid var(--border);padding:6px 10px;border-radius:8px;color:#cbd5e1}
+nav a:hover{border-color:#334155}
+.note{font-size:12px;color:#9aa4b2}
+.section-title{font-size:18px;font-weight:900;margin:18px 0 8px;padding:6px 10px;border:1px solid var(--border);border-radius:10px;background:#0f1520}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;border:1px solid var(--border);font-weight:800;font-size:12px}
+.chip.steve{background:rgba(242,136,15,0.12);color:var(--steve)}
+.chip.tiny{background:linear-gradient(180deg, rgba(0,26,7,0.9), rgba(0,26,7,0.6)); border-color:#0f2e1a; color:var(--tinyText)}
+.card{background:#171b21;border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px}
+.wonder{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:start;border:1px solid var(--border);border-radius:12px;padding:10px;margin:8px 0;background:#0b0e12}
+.wonder img.icon{width:64px;height:64px;border-radius:8px;border:1px solid var(--border);object-fit:cover;background:#0a0e13}
+.w-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.w-name{font-size:16px;font-weight:800}
+.w-meta{font-size:12px;color:#aab2bf}
+.tag{border:1px solid #2a3343;background:#1f2530;border-radius:999px;padding:2px 8px;font-size:12px;display:inline-flex;gap:6px;align-items:center}
+.tag.big{background:#2d1e1e;border-color:#4a2b2b;color:#ffb4b4}
+.controls{display:grid;gap:6px}
+.controls .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--accent);color:#fff;border:none;padding:6px 10px;border-radius:10px;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#cbd5e1}
+.btn.small{padding:4px 8px;font-size:12px}
+.btn.pill{border-radius:999px}
+.badge{padding:2px 6px;border-radius:6px;font-size:11px;border:1px solid var(--border)}
+.badge.ai{background:#1a2332;color:#9dd6ff}
+.owner{background:#1a2332;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:12px}
+.owner.steve{background:rgba(242,136,15,0.15);color:#f2880f;border-color:#5c420f}
+.owner.tiny{background:rgba(0,26,7,0.45);color:#b8ffd2;border-color:#0f2e1a}
+.pillcount{font-size:11px;border:1px solid #2c3546;background:#121826;border-radius:999px;padding:2px 6px}
+.error{display:none;background:#3b1111;border:1px solid #803d3d;color:#ffb4b4;border-radius:10px;padding:10px;margin-bottom:12px;white-space:pre-wrap}
+
+/* Karma bar */
+.karma{background:linear-gradient(180deg,#0f1520,#0c1118);border:1px solid #263044;border-radius:14px;padding:14px;margin:12px 0}
+.karma-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.karma-head h2{margin:0;font-size:18px;font-weight:800;letter-spacing:.3px;text-align:center;flex:1}
+.karma-grid{display:grid;grid-template-columns:1fr 14px 1fr;align-items:stretch;gap:10px;margin-top:8px}
+.karma-chip{display:flex;align-items:center;justify-content:space-between;border:1px solid #2b3447;border-radius:12px;padding:10px 12px;background:#121826}
+.karma-chip.steve{border-color:#5c420f;background:rgba(242,136,15,0.10)}
+.karma-chip.tiny {border-color:#0f2e1a;background:linear-gradient(180deg, rgba(0,26,7,0.85), rgba(0,26,7,0.6))}
+.karma-name .label.steve{color:#f2880f;font-weight:800}
+.karma-name .label.tiny{color:#b8ffd2;font-weight:800}
+.karma-bonus{font-weight:900;font-size:22px;min-width:42px;text-align:right}
+.karma-mid{display:flex;align-items:center;justify-content:center;color:#7b8697;font-size:12px}
+
+/* colored counts */
+.count.steve{color:#f2880f;font-weight:800}
+.count.tiny{color:#b8ffd2;font-weight:800}
+</style>
+</head>
+<body>
+<div id="topbar-root"></div>
+<div class="wrap">
+  
+
+  <div id="err" class="error"></div>
+
+  <!-- Karma Bar -->
+  <div class="karma">
+    <div class="karma-head">
+      <h2>World Wonders — Karma</h2>
+      <button id="resetCategory" class="btn small ghost">Reset Category Stats</button>
+    </div>
+    <div class="karma-grid">
+      <div class="karma-chip steve">
+        <div class="karma-name"><span class="label steve">Steve</span></div>
+        <div class="karma-bonus" id="kbSteve">+0</div>
+      </div>
+      <div class="karma-mid">vs</div>
+      <div class="karma-chip tiny">
+        <div class="karma-name"><span class="label tiny">Tiny</span></div>
+        <div class="karma-bonus" id="kbTiny">+0</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="container"></div>
+</div>
+
+<script>
+(function(){
+  const STORE_KEY="civ7_data_store_v3";
+  const STATE_KEY="civ7_home_state_v3";
+  const VETO_REFUND_KEY="civ7_veto_refunded_age_flag";
+  const LAST_TXN_KEY="civ7_world_wonders_last_txn_v4";
+
+  let store, state;
+  try{ store = JSON.parse(localStorage.getItem(STORE_KEY)||"null"); }catch(_){}
+  try{ state = JSON.parse(localStorage.getItem(STATE_KEY)||"null"); }catch(_){}
+  if(!state || !state.current){
+    state = { current: { age:"Antiquity",
+                         wins: { "World Wonders": {steve:0,tiny:0} },
+                         pools: { steve:{acq:[false,false,false,false], veto:[false,false,false,false,false]},
+                                  tiny:{acq:[false,false,false,false], veto:[false,false,false,false,false]} } } };
+    localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  }
+
+  function ICON_GETTER(name){ return (store && store.icons && store.icons.wonders && store.icons.wonders[name]) || ""; }
+  function META_LINE(wd){
+    const parts=[]; if (wd.age) parts.push("Age: "+wd.age);
+    const u=(wd.unlocks||[]).join(", "); const c=(wd.civReq||[]).join(", ");
+    if(u) parts.push("Unlocks: "+u); if(c) parts.push("Civ: "+c); return parts.join(" • ");
+  }
+
+  function saveState(){ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+  function getPools(who){ return who==='steve'? state.current.pools.steve : state.current.pools.tiny; }
+  function hasPA(who){ return getPools(who).acq.some(v=>v===false); }
+  function usePA(who){ const arr=getPools(who).acq; const i=arr.indexOf(false); if(i>=0){ arr[i]=true; saveState(); return i; } return -1; }
+  function refundPA(who, indexHint){ const arr=getPools(who).acq; if(indexHint!=null && indexHint>=0 && indexHint<arr.length){ arr[indexHint]=false; } else { const j=arr.lastIndexOf(true); if(j>=0) arr[j]=false; } saveState(); }
+  function hasVeto(who){ return getPools(who).veto.some(v=>v===false); }
+  function useVeto(who){ const arr=getPools(who).veto; const i=arr.indexOf(false); if(i>=0){ arr[i]=true; saveState(); return i; } return -1; }
+  function refundVeto(who, indexHint){ const arr=getPools(who).veto; if(indexHint!=null && indexHint>=0 && indexHint<arr.length){ arr[indexHint]=false; } else { const j=arr.lastIndexOf(true); if(j>=0) arr[j]=false; } saveState(); }
+
+  function wins(){ return (state.current.wins && state.current.wins["World Wonders"]) || {steve:0,tiny:0}; }
+  function updateKarmaBar(){
+    const w=wins(); const s=w.steve||0, t=w.tiny||0; const diff=Math.abs(s-t);
+    const kbS = (s<t)?diff:0; const kbT=(t<s)?diff:0;
+    const sEl=document.getElementById('kbSteve'); const tEl=document.getElementById('kbTiny');
+    if(sEl) sEl.textContent = "+"+kbS;
+    if(tEl) tEl.textContent = "+"+kbT;
+  }
+  function setWinner(name, owner){ const w=wins(); if(owner==='steve') w.steve++; else if(owner==='tiny') w.tiny++; else return; state.current.wins["World Wonders"]=w; saveState(); updateKarmaBar(); }
+  function unsetWinner(name, owner){ const w=wins(); if(owner==='steve' && w.steve>0) w.steve--; else if(owner==='tiny' && w.tiny>0) w.tiny--; state.current.wins["World Wonders"]=w; saveState(); updateKarmaBar(); }
+
+  function getLastTxn(){ try{return JSON.parse(localStorage.getItem(LAST_TXN_KEY)||"{}");}catch(_){ return {}; } }
+  function setLastTxn(map){ localStorage.setItem(LAST_TXN_KEY, JSON.stringify(map)); }
+
+  const LASTS_KEY="civ7_last_owner_drought_world_wonders_v4";
+  function loadLasts(){ try{ return JSON.parse(localStorage.getItem(LASTS_KEY)||"{}"); }catch(_){ return {}; } }
+  function saveLasts(){ localStorage.setItem(LASTS_KEY, JSON.stringify(LASTS||{})); }
+  let LASTS = loadLasts();
+
+  // Nuclear Reset (Category) with confirm
+  const resetBtn = document.getElementById('resetCategory');
+  resetBtn?.addEventListener('click', ()=>{
+    const ok = confirm("This will clear all owners/droughts and the World Wonders win diff for the CURRENT game/age. PA/Veto pools and your data library remain. Continue?");
+    if(!ok) return;
+    state.current.wins["World Wonders"] = {steve:0,tiny:0};
+    saveState();
+    LASTS = {};
+    saveLasts();
+    // clear per-item last txn records
+    setLastTxn({});
+    render();
+    updateKarmaBar();
+  });
+
+  function buildCard(entry){
+    const card = document.createElement('div'); card.className='wonder'; card.dataset.name=entry.name||"";
+    const icon = ICON_GETTER(entry.name);
+    const meta = META_LINE(entry);
+
+    card.innerHTML = `
+      <img class="icon" src="${icon||""}" alt="">
+      <div>
+        <div class="w-head">
+          <span class="w-name">${entry.name||"(unnamed)"}</span>
+          ${entry.big? '<span class="tag big">Big Ticket</span>':''}
+          <span class="w-meta">${meta}</span>
+          <span class="owner" data-owner>Owner: —</span>
+        </div>
+        <div class="w-meta" data-lastline>Last: — • Drought S/T 0/0</div>
+        <div style="margin-top:6px">${entry.desc||""}</div>
+        <div class="controls">
+          <div class="row">
+            <span class="chip steve">Steve</span>
+            <label><input type="checkbox" class="steve-leader"> Leader +2</label>
+            <label><input type="checkbox" class="steve-mem"> Memento +1</label>
+            <label>${entry.big? '<span class="note">PA disabled on Big Ticket</span>' : '<input type="checkbox" class="pa-steve"> Priority Acquisition <span class="pillcount count steve" data-pa-s>0 left</span>'}</label>
+          </div>
+          <div class="row">
+            <span class="chip tiny">Tiny</span>
+            <label><input type="checkbox" class="tiny-leader"> Leader +2</label>
+            <label><input type="checkbox" class="tiny-mem"> Memento +1</label>
+            ${entry.big? '' : '<label><input type="checkbox" class="pa-tiny"> Priority Acquisition <span class="pillcount count tiny" data-pa-t>0 left</span></label>'}
+          </div>
+          <div class="row">
+            <label><input type="checkbox" class="oppose" ${entry.big?'disabled':''}> Opposed</label>
+            <label><input type="checkbox" class="veto" ${entry.big?'disabled':''}> Veto <span class="pillcount count steve" data-ve-s>0 used</span> / <span class="pillcount count tiny" data-ve-t>0 used</span></label>
+          </div>
+          <div class="row">
+            <button class="btn roll">Roll</button>
+            <button class="btn ghost reset">Reset</button>
+            <button class="btn ghost reset-all">Reset All</button>
+            <button class="btn small pill set-steve">Steve Wins</button>
+            <button class="btn small pill set-tiny">Tiny Wins</button>
+            <button class="btn small pill set-ai">AI Takes</button>
+          </div>
+          <div class="note" data-info></div>
+        </div>
+      </div>
+    `;
+
+    function refreshCounters(){
+      const paS = card.querySelector('[data-pa-s]'); if (paS) paS.textContent = (getPools('steve').acq.filter(x=>!x).length) + ' left';
+      const paT = card.querySelector('[data-pa-t]'); if (paT) paT.textContent = (getPools('tiny').acq.filter(x=>!x).length) + ' left';
+      const veS = card.querySelector('[data-ve-s]'); if (veS) veS.textContent = (getPools('steve').veto.filter(x=>x).length) + ' used';
+      const veT = card.querySelector('[data-ve-t]'); if (veT) veT.textContent = (getPools('tiny').veto.filter(x=>x).length) + ' used';
+    }
+    refreshCounters();
+
+    function setOwner(owner, ai){
+      const label = card.querySelector('[data-owner]');
+      label.classList.remove('steve','tiny');
+      label.textContent = "Owner: —";
+      if (owner==='steve'){ label.classList.add('steve'); label.textContent="Owner: Steve"; }
+      else if (owner==='tiny'){ label.classList.add('tiny'); label.textContent="Owner: Tiny"; }
+      else if (owner==='ai'){ label.textContent="Owner: AI"; }
+    }
+    function updateLastLine(){
+      const last = LASTS[entry.name] || { owner:null, ai:false, sDrought:0, tDrought:0 };
+      const line = card.querySelector('[data-lastline]');
+      line.textContent = `Last: ${last.owner||'—'}${last.ai?' (AI)':''} • Drought S/T ${last.sDrought||0}/${last.tDrought||0}`;
+      setOwner(last.owner||null, last.ai);
+    }
+
+    // tx record helpers
+    function getTx(){ const map=getLastTxn(); return map[entry.name]||null; }
+    function setTx(obj){ const map=getLastTxn(); map[entry.name]=obj; setLastTxn(map); }
+    function clearTx(){ const map=getLastTxn(); delete map[entry.name]; setLastTxn(map); }
+
+    // On any "action", snapshot prev state so Reset All can restore to start-of-age
+    function snapshotPrev(patch){
+      const prevLast = Object.assign({ owner:null, ai:false, sDrought:0, tDrought:0 }, LASTS[entry.name]||{});
+      const prevWins = Object.assign({steve:0,tiny:0}, wins());
+      setTx(Object.assign({ prevLast, prevWins, age: state.current.age }, patch||{}));
+    }
+
+    card.querySelector('.reset').onclick = function(){
+      // Visual reset only: neutralize chip & clear info — do not touch LASTS or wins or PA/Veto
+      const label = card.querySelector('[data-owner]');
+      label.classList.remove('steve','tiny');
+      label.textContent = "Owner: —";
+      const n = card.querySelector('[data-info]'); if(n) n.textContent="";
+    };
+
+    card.querySelector('.reset-all').onclick = function(){
+      const tx = getTx();
+      if (tx){
+        // Refund last PA/Veto if present
+        if (tx.usedPA && tx.usedPA.who) refundPA(tx.usedPA.who, tx.usedPA.index);
+        if (tx.usedVeto && tx.usedVeto.who) refundVeto(tx.usedVeto.who, tx.usedVeto.index);
+        // Restore wins to snapshot
+        if (tx.prevWins){ state.current.wins["World Wonders"] = tx.prevWins; saveState(); updateKarmaBar(); }
+      }
+      // Restore item to start-of-age (owner cleared, AI false), drought unchanged
+      const prior = (tx && tx.prevLast) ? tx.prevLast : (LASTS[entry.name]||{ sDrought:0, tDrought:0 });
+      LASTS[entry.name] = { owner:null, ai:false, sDrought: prior.sDrought||0, tDrought: prior.tDrought||0 };
+      saveLasts();
+      clearTx();
+
+      // Refresh visuals
+      updateLastLine();
+      const n = card.querySelector('[data-info]'); if(n) n.textContent="Reset All: refunds applied and item restored to start-of-age (drought unchanged).";
+    };
+
+    card.querySelector('.set-ai').onclick = function(){
+      snapshotPrev({ usedPA:null, usedVeto:null, winner:null });
+      const last = LASTS[entry.name] || { owner:null, ai:false, sDrought:0, tDrought:0 };
+      last.ai = true; last.owner = 'ai';
+      LASTS[entry.name]=last; saveLasts();
+      setOwner('ai',true); updateLastLine();
+      const n = card.querySelector('[data-info]'); if(n) n.textContent="AI claimed — PA/Veto remain spent.";
+    };
+
+    function manualSet(owner){
+      snapshotPrev({ usedPA:null, usedVeto:null, winner:owner });
+      const prev = LASTS[entry.name] || { owner:null, ai:false, sDrought:0, tDrought:0 };
+      if (prev.owner && (prev.owner==='steve' || prev.owner==='tiny')) unsetWinner(entry.name, prev.owner);
+      const next = { owner:owner, ai:false, sDrought: prev.sDrought, tDrought: prev.tDrought };
+      // (Drought will be committed on age confirm; leaving counts unchanged here)
+      LASTS[entry.name]=next; saveLasts();
+      setWinner(entry.name, owner);
+      setOwner(owner,false); updateLastLine();
+      const n = card.querySelector('[data-info]'); if(n) n.textContent="Owner set manually.";
+    }
+    card.querySelector('.set-steve').onclick = ()=> manualSet('steve');
+    card.querySelector('.set-tiny').onclick  = ()=> manualSet('tiny');
+
+    card.querySelector('.roll').onclick = function(){
+      const opposed = !entry.big && card.querySelector('.oppose').checked;
+      const veto    = !entry.big && card.querySelector('.veto').checked;
+      let paDecl = null;
+      if (!entry.big){
+        if (card.querySelector('.pa-steve')?.checked) paDecl='steve';
+        if (card.querySelector('.pa-tiny')?.checked)  paDecl= paDecl? paDecl : 'tiny';
+      }
+
+      if (paDecl==='steve' && !hasPA('steve')){ const n=card.querySelector('[data-info]'); if(n) n.textContent="Steve has no PA left."; return; }
+      if (paDecl==='tiny'  && !hasPA('tiny')) { const n=card.querySelector('[data-info]'); if(n) n.textContent="Tiny has no PA left."; return; }
+      if (veto && !hasVeto(paDecl==='steve'?'tiny':'steve')){ const n=card.querySelector('[data-info]'); if(n) n.textContent="Opposing player has no veto left."; return; }
+
+      let usedPA=null; if (paDecl){ usedPA={ who:paDecl, index:usePA(paDecl) }; if (usedPA.index<0){ const n=card.querySelector('[data-info]'); if(n) n.textContent=(paDecl==='steve'?'Steve':'Tiny')+" has no PA left."; return; } }
+      let usedVeto=null; let autoWin=null;
+      if (paDecl && !opposed){ autoWin = paDecl; }
+      if (veto){ const whoVeto = paDecl==='steve' ? 'tiny' : 'steve'; usedVeto={ who:whoVeto, index:useVeto(whoVeto) };
+        const flag = localStorage.getItem(VETO_REFUND_KEY);
+        if (flag!=="true" && usedPA){ refundPA(usedPA.who, usedPA.index); localStorage.setItem(VETO_REFUND_KEY,"true"); usedPA=null; const n=card.querySelector('[data-info]'); if(n) n.textContent="Veto used — Declarer's PA refunded (first veto this age)."; }
+      }
+
+      snapshotPrev({ usedPA, usedVeto });
+
+      if (autoWin){
+        applyOutcome(autoWin, "PA auto-win (no opposition).");
+        return;
+      }
+
+      const w = wins();
+      const diff = Math.abs((w.steve||0)-(w.tiny||0));
+      const kbS = (w.steve < w.tiny) ? diff : 0;
+      const kbT = (w.tiny < w.steve) ? diff : 0;
+      const sLeader = card.querySelector('.steve-leader').checked? 2:0;
+      const sMem    = card.querySelector('.steve-mem').checked? 1:0;
+      const tLeader = card.querySelector('.tiny-leader').checked? 2:0;
+      const tMem    = card.querySelector('.tiny-mem').checked? 1:0;
+      const paBonusS = (paDecl==='steve' && opposed)?5:0;
+      const paBonusT = (paDecl==='tiny'  && opposed)?5:0;
+
+      const sRoll = Math.floor(Math.random()*20)+1 + kbS + sLeader + sMem + paBonusS;
+      const tRoll = Math.floor(Math.random()*20)+1 + kbT + tLeader + tMem + paBonusT;
+      const winner = (sRoll===tRoll) ? (Math.random()<0.5?'steve':'tiny') : (sRoll>tRoll?'steve':'tiny');
+      applyOutcome(winner, `Roll — Steve ${sRoll} vs Tiny ${tRoll}`);
+    };
+
+    function applyOutcome(winner, msg){
+      // Note: drought changes are deferred to your future "Confirm Age Results" flow
+      const prev = LASTS[entry.name] || { owner:null, ai:false, sDrought:0, tDrought:0 };
+      if (prev.owner && (prev.owner==='steve' || prev.owner==='tiny')) unsetWinner(entry.name, prev.owner);
+      const next = { owner:winner, ai:false, sDrought: prev.sDrought, tDrought: prev.tDrought };
+      LASTS[entry.name]=next; saveLasts();
+      setWinner(entry.name, winner);
+      setOwner(winner,false); updateLastLine();
+      const n = card.querySelector('[data-info]'); if(n) n.textContent = msg;
+    }
+
+    updateLastLine();
+    return card;
+  }
+
+  const container = document.getElementById('container');
+
+  function render(){
+    container.innerHTML = "";
+    const all = (store && Array.isArray(store.wonders)) ? store.wonders.slice() : [];
+    const order = ["Antiquity","Exploration","Modern"];
+    const ages = new Set(all.map(w=>w.age||""));
+    const extra = [...ages].filter(a=>!order.includes(a)).sort();
+    const finalOrder = order.concat(extra);
+
+    finalOrder.forEach(age=>{
+      const items = all.filter(w=> (w.age||"")===age).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+      if(items.length===0 && order.includes(age)) return;
+      const sectionTitle = document.createElement('div');
+      sectionTitle.className="section-title";
+      sectionTitle.textContent = age? (age+" Age") : "Unspecified Age";
+      container.appendChild(sectionTitle);
+
+      const card = document.createElement('div'); card.className='card';
+      items.forEach(entry=> card.appendChild(buildCard(entry)) );
+      container.appendChild(card);
+    });
+  }
+
+  render();
+  updateKarmaBar();
+})();
+</script>
+
+<!-- inline patch: world_wonders -->
+<script>
+
+// inline patch for World Wonders — non-destructive
+(function(){
+  const qAll = (sel, root)=> Array.from((root||document).querySelectorAll(sel));
+  function colorizeCounters(){
+    qAll('[data-pa-s]').forEach(el=> el.classList.add('count','steve'));
+    qAll('[data-pa-t]').forEach(el=> el.classList.add('count','tiny'));
+    qAll('[data-ve-s]').forEach(el=> el.classList.add('count','steve'));
+    qAll('[data-ve-t]').forEach(el=> el.classList.add('count','tiny'));
+  }
+  function fixOwnerReset(){
+    qAll('.wonder').forEach(card=>{
+      const owner = card.querySelector('[data-owner]');
+      if (!owner) return;
+      const setOwner = (who)=>{
+        owner.classList.remove('steve','tiny');
+        owner.textContent = 'Owner: —';
+        if (who==='steve'){ owner.classList.add('steve'); owner.textContent='Owner: Steve'; }
+        else if (who==='tiny'){ owner.classList.add('tiny'); owner.textContent='Owner: Tiny'; }
+        else if (who==='ai'){ owner.textContent='Owner: AI'; }
+      };
+      const btnReset = card.querySelector('.reset');
+      const btnResetAll = card.querySelector('.reset-all');
+      btnReset && btnReset.addEventListener('click', ()=> setOwner(null));
+      btnResetAll && btnResetAll.addEventListener('click', ()=> setOwner(null));
+      const btnAI = card.querySelector('.set-ai');
+      btnAI && btnAI.addEventListener('click', ()=> setOwner('ai'));
+    });
+  }
+  function init(){ colorizeCounters(); fixOwnerReset(); }
+  if (document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', init); } else init();
+})();
+
+</script>
+<script src="topbar.js"></script>
+</body>
+</html>

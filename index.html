@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Civilization 7 Tracker</title>
+<style>
+  :root{
+    --bg:#0f1216; --panel:#171b21; --text:#e6edf3; --muted:#9aa4b2; --border:#242a33;
+    --accent:#4aa3ff; --steve:#f2880f; --tiny:#001a07; --tinyText:#9af3b6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+  .wrap{max-width:1200px;margin:0 auto;padding:18px}
+  .grid{display:grid;gap:12px;grid-template-columns:2fr 1fr}
+  @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px}
+  h2{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  input,select,textarea{background:#0b0e12;color:var(--text);border:1px solid var(--border);padding:8px;border-radius:8px}
+  input[type="search"]{width:100%}
+  textarea{width:100%;min-height:92px}
+  button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid var(--border);color:#cbd5e1}
+  .legend{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;border:1px solid var(--border);font-weight:800}
+  .chip.steve{background:rgba(242,136,15,0.12);color:var(--steve)}
+  .chip.tiny{background:linear-gradient(180deg, rgba(0,26,7,0.9), rgba(0,26,7,0.6)); border-color:#0f2e1a; color:var(--tinyText)}
+  .placeholder{height:220px;border:1px dashed #334155;border-radius:12px;display:grid;place-items:center;color:#7b8797}
+  .section-sep{height:1px;background:#2a3340;margin:8px 0}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;min-height:34px;padding:6px;background:#0b0e12;border:1px solid var(--border);border-radius:8px}
+  .tag{background:#1f2530;border:1px solid #2a3343;color:#cdd6e3;padding:4px 8px;border-radius:999px;display:inline-flex;gap:6px;align-items:center;font-size:12px}
+  .tag button{background:transparent;border:none;color:#9aa6b2;cursor:pointer}
+  table{width:100%;border-collapse:collapse} th,td{padding:8px;border-bottom:1px solid var(--border);font-size:14px} th{text-align:left;color:#cbd5e1}
+  .history{max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:8px;background:#0b0e12}
+  .tickets{display:flex;gap:6px;flex-wrap:nowrap;align-items:center}
+  .ticket{width:22px;height:22px;border-radius:6px;border:1px dashed #334155;background:#0b0e12;cursor:pointer}
+  .ticket.used{background:#21313c;border-color:#3b5568;position:relative}
+  .ticket.used::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#9dd6ff;font-weight:800;font-size:12px}
+  .tickets-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+  .tickets-row .chip{min-width:96px;justify-content:center}
+  .count-label{justify-self:end;color:#9aa4b2;font-size:12px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .picker{position:relative;display:inline-block}
+  .pick-btn{background:transparent;border:1px solid var(--border);color:#cbd5e1;padding:8px 10px;border-radius:10px;cursor:pointer}
+  .pick-list{position:absolute;z-index:40;top:42px;left:0;min-width:420px;max-height:320px;overflow:auto;background:#0b0e12;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.3);display:none}
+  .pick-row{display:flex;gap:10px;align-items:flex-start;padding:8px;border-bottom:1px solid #141a22;cursor:pointer}
+  .pick-row:hover{background:#151b24}
+  .pick-row img{width:28px;height:28px;border-radius:6px;flex:0 0 28px}
+  .pick-title{font-weight:700}
+  .pick-detail{color:#9aa6b2;font-size:12px}
+  .tag.img img{width:16px;height:16px;border-radius:3px}
+  .muted{color:#9aa4b2}
+
+  /* placeholders + dropdown depth */
+  .tags:empty::before{ content:"None selected"; color:var(--muted, #9aa4b2); }
+  .pick-btn{ background:#0f1622; border:1px solid #2c3646; }
+  .pick-btn:hover{ border-color:#3a465a; }
+  .pick-list{ z-index:4000; box-shadow:0 8px 24px rgba(0,0,0,0.35); }
+  .pick-list .empty{ padding:12px; color:#9aa4b2; }
+  .tools{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+</style>
+</head>
+<body>
+  <!-- shared topbar mount -->
+  <div id="topbar-root"></div>
+
+  <!-- Direct auth -->
+  <script src="auth.js"></script>
+
+  <div class="wrap">
+    <!-- Page-specific tools (no import/export here to avoid duplicates) -->
+    <div class="tools">
+      <button id="resetGame" class="ghost" title="Clear this game without finishing it">Reset Current Game</button>
+      <button id="resetKarma" class="ghost" title="Clear ownership tallies for current game (keeps drought, PA/Veto)">Reset Karma</button>
+    </div>
+
+    <div class="legend">
+      <span class="chip steve">Steve</span>
+      <span class="chip tiny">Tiny</span>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Graphs (Placeholders)</h2>
+        <div class="row">
+          <div class="placeholder" style="flex:1">Steve — Wins by Leader (pie)</div>
+          <div class="placeholder" style="flex:1">Tiny — Wins by Leader (pie)</div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <div class="placeholder" style="flex:1">Steve — Civs by Age (pie)</div>
+          <div class="placeholder" style="flex:1">Tiny — Civs by Age (pie)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>New Game</h2>
+        <div class="row">
+          <label>Starting Age</label>
+          <select id="age"><option>Antiquity</option><option>Exploration</option><option>Modern</option></select>
+        </div>
+
+        <div class="section-sep"></div>
+
+        <div class="cols">
+          <div>
+            <div class="chip steve">Steve</div>
+            <div class="row" style="margin-top:8px">
+              <div style="flex:1">
+                <div class="small muted">Leaders</div>
+                <div id="steveLeaders" class="tags"></div>
+                <div class="picker"><button id="leaderBtnSteve" class="pick-btn">Choose Leader ▼</button><div id="leaderListSteve" class="pick-list" role="listbox"></div></div>
+              </div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div style="flex:1">
+                <div class="small muted">Mementos</div>
+                <div id="steveMems" class="tags"></div>
+                <div class="picker">
+                  <button id="memBtnSteve" class="pick-btn">Choose Mementos ▼</button>
+                  <div id="memListSteve" class="pick-list" role="listbox"></div>
+                </div>
+              </div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div style="flex:1">
+                <div class="small muted">Civilizations (by Age)</div>
+                <div id="steveCivs" class="tags"></div>
+                <div class="picker"><button id="civBtnSteve" class="pick-btn">Choose Civilization ▼</button><div id="civListSteve" class="pick-list" role="listbox"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="chip tiny">Tiny</div>
+            <div class="row" style="margin-top:8px">
+              <div style="flex:1">
+                <div class="small muted">Leaders</div>
+                <div id="tinyLeaders" class="tags"></div>
+                <div class="picker"><button id="leaderBtnTiny" class="pick-btn">Choose Leader ▼</button><div id="leaderListTiny" class="pick-list" role="listbox"></div></div>
+              </div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div style="flex:1">
+                <div class="small muted">Mementos</div>
+                <div id="tinyMems" class="tags"></div>
+                <div class="picker">
+                  <button id="memBtnTiny" class="pick-btn">Choose Mementos ▼</button>
+                  <div id="memListTiny" class="pick-list" role="listbox"></div>
+                </div>
+              </div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div style="flex:1">
+                <div class="small muted">Civilizations (by Age)</div>
+                <div id="tinyCivs" class="tags"></div>
+                <div class="picker"><button id="civBtnTiny" class="pick-btn">Choose Civilization ▼</button><div id="civListTiny" class="pick-list" role="listbox"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-sep"></div>
+
+        <div class="row" style="align-items:flex-start">
+          <div style="flex:1">
+            <div class="small muted">Priority Acquisitions (per Age)</div>
+            <div class="tickets-row">
+              <span class="chip steve">Steve</span>
+              <div id="tickets-steve" class="tickets"></div>
+              <span id="pa-steve-count" class="count-label"></span>
+            </div>
+            <div class="tickets-row" style="margin-top:6px">
+              <span class="chip tiny">Tiny</span>
+              <div id="tickets-tiny" class="tickets"></div>
+              <span id="pa-tiny-count" class="count-label"></span>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div class="small muted">Vetoes (per Game)</div>
+            <div class="tickets-row">
+              <span class="chip steve">Steve</span>
+              <div id="vetoes-steve" class="tickets"></div>
+              <span id="ve-steve-count" class="count-label"></span>
+            </div>
+            <div class="tickets-row" style="margin-top:6px">
+              <span class="chip tiny">Tiny</span>
+              <div id="vetoes-tiny" class="tickets"></div>
+              <span id="ve-tiny-count" class="count-label"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:8px">
+          <button id="startNew">Start New Game</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h2>Karma Summary</h2>
+      <table>
+        <thead><tr><th>Category</th><th>Steve Wins</th><th>Tiny Wins</th><th>Diff</th><th>Bonus goes to</th></tr></thead>
+        <tbody id="karmaBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h2>Game Archive</h2>
+      <div id="archive" class="history" style="max-height:180px"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h2>History (Current Game)</h2>
+      <div id="history" class="history"></div>
+    </div>
+  </div>
+
+<script>
+// ---- Home JS (kept intact; removed page-local import/export bindings) ----
+(function(){
+  const user = (window.civ7auth && window.civ7auth.requireAuth()) || null;
+  if (!user) return;
+
+  const STORE_KEY = "civ7_data_store_v3";
+  const defaultStore = {
+    leaders: [
+      {name:"Ada Lovelace",desc:""}, {name:"Ashoka",desc:""}, {name:"Augustus",desc:""},
+      {name:"Catherine the Great",desc:""}, {name:"Charlemagne",desc:""}, {name:"Confucius",desc:""},
+      {name:"Genghis Khan",desc:""}, {name:"Hatshepsut",desc:""}, {name:"Isabella",desc:""},
+      {name:"Joan of Arc",desc:""}, {name:"Julius Caesar",desc:""}, {name:"Mansa Musa",desc:""},
+      {name:"Napoleon",desc:""}, {name:"Qin Shi Huang",desc:""}, {name:"Tokugawa",desc:""}
+    ],
+    civs: {
+      Antiquity: ["Aksum","Assyria","Carthage","Egypt","Greece","Maurya","Maya","Persia","Rome","Shawnee"],
+      Exploration: ["Aztec","Byzantium","Inca","Japan","Khmer","Mali","Mughals","Norse","Ottomans","Songhai"],
+      Modern: ["America","Brazil","China","Ethiopia","France","Germany","Mexico","Russia","Spain","United Kingdom"]
+    },
+    civMeta: {},
+    mementos: [
+      {"name":"Antikythera Mechanism","effect":"+1 Scientific Attribute Point.","icon":""},
+      {"name":"Bifocals","effect":"Gain 50 Influence after a Tech or Civic Mastery.","icon":""},
+      {"name":"Glass Armonica","effect":"+10% Science and +10% Happiness when in an Alliance (both sides).","icon":""},
+      {"name":"Kite & Key","effect":"+10% Science toward Tech Masteries.","icon":""},
+      {"name":"Imago Mundi","effect":"+2 Scout Sight on Search/Lookout.","icon":""},
+      {"name":"Treaty of Kadesh","effect":"+1 Diplomatic Attribute Point.","icon":""},
+      {"name":"Inscribed Sling Bullet","effect":"+1 Military Attribute Point.","icon":""},
+      {"name":"Groma","effect":"+1 Expansionist Attribute Point.","icon":""},
+      {"name":"Shakokidogu","effect":"+1 Cultural Attribute Point.","icon":""},
+      {"name":"Lydian Lion","effect":"+200 Gold per Age at the start of an Age.","icon":""},
+      {"name":"Royal Mace","effect":"+1 Gold per Age for each imported Resource.","icon":""},
+      {"name":"Gold Fluted Phiale","effect":"+1 Trade Route Limit with all other Leaders.","icon":""},
+      {"name":"Green Colonel's Jacket","effect":"+1 Gold per Age per active Trade Route (doubled if you have the most).","icon":""},
+      {"name":"Kwalkwali","effect":"+1 Gold per Age for each Resource assigned to Cities.","icon":""},
+      {"name":"Corona Civica","effect":"+1 Settlement Limit per Age; +50% Convert to City cost.","icon":""},
+      {"name":"Clipeus Virtutis","effect":"+1 Production in the Capital for every Town.","icon":""},
+      {"name":"Breastplate","effect":"+2 Food per Age in Towns.","icon":""},
+      {"name":"Padrón Real","effect":"+2 Happiness per Age on Natural Wonders.","icon":""}
+    ],
+    wonders: [],
+    naturalWonders: [],
+    cityStates: [],
+    icons: { leaders:{}, civs:{}, mementos:{}, wonders:{}, natural:{}, city:{} }
+  };
+  function loadStore(){
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw){ saveStore(defaultStore); return JSON.parse(JSON.stringify(defaultStore)); }
+    try{
+      const s = JSON.parse(raw);
+      s.leaders = Array.isArray(s.leaders) ? s.leaders.map(x => (typeof x==="string"? {name:x,desc:""} : {name:x.name,desc:x.desc||""})) : [];
+      s.civMeta = s.civMeta || {};
+      s.wonders = Array.isArray(s.wonders)? s.wonders : [];
+      s.naturalWonders = Array.isArray(s.naturalWonders)? s.naturalWonders : [];
+      s.cityStates = Array.isArray(s.cityStates)? s.cityStates : [];
+      s.icons = s.icons || {}; ["leaders","civs","mementos","wonders","natural","city"].forEach(k=> s.icons[k]=s.icons[k]||{});
+      return s;
+    }catch(e){ return JSON.parse(JSON.stringify(defaultStore)); }
+  }
+  function saveStore(obj){ localStorage.setItem(STORE_KEY, JSON.stringify(obj)); }
+  const store = loadStore();
+
+  const KEY = "civ7_home_state_v3";
+  const defaultGame = () => ({
+    id: "game_" + Date.now(),
+    age: "Antiquity",
+    players: { steve:{ leaders:[], civs:[], mementos:[] }, tiny:{ leaders:[], civs:[], mementos:[] } },
+    wins: {
+      "World Wonders": { steve:0, tiny:0 },
+      "Natural Wonders": { steve:0, tiny:0 },
+      "Independent People: Culture": { steve:0, tiny:0 },
+      "Independent People: Diplomatic": { steve:0, tiny:0 },
+      "Independent People: Economic": { steve:0, tiny:0 },
+      "Independent People: Expansionist": { steve:0, tiny:0 },
+      "Independent People: Military": { steve:0, tiny:0 },
+      "Independent People: Scientific": { steve:0, tiny:0 }
+    },
+    pools: { steve:{acq:[false,false,false,false], veto:[false,false,false,false,false]}, tiny:{acq:[false,false,false,false], veto:[false,false,false,false,false]} },
+    history: []
+  });
+  const state = { games: [], current: defaultGame() };
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function load(){
+    const raw = localStorage.getItem(KEY); if (!raw) { save(); return; }
+    try{ const s = JSON.parse(raw); state.games = s.games||[]; state.current = s.current||state.current; }catch(e){}
+  }
+  load();
+
+  // One-time migration: rename "Independent People: Science" -> "Independent People: Scientific"
+  (function migrateIPScience(){
+    try{
+      const oldKey = "Independent People: Science";
+      const newKey = "Independent People: Scientific";
+      const w = state.current && state.current.wins;
+      if (w && w[oldKey] && !w[newKey]){
+        w[newKey] = w[oldKey];
+        delete w[oldKey];
+        save();
+      }
+    }catch(e){}
+  })();
+
+
+  const el = id => document.getElementById(id);
+  function addHistory(msg){ state.current.history.unshift({ts:Date.now(), msg}); renderHistory(); save(); }
+  function renderHistory(){
+    const box = el("history");
+    box.innerHTML = state.current.history.map(ev => `<div class="ev"><span class="muted">${new Date(ev.ts).toLocaleString()}</span><br>${ev.msg}</div>`).join("") || "<div class='ev' style='color:#98a2b3'>No events yet.</div>";
+  }
+  function renderArchive(){
+    const box = el("archive");
+    if (!state.games.length){ box.innerHTML = "<div class='ev' style='color:#98a2b3'>No archived games yet.</div>"; return; }
+    box.innerHTML = state.games.slice().reverse().map(g => {
+      const date = new Date(parseInt(g.id.replace('game_',''),10)).toLocaleString();
+      const ww = g.wins["World Wonders"].steve + "–" + g.wins["World Wonders"].tiny;
+      const nw = g.wins["Natural Wonders"].steve + "–" + g.wins["Natural Wonders"].tiny;
+      return `<div class="ev"><strong>${date}</strong> • Age: ${g.age}<br>WW ${ww} | NW ${nw}</div>`;
+    }).join("");
+  }
+
+  function makeTickets(hostId, arr, label){
+    const host = el(hostId); host.innerHTML = "";
+    arr.forEach((used, i) => {
+      const div = document.createElement("div");
+      div.className = "ticket" + (used ? " used":"");
+      div.title = (used?"Used":"Available") + " — " + label + " #" + (i+1);
+      div.onclick = ()=>{ arr[i] = !arr[i]; save(); renderTickets(); addHistory(label + " toggled " + (arr[i]?"used":"available")); };
+      host.appendChild(div);
+    });
+  }
+  function renderTickets(){
+    makeTickets("tickets-steve", state.current.pools.steve.acq, "Priority Acquisition (Steve)");
+    makeTickets("tickets-tiny",  state.current.pools.tiny.acq,  "Priority Acquisition (Tiny)");
+    makeTickets("vetoes-steve",  state.current.pools.steve.veto,"Veto (Steve)");
+    makeTickets("vetoes-tiny",   state.current.pools.tiny.veto, "Veto (Tiny)");
+    el("pa-steve-count").textContent = state.current.pools.steve.acq.filter(Boolean).length + " / 4 used";
+    el("pa-tiny-count").textContent  = state.current.pools.tiny.acq.filter(Boolean).length  + " / 4 used";
+    el("ve-steve-count").textContent = state.current.pools.steve.veto.filter(Boolean).length + " / 5 used";
+    el("ve-tiny-count").textContent  = state.current.pools.tiny.veto.filter(Boolean).length  + " / 5 used";
+  }
+
+  const ORDER = [
+    "World Wonders","Natural Wonders",
+    "Independent People: Culture","Independent People: Diplomatic","Independent People: Economic",
+    "Independent People: Expansionist","Independent People: Military","Independent People: Scientific"
+  ];
+  function renderKarma(){
+    const tbody = el("karmaBody"); tbody.innerHTML = "";
+    ORDER.forEach(cat => {
+      const w = state.current.wins[cat] || {steve:0,tiny:0};
+      const diff = Math.abs((w.steve||0) - (w.tiny||0));
+      let who = "—"; if ((w.steve||0)!==(w.tiny||0)){ who = (w.steve < w.tiny) ? "Steve +" + diff : "Tiny +" + diff; }
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${cat}</td><td>${w.steve||0}</td><td>${w.tiny||0}</td><td>${diff}</td><td>${who}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function leaderDesc(name){
+    const obj = store.leaders.find(l => l.name === name);
+    return obj ? (obj.desc || "") : "";
+  }
+  function civDesc(name){ return (store.civMeta && store.civMeta[name] && store.civMeta[name].desc) || ""; }
+
+  function renderChips(boxId, arr, getDesc, iconGetter){
+    const box = el(boxId); box.innerHTML = "";
+    arr.forEach((val, i) => {
+      const chip = document.createElement("span");
+      chip.className = "tag" + (iconGetter?" img":"");
+      const tip = (getDesc && getDesc(val)) || "";
+      if (tip) chip.title = tip;
+      const icon = iconGetter ? (iconGetter(val)||"") : "";
+      chip.innerHTML = (icon? `<img src="${icon}" alt="" style="width:16px;height:16px;border-radius:3px"> `:"") + val + ` <button title="Remove">×</button>`;
+      chip.querySelector("button").onclick = ()=>{ arr.splice(i,1); save(); renderAllChips(); addHistory("Removed: " + val); };
+      box.appendChild(chip);
+    });
+  }
+  function renderMemChips(who){
+    const arr = (who==="steve") ? state.current.players.steve.mementos : state.current.players.tiny.mementos;
+    const boxId = (who==="steve") ? "steveMems" : "tinyMems";
+    const iconGetter = (name)=> (store.icons.mementos && store.icons.mementos[name]) || (store.mementos.find(m=>m.name===name)?.icon||"");
+    renderChips(boxId, arr, (n)=> (store.mementos.find(m=>m.name===n)?.effect||""), iconGetter);
+  }
+  function renderAllChips(){
+    renderChips("steveLeaders", state.current.players.steve.leaders, leaderDesc, (n)=>store.icons.leaders?.[n]||"");
+    renderChips("tinyLeaders",  state.current.players.tiny.leaders,  leaderDesc, (n)=>store.icons.leaders?.[n]||"");
+    renderChips("steveCivs",    state.current.players.steve.civs,    civDesc,    (n)=>store.icons.civs?.[n]||"");
+    renderChips("tinyCivs",     state.current.players.tiny.civs,     civDesc,    (n)=>store.icons.civs?.[n]||"");
+    renderMemChips("steve"); renderMemChips("tiny");
+  }
+
+  function buildList(hostId, items, onPick){
+    const host = el(hostId); host.innerHTML = "";
+    items.forEach(m => {
+      const icon = m.icon || "";
+      const row = document.createElement("div");
+      row.className = "pick-row"; if (m.tip) row.title = m.tip;
+      row.innerHTML = (icon? `<img src="${icon}" alt="">` : `<div style='width:28px;height:28px;border:1px solid var(--border);border-radius:6px'></div>`) +
+        `<div><div class="pick-title">${m.name}</div>${m.detail?`<div class="pick-detail">${m.detail}</div>`:""}</div>`;
+      row.onclick = ()=> onPick && onPick(m);
+      host.appendChild(row);
+    });
+  }
+  function leadersOptions(){
+    return (store.leaders||[]).slice().sort((a,b)=>a.name.localeCompare(b.name)).map(l=>({
+      name:l.name, detail:l.desc||"", tip:l.desc||"", icon: (store.icons.leaders?.[l.name]||"")
+    }));
+  }
+  function bindLeaderDropdowns(){
+    const btnS = el("leaderBtnSteve"), listS = el("leaderListSteve");
+    const btnT = el("leaderBtnTiny"),  listT = el("leaderListTiny");
+    buildList("leaderListSteve", leadersOptions(), (m)=>{
+      const arr = state.current.players.steve.leaders;
+      if (!arr.includes(m.name)){ arr.push(m.name); save(); renderAllChips(); addHistory("Steve leader: " + m.name); }
+      listS.style.display="none";
+    });
+    buildList("leaderListTiny", leadersOptions(), (m)=>{
+      const arr = state.current.players.tiny.leaders;
+      if (!arr.includes(m.name)){ arr.push(m.name); save(); renderAllChips(); addHistory("Tiny leader: " + m.name); }
+      listT.style.display="none";
+    });
+    btnS.onclick = (e)=>{ e.stopPropagation(); listS.style.display = (listS.style.display==="block"?"none":"block"); };
+    btnT.onclick = (e)=>{ e.stopPropagation(); listT.style.display = (listT.style.display==="block"?"none":"block"); };
+    document.addEventListener("click", (e)=>{
+      if (!listS.contains(e.target) && e.target!==btnS) listS.style.display="none";
+      if (!listT.contains(e.target) && e.target!==btnT) listT.style.display="none";
+    });
+  }
+
+  function mementoOptions(){
+    return (store.mementos||[]).slice().sort((a,b)=>a.name.localeCompare(b.name)).map(m=>({
+      name:m.name, detail:m.effect||"", tip:m.effect||"", icon: (store.icons.mementos?.[m.name]||m.icon||"")
+    }));
+  }
+  function bindMemDropdowns(){
+    const btnS = el("memBtnSteve"), listS = el("memListSteve");
+    const btnT = el("memBtnTiny"),  listT = el("memListTiny");
+    buildList("memListSteve", mementoOptions(), (m)=>{
+      const arr = state.current.players.steve.mementos;
+      if (!arr.includes(m.name)){ arr.push(m.name); save(); renderMemChips("steve"); addHistory("Steve memento: " + m.name); }
+      listS.style.display="none";
+    });
+    buildList("memListTiny", mementoOptions(), (m)=>{
+      const arr = state.current.players.tiny.mementos;
+      if (!arr.includes(m.name)){ arr.push(m.name); save(); renderMemChips("tiny"); addHistory("Tiny memento: " + m.name); }
+      listT.style.display="none";
+    });
+    btnS.onclick = (e)=>{ e.stopPropagation(); listS.style.display = (listS.style.display==="block"?"none":"block"); };
+    btnT.onclick = (e)=>{ e.stopPropagation(); listT.style.display = (listT.style.display==="block"?"none":"block"); };
+    document.addEventListener("click", (e)=>{
+      if (!listS.contains(e.target) && e.target!==btnS) listS.style.display="none";
+      if (!listT.contains(e.target) && e.target!==btnT) listT.style.display="none";
+    });
+  }
+
+  function civOptionsForAge(age){
+    const names = (store.civs?.[age] || []).slice().sort((a,b)=>a.localeCompare(b));
+    return names.map(n=>({
+      name:n, detail: (store.civMeta?.[n]?.desc || ""), tip:(store.civMeta?.[n]?.desc || ""), icon:(store.icons.civs?.[n]||"")
+    }));
+  }
+  function rebuildCivLists(){
+    const age = el("age").value;
+    buildList("civListSteve", civOptionsForAge(age), (m)=>{
+      const arr = state.current.players.steve.civs;
+      if (!arr.includes(m.name)){ arr.push(m.name); save(); renderAllChips(); addHistory("Steve civ: " + m.name + " ("+age+")"); }
+      el("civListSteve").style.display="none";
+    });
+    buildList("civListTiny", civOptionsForAge(age), (m)=>{
+      const arr = state.current.players.tiny.civs;
+      if (!arr.includes(m.name)){ arr.push(m.name); save(); renderAllChips(); addHistory("Tiny civ: " + m.name + " ("+age+")"); }
+      el("civListTiny").style.display="none";
+    });
+  }
+  function bindCivDropdowns(){
+    const btnS = el("civBtnSteve"), listS = el("civListSteve");
+    const btnT = el("civBtnTiny"),  listT = el("civListTiny");
+    rebuildCivLists();
+    btnS.onclick = (e)=>{ e.stopPropagation(); listS.style.display = (listS.style.display==="block"?"none":"block"); };
+    btnT.onclick = (e)=>{ e.stopPropagation(); listT.style.display = (listT.style.display==="block"?"none":"block"); };
+    document.addEventListener("click", (e)=>{
+      if (!listS.contains(e.target) && e.target!==btnS) listS.style.display="none";
+      if (!listT.contains(e.target) && e.target!==btnT) listT.style.display="none";
+    });
+  }
+
+  el("age").onchange = ()=>{ state.current.age = el("age").value; save(); rebuildCivLists(); addHistory("Starting Age set: " + state.current.age); };
+
+  el("startNew").onclick = ()=>{
+    if (!confirm("Archive current game and start a new one?")) return;
+    state.games.push(JSON.parse(JSON.stringify(state.current)));
+    state.current = defaultGame();
+    state.current.age = el("age").value;
+    save();
+    renderAll();
+    addHistory("New game started — Age: " + state.current.age);
+  };
+
+  el("resetGame").onclick = ()=>{
+    if (!confirm("Reset the current game setup (players, tickets, history)?")) return;
+    state.current = defaultGame();
+    state.current.age = el("age").value;
+    save(); renderAll();
+  };
+  el("resetKarma").onclick = ()=>{
+    if (!confirm("Reset all category wins for CURRENT game?")) return;
+    Object.keys(state.current.wins).forEach(k=> state.current.wins[k]={steve:0,tiny:0});
+    save(); renderKarma(); addHistory("Karma counters reset.");
+  };
+
+  function renderAll(){
+    el("age").value = state.current.age || "Antiquity";
+    renderTickets();
+    renderKarma();
+    renderArchive();
+    renderHistory();
+    renderAllChips();
+    rebuildCivLists();
+  }
+
+  bindLeaderDropdowns();
+  bindMemDropdowns();
+  bindCivDropdowns();
+  renderAll();
+})();</script>
+
+<!-- Shared scripts -->
+<script src="common.store.js"></script>
+<script src="topbar.js"></script>
+</body>
+</html>
