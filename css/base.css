@@ -1,0 +1,25 @@
+/* Basic reset + layout */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: #111;
+  background: #fff;
+}
+
+/* Simple container */
+.container { width: min(1100px, 92%); margin: 0 auto; }
+
+/* Headers / nav */
+header { padding: 1rem 0; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 1rem; }
+nav a { margin-right: 1rem; text-decoration: none; color: #0a58ca; }
+nav a:focus, nav a:hover { text-decoration: underline; }
+
+/* Footer */
+footer { border-top: 1px solid #eee; padding: 1rem 0; margin-top: 3rem; color: #555; }
+
+/* Version badge (temporary) */
+.visually-muted { font-size: 12px; color: #666; margin: 8px 0; }
+
+/* Accessible focus outline */
+:focus { outline: 2px solid #f2880f; outline-offset: 2px; }
