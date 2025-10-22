@@ -1,6 +1,6 @@
 <!-- Head snippet: paste inside <head> on every page -->
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CIV7 Tracker</title>
 
 <!-- Favicon / app icons (project-page friendly: relative paths at repo root) -->
@@ -20,3 +20,4 @@
 <meta name="theme-color" content="#001a33">
 <meta name="description" content="Track Civilization VII info at a glance.">
 <meta name="twitter:card" content="summary_large_image">
+
