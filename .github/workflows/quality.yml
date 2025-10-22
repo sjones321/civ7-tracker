@@ -13,11 +13,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Offline link check to avoid network flakiness; ignore docs/ snippets
+      # Offline link check against local files; produce out.md but we won't lint it
       - name: Link check (offline)
         uses: lycheeverse/lychee-action@v1
         with:
-          args: --offline --no-progress --verbose --exclude-path "./docs/*" ./
+          args: --offline --no-progress --verbose ./ 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -26,8 +26,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: HTML validate (uses .htmlvalidate.json if present)
+      - name: HTML validate
         run: npx --yes html-validate "**/*.html"
 
-      - name: Markdown lint (uses .markdownlint.yaml if present)
-        run: npx --yes markdownlint-cli "**/*.md" --ignore node_modules
+      - name: Markdown lint (strict; ignore generated lychee report)
+        run: npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
