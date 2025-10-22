@@ -1,3 +1,4 @@
+
 # 🧭 CIV7 Tracker — Setup Continuation Brief
 
 **Project phase:** Setup & workflow finalization (not yet main site dev)  
@@ -64,7 +65,7 @@ It should focus on setup improvements, specifically:
 
 To load the bootstrap and ensure continuity, start the chat with:
 
-```
+```text
 Load project bootstrap
 ```
 

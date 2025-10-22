@@ -1,8 +1,8 @@
 # new-devlog.ps1
-# Creates docs/devlog/YYYY-MM-DD.md with a template and a Commit Digest for today.
+# Creates docs/devlog/YYYY-MM-DD.md with a template and a Commit Digest for today (or a given date).
 
 param(
-  [string]$Date = (Get-Date -Format 'yyyy-MM-dd')  # allow overriding date if needed
+  [string]$Date = (Get-Date -Format 'yyyy-MM-dd')
 )
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -13,13 +13,11 @@ if (!(Test-Path $devlogDir)) { New-Item -ItemType Directory -Path $devlogDir | O
 
 $path = Join-Path $devlogDir "$Date.md"
 
-# Gather commit digest for the given date (local timezone)
 $since = [datetime]::ParseExact($Date,'yyyy-MM-dd',$null)
 $until = $since.AddDays(1)
 $sinceIso = $since.ToString("yyyy-MM-ddT00:00:00")
 $untilIso = $until.ToString("yyyy-MM-ddT00:00:00")
 
-# If git is missing or this isn't a repo, commit digest will be empty
 $commitDigest = ""
 try {
   $commitDigest = git log --since="$sinceIso" --until="$untilIso" --pretty=format:"- %h %ad %s" --date=short 2>$null
@@ -57,11 +55,9 @@ $commitSection
 "@
   Set-Content -Path $path -Value $content -Encoding utf8
 } else {
-  # Append/refresh the commit digest at the end if file exists
   Add-Content -Path $path -Value "`n$commitSection" -Encoding utf8
 }
 
-# Try to open in Notepad++ if available, otherwise default editor
 $np = "${env:ProgramFiles}\Notepad++\notepad++.exe"
 if (Test-Path $np) {
   & $np $path

@@ -1,41 +1,14 @@
-# 📘 CIV7 Tracker — Developer Log
+# CIV7 Tracker — Developer Log
 
-This folder stores one **daily summary** per file, named by date: `YYYY-MM-DD.md`.
+This folder stores one daily summary per file, named `YYYY-MM-DD.md`.
 
-## How to add a new entry (Windows, PowerShell)
+## How to create today’s entry
 
-```powershell
-# From repo root, create today's file and open in Notepad++
-$today = Get-Date -Format 'yyyy-MM-dd'
-$new = "docs/devlog/$today.md"
-if (!(Test-Path "docs/devlog")) { New-Item -ItemType Directory -Path "docs/devlog" | Out-Null }
-@"
-# 🌙 CIV7 Tracker — End of Day Summary
+- Double‑click `new-devlog-today.bat` (or run `new-devlog.ps1`).  
+- It creates/opens `docs/devlog/YYYY-MM-DD.md`, and adds a **Commit Digest** for today.  
+- Ask ChatGPT for a human summary and paste it into the file.  
+- Commit and push.
 
-**Date:** $today
-**Focus:** <what you worked on>
+## Template
 
----
-
-## ✅ Accomplishments
-
-- ...
-
-## ⚙️ Next Planned Phase
-
-- ...
-
-## 🧠 Reflection
-
-- ...
-
-"@ | Set-Content -Path $new -Encoding utf8
-
-notepad++ $new
-```
-
-## Tips
-
-- Keep each entry focused and brief (5–15 bullets total).  
-- Link to relevant commits or PRs if helpful.  
-- Future chats should scan the latest file here to regain context quickly.
+See `TEMPLATE.md` for the structure used by the script.
