@@ -1,8 +1,10 @@
+
 # Workflow & Chat Guide
 
 **Trigger phrase:** `Load project bootstrap`
 
 When a new chat starts for this project, the assistant should:
+
 1. Ask clarifying questions first.
 2. Summarize the plan and wait for explicit approval.
 3. Prefer marker-based **Replacement Packs**; use full files only when necessary.
