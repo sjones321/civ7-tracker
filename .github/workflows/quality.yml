@@ -13,10 +13,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Link check (lychee)
+      # Offline link check against local files to avoid false negatives before Pages deploys
+      - name: Link check (offline)
         uses: lycheeverse/lychee-action@v1
         with:
-          args: --verbose --no-progress --exclude-mail --base . ./
+          args: --offline --no-progress --verbose ./
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -31,7 +32,7 @@ jobs:
       - name: Markdown lint
         run: npx --yes markdownlint-cli "**/*.md" --ignore node_modules
 
-      # Optional: Lighthouse against live site (uncomment when ready)
+      # Optional: Lighthouse against live site (enable later)
       # - name: Lighthouse (live)
       #   run: |
       #     npx --yes @lhci/cli autorun       #       --collect.url=https://sjones321.github.io/civ7-tracker/       #       --upload.target=filesystem       #       --upload.outputDir=./lhci-report
