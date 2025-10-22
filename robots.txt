@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sjones321.github.io/civ7-tracker/sitemap.xml

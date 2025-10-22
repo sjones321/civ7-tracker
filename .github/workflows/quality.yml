@@ -1,0 +1,38 @@
+name: Quality checks
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Link check (lychee)
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: --verbose --no-progress --exclude-mail --base . ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: HTML validate
+        run: npx --yes html-validate "**/*.html"
+
+      - name: Markdown lint
+        run: npx --yes markdownlint-cli "**/*.md" --ignore node_modules
+
+      # Optional: Lighthouse against live site (uncomment when ready)
+      # - name: Lighthouse (live)
+      #   run: |
+      #     npx --yes @lhci/cli autorun       #       --collect.url=https://sjones321.github.io/civ7-tracker/       #       --upload.target=filesystem       #       --upload.outputDir=./lhci-report
+      #   if: github.ref == 'refs/heads/main'
