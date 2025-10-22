@@ -1,3 +1,4 @@
+
 # Workflow & Chat Guide
 
 **Trigger phrase:** `Load project bootstrap`
@@ -8,13 +9,13 @@ When a new chat starts for this project, the assistant should:
 2. Summarize the plan and wait for explicit approval.
 3. Prefer marker-based **Replacement Packs**; use full files only when necessary.
 4. Provide a Conventional Commit message and manual test steps.
-5. Keep explanations beginner-friendly and step-by-step.
+5. Keep explanations beginner‑friendly and step‑by‑step.
 
 ## Everyday Flow
 
 1. Edit files in Notepad++ and save.
 2. GitKraken: Stage → Commit → Push.
-3. Version badges auto-bump on staged `.html` files (pre-commit hook).
+3. Version badges auto‑bump on staged `.html` files (pre‑commit hook).
 4. Verify on the live site and hard refresh (Ctrl+F5).
 
 ## Head Snippet (paste into each page `<head>`)
@@ -57,7 +58,7 @@ When a new chat starts for this project, the assistant should:
 
 ### JavaScript
 
-```javascript
+```js
 // [FUNC START] buildNav() v1
 function buildNav() { /* ... */ }
 // [FUNC END] buildNav() v1
@@ -87,48 +88,6 @@ Next Actions:
 1) ...
 2) ...
 ```
-
-## End-of-Day Summary Workflow
-
-Each development session should end with a summary logged in `docs/devlog/YYYY-MM-DD.md`.
-
-### Steps
-
-1. Run `new-devlog-today.bat` (or `new-devlog.ps1`) to open today’s file.
-2. Ask ChatGPT: “Generate today’s dev summary for the dev log.”
-3. Paste the cleaned summary using the format below.
-
-### Summary Format
-
-```markdown
-# 🌙 CIV7 Tracker — End of Day Summary (Phase Name)
-
-**Date:** 2025-10-22  
-**Focus:** <short focus>
-
-## ✅ Accomplishments
-- ...
-
-## ⚙️ Next Planned Phase
-- ...
-
-## 🧠 Reflection
-- ...
-```
-
-Keep **one blank line** between headings and content. Use **dash bullets** (`-`). Tag any code fences as `text`. Avoid bare URLs by wrapping them in `<angle brackets>` or using `[label](url)`.
-
-## Formatting Safety When Copying from ChatGPT
-
-Sometimes multi-layer examples (a code block that shows another code block) can cause fences to split, or closing comments to land **outside** the fence. Before committing:
-
-- Ensure every opening triple backtick (```) has a matching closing triple backtick at the end of the intended section.
-- Keep end-marker comments (like `<!-- [BLOCK END] ... -->`) **inside** the correct fenced block when they are part of that block.
-- If you must show a code block *inside* another code block, prefer using **four backticks** for the outer fence to avoid accidental closure. For example, write: four-backticks, `markdown` on the same line, content with regular triple backticks inside, then four-backticks to close.
-
-## Delivery Rule for Markdown Files
-
-To avoid chat formatting issues, **Markdown files should be delivered as downloadable full-file replacements** during setup and documentation work. Inline Markdown in chat is allowed for short snippets only. When a full file is provided via download, prefer replacing the entire file instead of piecemeal edits.
 
 ## Notepad++ Suggestions
 

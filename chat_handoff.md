@@ -1,85 +1,52 @@
+# CIV7 Tracker — Handoff for Next Chat (Post-Hooks Fix)
 
-# 🧭 CIV7 Tracker — Setup Continuation Brief
+Project phase: Setup complete -> Workflow polish and docs
 
-**Project phase:** Setup & workflow finalization (not yet main site dev)  
-**Current state:** Repository and CI fully functional — now refining workflow and preparing for structured future dev.
+Current state (OK):
 
----
+- Pre-commit hook fixed and stable (PowerShell script calls markdownlint via cmd.exe npx, skips badge when no HTML is staged, inserts/bumps version badge when HTML is staged).
+- Markdown files delivered as downloadable full-file replacements during setup to avoid chat fence issues.
+- Workflow Guide and Devlog Template are lint-safe and updated.
+- CI/Local checks aligned; last push passed.
 
-## ✅ What’s Already Complete
+## What's Already Complete
 
-1. **Git + GitHub + GitKraken**  
-   - Fully linked and functional  
-   - Local commits push cleanly to the main branch  
-   - `.gitignore` and version bump pre-commit hook configured and working  
+- Git, GitHub, GitKraken linked; push/pull working.
+- Version-badge workflow operational (on staged .html files).
+- GitHub Pages live; favicons/OG load correctly.
+- Markdown/HTML validation green.
+- WORKFLOW_GUIDE.md updated with delivery rule and formatting safety.
+- docs/devlog/TEMPLATE.md updated with end-of-day guide.
 
-2. **Versioning System**  
-   - Auto-increments version badge per page via `.githooks/pre-commit.ps1`  
-   - Confirmed working after re-enabling external Git instead of bundled one  
+## What to Do Next (choose one to start the new chat)
 
-3. **Site Deployment**  
-   - GitHub Pages live at:  
-     `https://sjones321.github.io/civ7-tracker/`
+1) Docs: Add CONTRIBUTING.md and CHANGELOG.md (lint-safe).
+2) CI polish: Optional HTML5 validator, link checker, and/or link rot exceptions.
+3) Template polish: Shared JSON for page versions (optional).
+4) Base UI skeleton: Prepare minimal HTML/CSS/JS scaffolding for first content page(s) with version badge slot.
 
-4. **Quality & Linting**  
-   - All **HTML** and **Markdown** validation passes  
-   - CI checks include `html-validate`, `markdownlint`, and versioning check  
+In the new chat, say "Load project bootstrap", then pick one of the above. We will keep scope tight (one objective per chat).
 
-5. **Branding Assets**  
-   - Favicon + Open Graph images integrated and verified  
-   - Manifest present at site root (`site.webmanifest`)
+## Working Rules (from Workflow Guide)
 
-6. **Docs**  
-   - `README.md` and `docs/workflow_guide.md` fully lint-clean  
-   - Workflow guide defines “Load project bootstrap” trigger phrase  
+- Prefer Replacement Packs with markers; use full-file replacements when safer.
+- Always supply a Conventional Commit message and manual test steps.
+- Keep beginner-friendly steps; avoid multi-topic sprawl per chat.
+- During setup/docs, deliver Markdown as downloadable files to avoid formatting issues.
 
----
+## Quick Terminal Checks (copy/paste)
 
-## 🎯 What This New Chat Should Continue Working On
+```bash
+# Lint all markdown
+npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
 
-This chat should **not** modify site pages yet.  
-It should focus on setup improvements, specifically:
-
-1. Creating optional developer docs:
-   - `CONTRIBUTING.md`
-   - `CHANGELOG.md` (manual or automated version tracking)
-   - Split long docs into focused sections if needed
-
-2. Extending automation:
-   - Auto-bump page version numbers from shared JSON  
-   - Optional: pre-commit auto-changelog entry  
-
-3. Optionally enhancing CI:
-   - Add HTML5 validator  
-   - Add link checker (lychee)  
-   - Add deployment badge to README  
-
-4. Ensuring new workflow rules:
-   - Use open/close marker comments for clean edits  
-   - Provide clear Conventional Commit messages  
-   - Always confirm plan before any coding  
-
----
-
-## 🗝️ Trigger Phrase
-
-To load the bootstrap and ensure continuity, start the chat with:
-
-```text
-Load project bootstrap
+# Verify hooks path
+git config --get core.hooksPath
 ```
 
-Then clarify:
-> “We are continuing setup and workflow refinement (not yet main site coding).”
+## Handoff Checklist
 
----
-
-## 🧩 Tone & Instructions for ChatGPT
-
-- Treat the user as **a beginner** — explain everything in **step-by-step** form.  
-- Ask clarifying questions before giving code or commands.  
-- Use **marker comments** for partial code replacements; whole files only for new or reset files.  
-- Provide a **commit message and brief manual test steps** for every change.  
-- Keep language plain, approachable, and accurate.  
-
----
+- [ ] Replace any provided files exactly as given.
+- [ ] Run the quick checks (above).
+- [ ] Stage -> Commit -> Push.
+- [ ] Confirm CI green and hard refresh live site (Ctrl+F5).
