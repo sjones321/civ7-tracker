@@ -29,7 +29,7 @@
    - A pre‑commit hook **auto‑bumps the patch** for **staged `.html` files**.  
 3. **GitKraken**: **Stage → Commit → Push**.  
 4. **Verify** live site: open the GitHub Pages URL → **Ctrl+F5** → confirm the badge.
-5. “When creating new pages, paste the head-snippet (docs/head-snippet.html) into the <head> so favicon/OG settings stay consistent.”
+5. “When creating new pages, paste the head-snippet (docs/head-snippet.txt) into the <head> so favicon/OG settings stay consistent.”
 **Why this matters:** You always know which version is live, and you develop a repeatable muscle‑memory loop.
 
 ---
