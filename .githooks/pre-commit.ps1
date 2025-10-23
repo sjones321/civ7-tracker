@@ -1,14 +1,11 @@
-<# 
-pre-commit.ps1 — CIV7 Tracker (CMD-based npx call)
-- Processes staged .html files (badge insert/bump)
-- Re-stages changed files
-- Runs markdownlint using 'cmd.exe /c npx ...' to avoid PowerShell npx.ps1 wrapper issues
-#>
-
+# START PACK: pre-commit.ps1 (v2.1 - friendlier logging + autofix)
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path .).Path
-$logFile  = Join-Path $repoRoot '.githooks\pre-commit.log'
+$logDir   = Join-Path $repoRoot '.githooks'
+$logFile  = Join-Path $logDir  'pre-commit.log'
+$mdOut    = Join-Path $logDir  'markdownlint.out'
+if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
 
 function Log([string]$msg) {
   $ts = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
@@ -16,74 +13,58 @@ function Log([string]$msg) {
   Write-Host $msg
 }
 
-# Get staged HTML files
-$staged = git diff --cached --name-only --diff-filter=ACM 2>$null
-if ($LASTEXITCODE -ne 0) {
-  Log 'ERROR: git not available or not a repository.'
-  exit 1
-}
-$staged = $staged | Where-Object { $_ -match '\.html?$' }
-
-if (-not $staged) {
-  Log 'No staged HTML files — skipping badge step.'
-} else {
-  Log ('Processing staged HTML files: ' + ($staged -join ', '))
-}
-
-# Badge regex
-$pattern = '<div\s+id="version-badge"[^>]*>Version\s+v(\d+)\.(\d+)\.(\d+)\s*\(([^)]*)\)</div>'
-$regex   = [System.Text.RegularExpressions.Regex]::new($pattern,[System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-
-$changed = @()
-
-foreach ($rel in $staged) {
-  $path = Join-Path $repoRoot $rel
-  if (-not (Test-Path -LiteralPath $path)) { continue }
-  $fileName = Split-Path $path -Leaf
-
-  $content = [System.IO.File]::ReadAllText($path, (New-Object System.Text.UTF8Encoding($false)))
-
-  $m = $regex.Match($content)
-  if ($m.Success) {
-    $maj = [int]$m.Groups[1].Value
-    $min = [int]$m.Groups[2].Value
-    $pat = [int]$m.Groups[3].Value + 1
-    $next = ('{0}.{1}.{2}' -f $maj, $min, $pat)
-
-    $newBadge = ('<div id="version-badge" class="visually-muted">Version v{0} ({1})</div>' -f $next, $fileName)
-    $content = $regex.Replace($content, { param([System.Text.RegularExpressions.Match] $mm) $newBadge }, 1)
-    Log ('Bumped version in ' + $rel + ' to v' + $next)
-  } else {
-    $insert = ('<div id="version-badge" class="visually-muted">Version v0.0.1 ({0})</div>' -f $fileName)
-    if ([System.Text.RegularExpressions.Regex]::IsMatch($content, '</body>', 'IgnoreCase')) {
-      $content = [System.Text.RegularExpressions.Regex]::Replace($content, '</body>', ($insert + "`r`n</body>"), 1, 'IgnoreCase')
-      Log ('Inserted badge in ' + $rel)
-    } else {
-      $content = $content + "`r`n" + $insert + "`r`n"
-      Log ('Appended badge to end of ' + $rel)
+# --- TASK 1: Update docs/site.json buildDate ---
+try {
+  $siteJsonPath = Join-Path $repoRoot 'docs\site.json'
+  if (Test-Path $siteJsonPath) {
+    try {
+      $raw = Get-Content -Raw -Encoding UTF8 $siteJsonPath
+      $obj = $raw | ConvertFrom-Json  # will throw if invalid
+    } catch {
+      Log "ERROR: docs/site.json is invalid JSON. $_"
+      Write-Error "docs/site.json is invalid JSON. Open it and remove any comments or stray text."
+      exit 2
     }
+
+    $today = (Get-Date).ToString('yyyy-MM-dd')
+    $obj.buildDate = $today
+
+    $jsonOut = $obj | ConvertTo-Json -Depth 4
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($siteJsonPath, $jsonOut + "`n", $utf8NoBom)
+    Log ("Updated docs/site.json buildDate => " + $today)
+  } else {
+    Log 'INFO: docs/site.json not found; skipping shared version refresh.'
   }
-
-  [System.IO.File]::WriteAllText($path, $content, (New-Object System.Text.UTF8Encoding($false)))
-  git add -- "$rel" | Out-Null
-  $changed += $rel
+}
+catch {
+  Log ('WARNING: site.json step failed: ' + $_.Exception.Message)
+  # non-fatal
 }
 
-if ($changed.Count -gt 0) {
-  Log ('Re-staged files: ' + ($changed -join ', '))
-}
+# --- TASK 2: Markdownlint (autofix then verify, Windows-safe) ---
+Log 'Running markdownlint --fix via cmd.exe npx...'
+# First pass: try to fix
+$fixCmd = 'npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**" --fix'
+$proc = Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $fixCmd -Wait -PassThru -NoNewWindow
+$fixCode = $proc.ExitCode
 
-# markdownlint via CMD npx shim (avoids PowerShell npx.ps1 and $MyInvocation.Statement)
-Log 'Running markdownlint via cmd.exe npx...'
-$cmdline = 'npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"'
-$process = Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $cmdline -Wait -PassThru -NoNewWindow
-$code = $process.ExitCode
+# Second pass: verify clean and capture output
+$verifyCmd = 'npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"'
+$psi = New-Object System.Diagnostics.ProcessStartInfo
+$psi.FileName = 'cmd.exe'
+$psi.Arguments = '/c ' + $verifyCmd + ' > "' + $mdOut + '" 2>&1'
+$psi.UseShellExecute = $false
+$psi.CreateNoWindow  = $true
+$p = [System.Diagnostics.Process]::Start($psi); $p.WaitForExit()
+$verifyCode = $p.ExitCode
 
-if ($code -ne 0) {
-  Log ('markdownlint failed with exit code ' + $code)
-  Write-Error 'markdownlint failed. See .githooks\pre-commit.log for details.'
-  exit $code
+if ($verifyCode -ne 0) {
+  Log ('markdownlint failed with exit code ' + $verifyCode + '. See ' + $mdOut)
+  Write-Error "markdownlint failed. Open $mdOut for exact lines to fix."
+  exit $verifyCode
 }
 
 Log 'All checks passed.'
 exit 0
+# END PACK: pre-commit.ps1 (v2.1 - friendlier logging + autofix)

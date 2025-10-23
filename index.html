@@ -1,6 +1,8 @@
+<!-- START PACK: index.html (html-validate clean) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- BEGIN head-snippet (inlined for convenience) -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>CIV7 Tracker</title>
@@ -23,29 +25,72 @@
   <meta name="description" content="Track Civilization VII info at a glance.">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="stylesheet" href="css/base.css?v=1">
+  <!-- START PATCH: Shared version badge (site.json-driven, DOM-ready) -->
+  <style>
+    .version-badge {
+      display:inline-block; font:12px/1.2 system-ui,Segoe UI,Roboto,Arial;
+      border:1px solid #ccc; border-radius:6px; padding:2px 6px;
+      vertical-align:middle;
+    }
+    /* Moved inline styles here to satisfy no-inline-style */
+    header { display:flex; gap:12px; align-items:center; padding:12px; }
+    header h1 { margin:0; }
+    main { padding:12px; max-width: 800px; }
+    nav a { margin-right: 8px; }
+    footer { padding:12px; opacity:.8; }
+  </style>
+  <script>
+    (function(){
+      function renderBadge() {
+        var els = document.querySelectorAll('[data-version-badge]');
+        if (!els.length) return; // no placeholders on this page
+
+        fetch('docs/site.json', { cache: 'no-store' })
+          .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function(d){
+            els.forEach(function(el){
+              el.classList.add('version-badge');
+              el.textContent = 'v' + d.version + ' · ' + d.buildDate;
+              el.setAttribute('title', 'Version ' + d.version + ' built ' + d.buildDate);
+            });
+          })
+          .catch(function(err){
+            els.forEach(function(el){
+              el.classList.add('version-badge');
+              el.textContent = 'version unavailable';
+              el.title = err && err.message ? err.message : 'version fetch failed';
+            });
+            console.warn('[badge]', err);
+          });
+      }
+
+      if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', renderBadge);
+      } else {
+        renderBadge();
+      }
+    })();
+  </script>
+  <!-- END PATCH: Shared version badge (site.json-driven, DOM-ready) -->
+  <!-- END head-snippet -->
 </head>
 <body>
-  <div id="version-badge" class="visually-muted">Version v0.0.2 (index)</div>
-
-  <header class="container">
+  <header>
     <h1>CIV7 Tracker</h1>
-    <nav aria-label="Primary">
-      <a href="index.html">Home</a>
-    </nav>
+    <!-- Live badge placeholder -->
+    <span data-version-badge></span>
   </header>
 
-  <main class="container">
-    <section aria-labelledby="intro">
-      <h2 id="intro">Welcome</h2>
-      <p>Clean base with correct favicon/OG wiring for GitHub Project Pages.</p>
-    </section>
+  <nav>
+    <a href="./">Home</a>
+  </nav>
+
+  <main>
+    <h2>Welcome</h2>
+    <p>Clean base with a live version badge sourced from <code>docs/site.json</code>.</p>
   </main>
 
-  <footer class="container">
-    <small>&copy; <span id="year"></span> CIV7 Tracker</small>
-  </footer>
-
-  <script src="js/main.js?v=1"></script>
+  <footer>© CIV7 Tracker</footer>
 </body>
 </html>
+<!-- END PACK: index.html (html-validate clean) -->

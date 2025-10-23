@@ -9,6 +9,7 @@ A lightweight static website to track Civilization VII info.
 | Live Site | [https://sjones321.github.io/civ7-tracker/](https://sjones321.github.io/civ7-tracker/) |
 | GitHub Repo | [https://github.com/sjones321/civ7-tracker](https://github.com/sjones321/civ7-tracker) |
 | Workflow Guide | [docs/workflow_guide.md](docs/workflow_guide.md) |
+| Changelog | [CHANGELOG.md](CHANGELOG.md) |
 
 ## Getting Started
 
