@@ -1,45 +1,83 @@
-<!-- START PACK: index.html (shared version badge) -->
+<!-- START PACK: index.html (shared version badge, DOM-ready) -->
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- BEGIN head-snippet (inlined for convenience) -->
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CIV7 Tracker</title>
 
-  <!-- Version badge styles + loader (reads docs/site.json) -->
+  <!-- Favicon / app icons (project-page friendly: relative paths at repo root) -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!-- Open Graph (social share) -->
+  <meta property="og:title" content="CIV7 Tracker">
+  <meta property="og:description" content="Track Civilization VII info at a glance.">
+  <meta property="og:url" content="https://sjones321.github.io/civ7-tracker/">
+  <meta property="og:image" content="https://sjones321.github.io/civ7-tracker/img/og-card.png">
+
+  <!-- Extras -->
+  <meta name="theme-color" content="#001a33">
+  <meta name="description" content="Track Civilization VII info at a glance.">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- START PATCH: Shared version badge (site.json-driven) -->
   <style>
     .version-badge {
       display:inline-block; font:12px/1.2 system-ui,Segoe UI,Roboto,Arial;
       border:1px solid #ccc; border-radius:6px; padding:2px 6px;
       vertical-align:middle;
     }
-    header { display:flex; gap:12px; align-items:center; padding:12px; }
-    main { padding: 12px; max-width: 800px; }
-    nav a { margin-right: 8px; }
-    footer { padding:12px; opacity:.8; }
   </style>
   <script>
     (function(){
-      var els = document.querySelectorAll('[data-version-badge]');
-      if (!els.length) return;
-      fetch('docs/site.json', {cache:'no-store'})
-        .then(function(r){ return r.ok ? r.json() : null; })
-        .then(function(d){
-          if (!d) return;
-          els.forEach(function(el){
-            el.classList.add('version-badge');
-            el.textContent = 'v' + d.version + ' · ' + d.buildDate;
-            el.setAttribute('title', 'Version ' + d.version + ' built ' + d.buildDate);
+      function renderBadge() {
+        var els = document.querySelectorAll('[data-version-badge]');
+        if (!els.length) return; // no placeholders on this page
+
+        fetch('docs/site.json', { cache: 'no-store' })
+          .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function(d){
+            els.forEach(function(el){
+              el.classList.add('version-badge');
+              el.textContent = 'v' + d.version + ' · ' + d.buildDate;
+              el.setAttribute('title', 'Version ' + d.version + ' built ' + d.buildDate);
+            });
+          })
+          .catch(function(err){
+            els.forEach(function(el){
+              el.classList.add('version-badge');
+              el.textContent = 'version unavailable';
+              el.title = err && err.message ? err.message : 'version fetch failed';
+            });
+            console.warn('[badge]', err);
           });
-        })
-        .catch(function(){ /* silent */ });
+      }
+
+      if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', renderBadge);
+      } else {
+        renderBadge();
+      }
     })();
   </script>
+  <!-- END PATCH: Shared version badge (site.json-driven) -->
+  <!-- END head-snippet -->
+  <style>
+    header { display:flex; gap:12px; align-items:center; padding:12px; }
+    main { padding:12px; max-width: 800px; }
+    nav a { margin-right: 8px; }
+    footer { padding:12px; opacity:.8; }
+  </style>
 </head>
 <body>
   <header>
     <h1 style="margin:0">CIV7 Tracker</h1>
-    <!-- Live badge replaces old "Version v0.0.2 (index)" text -->
+    <!-- Live badge placeholder -->
     <span data-version-badge></span>
   </header>
 
@@ -49,10 +87,10 @@
 
   <main>
     <h2>Welcome</h2>
-    <p>Clean base with correct favicon/OG wiring for GitHub Project Pages.</p>
+    <p>Clean base with a live version badge sourced from <code>docs/site.json</code>.</p>
   </main>
 
   <footer>© CIV7 Tracker</footer>
 </body>
 </html>
-<!-- END PACK: index.html (shared version badge) -->
+<!-- END PACK: index.html (shared version badge, DOM-ready) -->

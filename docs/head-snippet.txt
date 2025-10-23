@@ -1,16 +1,17 @@
+<!-- START PACK: head-snippet.txt (DOM-ready version badge) -->
 <!-- Head snippet: paste inside <head> on every page -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CIV7 Tracker</title>
 
-<!-- Favicon / app icons (project-page friendly: relative paths at repo root) -->
+<!-- Favicon / app icons -->
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 
-<!-- Open Graph (social share) -->
+<!-- Open Graph -->
 <meta property="og:title" content="CIV7 Tracker">
 <meta property="og:description" content="Track Civilization VII info at a glance.">
 <meta property="og:url" content="https://sjones321.github.io/civ7-tracker/">
@@ -21,28 +22,45 @@
 <meta name="description" content="Track Civilization VII info at a glance.">
 <meta name="twitter:card" content="summary_large_image">
 
-<!-- START PATCH: Shared version badge (site.json-driven) -->
+<!-- START PATCH: Shared version badge (site.json-driven, DOM-ready) -->
 <style>
   .version-badge {
     display:inline-block; font:12px/1.2 system-ui,Segoe UI,Roboto,Arial;
     border:1px solid #ccc; border-radius:6px; padding:2px 6px;
+    vertical-align:middle;
   }
 </style>
 <script>
   (function(){
-    var els = document.querySelectorAll('[data-version-badge]');
-    if (!els.length) return;
-    fetch('docs/site.json', {cache:'no-store'})
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(d){
-        if (!d) return;
-        els.forEach(function(el){
-          el.classList.add('version-badge');
-          el.textContent = 'v' + d.version + ' · ' + d.buildDate;
-          el.setAttribute('title', 'Version ' + d.version + ' built ' + d.buildDate);
+    function renderBadge() {
+      var els = document.querySelectorAll('[data-version-badge]');
+      if (!els.length) return;
+
+      fetch('docs/site.json', { cache: 'no-store' })
+        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(d){
+          els.forEach(function(el){
+            el.classList.add('version-badge');
+            el.textContent = 'v' + d.version + ' · ' + d.buildDate;
+            el.setAttribute('title', 'Version ' + d.version + ' built ' + d.buildDate);
+          });
+        })
+        .catch(function(err){
+          els.forEach(function(el){
+            el.classList.add('version-badge');
+            el.textContent = 'version unavailable';
+            el.title = err && err.message ? err.message : 'version fetch failed';
+          });
+          console.warn('[badge]', err);
         });
-      })
-      .catch(function(){ /* optional: silent */ });
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', renderBadge);
+    } else {
+      renderBadge();
+    }
   })();
 </script>
-<!-- END PATCH: Shared version badge (site.json-driven) -->
+<!-- END PATCH: Shared version badge (site.json-driven, DOM-ready) -->
+<!-- END PACK: head-snippet.txt (DOM-ready version badge) -->
