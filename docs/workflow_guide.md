@@ -50,36 +50,30 @@ Local lint must pass before commit; CI runs the same checks. If CI fails on docs
 
 _This addendum can be appended near the end of `docs/workflow_guide.md`._
 
-<!-- START PATCH: CHANGELOG maintenance guide -->
-## How we maintain the changelog
+<!-- START PATCH: Wrap-up & Handoff Ritual -->
+## Wrap-up & Handoff Ritual
 
-This project uses **Keep a Changelog** (human-readable) and **SemVer** (MAJOR.MINOR.PATCH) for releases.
+Use the phrase **“Wrap up this task”** at the end of a milestone to run a structured close-out. The assistant will:
 
-### When to update
+1. **Audit docs for drift** — review the current `docs/workflow_guide.md` and `chat_handoff.md` against this session’s practice and propose exact edits.
+2. **Confirm → Generate** — after you confirm, generate **downloadable full-file replacements** for updated docs.
+3. **Project-files sync list** — output a list of files to re-upload to the ChatGPT project-files panel (e.g., `ROOT-README.md`, `docs/workflow_guide.md`, `chat_handoff.md`, latest `docs/devlog/YYYY-MM-DD.md`).
+4. **.gitignore check** — suggest new ignore rules if needed (e.g., `.git/hooks-log/`).
+5. **Sanity tests** — quick checks: markdownlint, local preview (`npx http-server -p 8080`), version badge fetch works, changelog link renders on GitHub.
+6. **Next-task nudge** — suggest one bite-sized follow-up milestone and a PR title.
+7. **Handoff summary** — provide a concise, copyable summary for the next chat.
 
-- **Every commit that matters to users**: add a short bullet under **Unreleased**.
-- Group by type: **Added, Changed, Fixed, Removed, Deprecated, Security, Docs**.
-- Write in plain language; one line per change.
+### Logger & self-test
 
-### Releasing a version
+- **Logger:** `run-hook-log.bat` captures hook output to `.git/hooks-log/` (keep it ignored).
+- **Self-test:** set env `HOOK_SELFTEST=1` before running the hook to perform a no-mutation health check.
 
-1. Ensure **Unreleased** bullets are clean and categorized.
-2. Decide the version bump:
-   - **PATCH**: fixes only
-   - **MINOR**: backward-compatible features
-   - **MAJOR**: breaking change
-3. Move bullets from **Unreleased** into a new `## [X.Y.Z] - YYYY-MM-DD` section.
-4. Tag the commit: `git tag vX.Y.Z && git push --tags`.
-5. (Optional) Create a GitHub Release pointing to the tag.
+### Markdown lint reminders
 
-### Style/consistency rules
+- Keep **one blank line** around headings, lists, and code fences.
+- For **Keep a Changelog**, configure MD024 to allow repeated headings across releases. In `CHANGELOG.md` add at line 1:
 
-- Link section references at the bottom:  
-  `[Unreleased]: https://github.../compare/vX.Y.Z...HEAD` and  
-  `[X.Y.Z]: https://github.../releases/tag/vX.Y.Z`
-- Keep line width reasonable; avoid smart quotes; end file with one newline (see Markdown Hygiene).
-
-### Tip: version badge & docs
-
-- `docs/site.json` holds `version` and `buildDate`; the pre-commit hook refreshes the date. The UI badge reads from this file at DOM ready.  
-<!-- END PATCH: CHANGELOG maintenance guide -->
+  ```markdown
+  <!-- markdownlint-configure-file {"MD024": { "siblings_only": true }} -->
+  ```
+<!-- END PATCH: Wrap-up & Handoff Ritual -->
