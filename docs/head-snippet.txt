@@ -21,3 +21,28 @@
 <meta name="description" content="Track Civilization VII info at a glance.">
 <meta name="twitter:card" content="summary_large_image">
 
+<!-- START PATCH: Shared version badge (site.json-driven) -->
+<style>
+  .version-badge {
+    display:inline-block; font:12px/1.2 system-ui,Segoe UI,Roboto,Arial;
+    border:1px solid #ccc; border-radius:6px; padding:2px 6px;
+  }
+</style>
+<script>
+  (function(){
+    var els = document.querySelectorAll('[data-version-badge]');
+    if (!els.length) return;
+    fetch('docs/site.json', {cache:'no-store'})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        if (!d) return;
+        els.forEach(function(el){
+          el.classList.add('version-badge');
+          el.textContent = 'v' + d.version + ' · ' + d.buildDate;
+          el.setAttribute('title', 'Version ' + d.version + ' built ' + d.buildDate);
+        });
+      })
+      .catch(function(){ /* optional: silent */ });
+  })();
+</script>
+<!-- END PATCH: Shared version badge (site.json-driven) -->
