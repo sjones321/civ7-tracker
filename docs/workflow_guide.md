@@ -1,96 +1,51 @@
+# Workflow Addendum — Markdown & Hook Reliability
 
-# Workflow & Chat Guide
+This addendum documents the fixes and rules adopted after the pre-commit/markdownlint hiccup, so future sessions avoid repeats.
 
-**Trigger phrase:** `Load project bootstrap`
+## Markdown Hygiene (lint-safe)
 
-When a new chat starts for this project, the assistant should:
+- Put **one blank line** above and below each heading.
+- Put **one blank line** before a list and after a list (MD032).
+- Use **dash bullets** (`-`) for lists (MD004).
+- Surround fenced code blocks with a blank line **before and after** (MD031).
+- Tag fenced blocks with a language (use `text` for plain content) (MD040).
+- Avoid bare URLs — use `<...>` or `[label](url)` (MD034).
+- End files with **one trailing newline** (MD047).
+- Prefer **ASCII** for setup/docs; avoid emojis and smart quotes. If needed, ensure files are saved as **UTF-8 (no BOM)** in Notepad++ (Encoding → UTF-8).
 
-1. Ask clarifying questions first.
-2. Summarize the plan and wait for explicit approval.
-3. Prefer marker-based **Replacement Packs**; use full files only when necessary.
-4. Provide a Conventional Commit message and manual test steps.
-5. Keep explanations beginner‑friendly and step‑by‑step.
+## Delivery Rule for Markdown (during setup/docs)
 
-## Everyday Flow
+To avoid chat formatting issues, deliver **Markdown as downloadable full-file replacements**. Reserve inline snippets in chat for short examples only.
 
-1. Edit files in Notepad++ and save.
-2. GitKraken: Stage → Commit → Push.
-3. Version badges auto‑bump on staged `.html` files (pre‑commit hook).
-4. Verify on the live site and hard refresh (Ctrl+F5).
+## Pre-commit Hook Behavior (expected)
 
-## Head Snippet (paste into each page `<head>`)
+- If no `.html` files are staged: the hook logs `No staged HTML files — skipping badge step.`
+- If `.html` files are staged: the hook inserts or bumps the version badge and **re-stages** those files.
+- The hook then runs markdownlint via **cmd.exe npx** (bypassing PowerShell’s npx wrapper).
 
-```html
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CIV7 Tracker</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
-<meta property="og:title" content="CIV7 Tracker">
-<meta property="og:description" content="Track Civilization VII info at a glance.">
-<meta property="og:url" content="https://sjones321.github.io/civ7-tracker/">
-<meta property="og:image" content="https://sjones321.github.io/civ7-tracker/img/og-card.png">
-<meta name="theme-color" content="#001a33">
-<meta name="description" content="Track Civilization VII info at a glance.">
-<meta name="twitter:card" content="summary_large_image">
-```
+## Quick Troubleshooting
 
-## Markers (for surgical edits)
+1. **Hook failed (code 1)**: open a terminal at repo root and run:
 
-### HTML
+   ```powershell
+   PowerShell -NoProfile -ExecutionPolicy Bypass -File .githooks\pre-commit.ps1 *>&1 | Tee-Object precommit_log.txt
+   notepad precommit_log.txt
+   ```
 
-```html
-<!-- [SECTION START] header-nav v1 -->
-<!-- content -->
-<!-- [SECTION END] header-nav v1 -->
-```
+2. **If the log shows markdownlint errors**: run
 
-### CSS
+   ```powershell
+   npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
+   ```
 
-```css
-/* [BLOCK START] .site-header v1 */
-/* styles */
-/* [BLOCK END] .site-header v1 */
-```
+   Fix spacing around headings/lists or fences per the rules above.
+3. **If npx wrapper errors**: already mitigated — hook calls `cmd.exe /c npx ...`.
+4. **Badge step confusion**: to test the badge logic, **stage an `.html` file** and commit.
 
-### JavaScript
+## CI Alignment
 
-```js
-// [FUNC START] buildNav() v1
-function buildNav() { /* ... */ }
-// [FUNC END] buildNav() v1
-```
+Local lint must pass before commit; CI runs the same checks. If CI fails on docs, replace the affected Markdown using the download rule above and re-run the lint command locally.
 
-## Commit Style (Conventional)
+---
 
-Use: `<type>(optional-scope): short summary`
-
-- `feat:` new feature
-- `fix:` bug fix
-- `docs:` documentation
-- `chore:` config/infra/maintenance
-- `style:` visual/formatting only
-
-## Voice Summary Template
-
-```text
-VOICE SUMMARY (dd mmm yyyy)
-Topic:
-Decisions (LOCKED / TENTATIVE):
-- [LOCKED] ...
-- [TENTATIVE] ...
-Constraints:
-- ...
-Next Actions:
-1) ...
-2) ...
-```
-
-## Notepad++ Suggestions
-
-- View → Show Symbol → Show All Characters (to spot hidden bytes)
-- Preferences → MISC → Enable “File Status Auto-Detection”
-- Compare plugin (optional) for quick diffs
+_This addendum can be appended near the end of `docs/workflow_guide.md`._
