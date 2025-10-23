@@ -60,3 +60,37 @@ Local lint must pass before commit; CI runs the same checks. If CI fails on docs
 ---
 
 _This addendum can be appended near the end of `docs/workflow_guide.md`._
+
+<!-- START PATCH: Project-file Sync Helper -->
+## Project-file Sync Helper
+
+We keep a curated set of “project files” in ChatGPT’s project panel so new chats can bootstrap quickly.  
+Use the one-level-up script **`project-file-sync.bat` (v6.1-Stable)** to gather the files with safe names and produce a MANIFEST.
+
+### Canonical upload set (names as they appear in ChatGPT)
+- `ROOT-README.md`  ← from `README.md`
+- `workflow_guide.md`  ← from `docs/workflow_guide.md`
+- `chat_handoff.md`  ← from `chat_handoff.md`
+- `head-snippet.txt`  ← from `docs/head-snippet.txt`
+- `site.json`  ← from `docs/site.json`
+- `DEVLOG-README.md`  ← from `docs/devlog/README.md`
+- `TEMPLATE.md`  ← from `docs/devlog/TEMPLATE.md`
+- `new-devlog.ps1`
+- `new-devlog-today.bat`
+- `new-devlog-date.bat`
+- `pre-commit.ps1`  ← from `.githooks/pre-commit.ps1`
+- `.gitignore`
+- `DEVLOG-YYYY-MM-DD.md`  ← latest devlog from `docs/devlog/`
+
+### Where the script lives
+Place `project-file-sync.bat` **one directory above** your repo. It creates `project-file-updates\` beside itself, and writes **`MANIFEST.txt` + `project-file-sync.log`** next to the `.bat`.
+
+### How to run
+1. Double-click `project-file-sync.bat` (or pass your repo path as the first argument).
+2. Upload **only** the files listed in `MANIFEST.txt` to ChatGPT’s project-files panel.
+3. Skip `MANIFEST.txt` and the `.bat` itself — they are for your convenience.
+
+### Version
+Current stable: **v6.1** — single PowerShell block + .NET write ensures a guaranteed MANIFEST on OneDrive paths.
+<!-- END PATCH: Project-file Sync Helper -->
+

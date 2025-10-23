@@ -25,3 +25,5 @@ git config core.hooksPath .githooks
 
 # Verify hooks path
 git config --get core.hooksPath
+
+_See Workflow Guide → Project-file Sync Helper for the one-click upload flow._

@@ -67,3 +67,7 @@ When you type **“Load project bootstrap”**, the assistant will:
 - Generate `CHANGELOG.md` releases from Conventional Commits.  
 
 - Expand CI with link checking / HTML5 validators / badges as needed.
+
+### Project-file Sync (one folder up)
+
+Keep `project-file-sync.bat` **one directory above** the repo. It fills a sibling folder `project-file-updates\` with the canonical upload files and writes `MANIFEST.txt` next to the `.bat`. Upload the files listed in the manifest to ChatGPT’s project panel after each work session.

@@ -35,3 +35,5 @@
 - Always supply a **Conventional Commit** message and **manual test steps**.  
 - Keep beginner-friendly steps; avoid multi-topic sprawl per chat.  
 - During docs, deliver **Markdown as downloadable files** to avoid formatting issues.
+
+**Upload refresh (end of day):** run the one-up `project-file-sync.bat` to regenerate `project-file-updates\`, then upload the files listed in `MANIFEST.txt` to the project panel.
