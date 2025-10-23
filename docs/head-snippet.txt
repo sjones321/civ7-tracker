@@ -1,4 +1,4 @@
-<!-- START PACK: head-snippet.txt (DOM-ready version badge) -->
+<!-- START PACK: head-snippet.txt (html-validate clean) -->
 <!-- Head snippet: paste inside <head> on every page -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -63,4 +63,4 @@
   })();
 </script>
 <!-- END PATCH: Shared version badge (site.json-driven, DOM-ready) -->
-<!-- END PACK: head-snippet.txt (DOM-ready version badge) -->
+<!-- END PACK: head-snippet.txt (html-validate clean) -->
