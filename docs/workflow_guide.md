@@ -49,3 +49,37 @@ Local lint must pass before commit; CI runs the same checks. If CI fails on docs
 ---
 
 _This addendum can be appended near the end of `docs/workflow_guide.md`._
+
+<!-- START PATCH: CHANGELOG maintenance guide -->
+## How we maintain the changelog
+
+This project uses **Keep a Changelog** (human-readable) and **SemVer** (MAJOR.MINOR.PATCH) for releases.
+
+### When to update
+
+- **Every commit that matters to users**: add a short bullet under **Unreleased**.
+- Group by type: **Added, Changed, Fixed, Removed, Deprecated, Security, Docs**.
+- Write in plain language; one line per change.
+
+### Releasing a version
+
+1. Ensure **Unreleased** bullets are clean and categorized.
+2. Decide the version bump:
+   - **PATCH**: fixes only
+   - **MINOR**: backward-compatible features
+   - **MAJOR**: breaking change
+3. Move bullets from **Unreleased** into a new `## [X.Y.Z] - YYYY-MM-DD` section.
+4. Tag the commit: `git tag vX.Y.Z && git push --tags`.
+5. (Optional) Create a GitHub Release pointing to the tag.
+
+### Style/consistency rules
+
+- Link section references at the bottom:  
+  `[Unreleased]: https://github.../compare/vX.Y.Z...HEAD` and  
+  `[X.Y.Z]: https://github.../releases/tag/vX.Y.Z`
+- Keep line width reasonable; avoid smart quotes; end file with one newline (see Markdown Hygiene).
+
+### Tip: version badge & docs
+
+- `docs/site.json` holds `version` and `buildDate`; the pre-commit hook refreshes the date. The UI badge reads from this file at DOM ready.  
+<!-- END PATCH: CHANGELOG maintenance guide -->
