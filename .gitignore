@@ -1,20 +1,32 @@
-# OS junk
+# START PACK: .gitignore (civ7-tracker)
+# OS cruft
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Editors / IDE
+# Editor/IDE
 .vscode/
 .idea/
-*.iml
 
-# Logs / scratch
-*.log
-logs/
+# Node & tooling
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local servers / temp
+*.local
+*.tmp
 tmp/
+temp/
 
-# Build outputs (if you ever add tooling later)
+# Git hooks output (keep logs local-only)
+.githooks/*.log
+.githooks/*.out
+precommit_log.txt
+
+# Build artifacts (future-proof; static site stays clean)
 dist/
 build/
-
-# Images cache placeholders
-*.tmp
+coverage/
+# END PACK: .gitignore (civ7-tracker)
