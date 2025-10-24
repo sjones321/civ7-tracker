@@ -1,0 +1,37 @@
+name: Docs — link check (lychee)
+on:
+  push:
+    paths:
+      - "**/*.md"
+      - "**/*.html"
+      - ".github/workflows/link-check.yml"
+  pull_request:
+    paths:
+      - "**/*.md"
+      - "**/*.html"
+      - ".github/workflows/link-check.yml"
+  workflow_dispatch:
+
+jobs:
+  linkcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run lychee link checker
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Check Markdown + HTML files in the repo
+          args: >-
+            --accept 200,204,206,301,302,308
+            --max-redirects 10
+            --retry-wait-time 2
+            --timeout 20
+            --include-fragments
+            --insecure
+            --verbose
+            --no-progress
+            "**/*.md" "**/*.html"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

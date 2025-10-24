@@ -1,0 +1,27 @@
+name: Site — html-validate
+on:
+  push:
+    paths:
+      - "**/*.html"
+      - ".github/workflows/html-validate.yml"
+  pull_request:
+    paths:
+      - "**/*.html"
+      - ".github/workflows/html-validate.yml"
+  workflow_dispatch:
+
+jobs:
+  htmlvalidate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate HTML
+        run: |
+          npx --yes html-validate "**/*.html"
