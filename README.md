@@ -26,6 +26,7 @@ A lightweight static website to track Civilization VII info.
 > **Note:** For commit message style, changelog rules, and hook behavior, see [CONTRIBUTING.md](CONTRIBUTING.md) and the [Workflow Guide](docs/workflow_guide.md).
 <!-- END PACK: ROOT-README.md (Getting Started footer note) -->
 <!-- END PACK: ROOT-README.md (Getting Started section) -->
+
 ## Commands
 
 ```text
