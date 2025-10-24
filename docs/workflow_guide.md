@@ -1,3 +1,4 @@
+<!-- START FILE: docs/workflow_guide.md -->
 # Workflow Addendum — Markdown & Hook Reliability
 
 This addendum documents the fixes and rules adopted after the pre-commit/markdownlint hiccup, so future sessions avoid repeats.
@@ -97,3 +98,42 @@ Place `project-file-sync.bat` **one directory above** your repo. It creates `pro
 
 Current stable: **v6.1** — single PowerShell block + .NET write ensures a guaranteed MANIFEST on OneDrive paths.
 <!-- END PATCH: Project-file Sync Helper -->
+
+<!-- START PACK: docs/workflow_guide.md (Markdown Delivery & Formatting Policy addendum) -->
+## Workflow Addendum — Markdown Delivery & Formatting Policy
+
+This addendum codifies how we exchange Markdown safely so chat apps don't mangle formatting.
+
+### Delivery policy (priority order)
+
+1. **Downloadable full-file replacements** (preferred during docs): when changing or adding Markdown files, deliver as a ready-to-save file.
+2. **Canvas document**: for sections/snippets you intend to paste into existing files; the canvas preserves formatting for copy/paste.
+3. **Inline code blocks in chat**: only for short examples (≤ ~20 lines). Avoid for production replacements.
+
+### Formatting hygiene (lint-safe)
+
+- Surround headings and lists with **one blank line** before and after.
+- Use **dash bullets** (`-`) for lists.
+- Surround fenced code blocks with a blank line **before and after** and tag a language (use `text` for plain).
+- Avoid bare URLs — use `<https://...>` or `[label](https://...)`.
+- End files with **one trailing newline**.
+- Prefer **ASCII** for docs; save as **UTF-8 (no BOM)**.
+
+### Requesting deliverables from ChatGPT (ritual)
+
+- Say: **“Deliver as downloadable full-file replacement.”**
+- For partial edits, say: **“Give me a Replacement Pack with START/END markers for section X.”**
+- When you need to preserve formatting for manual paste, say: **“Put it in a canvas document.”**
+
+### Verification
+
+After saving files locally:
+
+```text
+npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
+```
+
+Fix issues shown (normally blank lines or bare links). Re-run until clean.
+<!-- END PACK: docs/workflow_guide.md (Markdown Delivery & Formatting Policy addendum) -->
+
+<!-- END FILE: docs/workflow_guide.md -->
