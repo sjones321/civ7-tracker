@@ -29,4 +29,8 @@ precommit_log.txt
 dist/
 build/
 coverage/
+
+# markdownlint output
+**/markdownlint.out
+
 # END PACK: .gitignore (civ7-tracker)
