@@ -68,6 +68,7 @@ We keep a curated set of “project files” in ChatGPT’s project panel so new
 Use the one-level-up script **`project-file-sync.bat` (v6.1-Stable)** to gather the files with safe names and produce a MANIFEST.
 
 ### Canonical upload set (names as they appear in ChatGPT)
+
 - `ROOT-README.md`  ← from `README.md`
 - `workflow_guide.md`  ← from `docs/workflow_guide.md`
 - `chat_handoff.md`  ← from `chat_handoff.md`
@@ -83,14 +84,16 @@ Use the one-level-up script **`project-file-sync.bat` (v6.1-Stable)** to gather 
 - `DEVLOG-YYYY-MM-DD.md`  ← latest devlog from `docs/devlog/`
 
 ### Where the script lives
+
 Place `project-file-sync.bat` **one directory above** your repo. It creates `project-file-updates\` beside itself, and writes **`MANIFEST.txt` + `project-file-sync.log`** next to the `.bat`.
 
 ### How to run
+
 1. Double-click `project-file-sync.bat` (or pass your repo path as the first argument).
 2. Upload **only** the files listed in `MANIFEST.txt` to ChatGPT’s project-files panel.
 3. Skip `MANIFEST.txt` and the `.bat` itself — they are for your convenience.
 
 ### Version
+
 Current stable: **v6.1** — single PowerShell block + .NET write ensures a guaranteed MANIFEST on OneDrive paths.
 <!-- END PATCH: Project-file Sync Helper -->
-
