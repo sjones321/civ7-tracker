@@ -30,7 +30,7 @@ dist/
 build/
 coverage/
 
-# markdownlint output
+# markdownlint output (add these lines to your existing .gitignore)
 **/markdownlint.out
 
 # END PACK: .gitignore (civ7-tracker)
