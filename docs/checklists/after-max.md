@@ -18,17 +18,17 @@ Use this checklist once the MAX prompt has been executed and the session is read
 
 Run the validation trio before signing off:
 
-```bash
-npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
-```
+    ```bash
+    npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
+    ```
 
-```bash
-npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**" --fix
-```
+    ```bash
+    npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**" --fix
+    ```
 
-```bash
-npx --yes html-validate "**/*.html"
-```
+    ```bash
+    npx --yes html-validate "**/*.html"
+    ```
 
 ## Handoff notes
 

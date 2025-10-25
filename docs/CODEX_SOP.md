@@ -8,9 +8,9 @@ automation helpers, and lint validation. Follow it whenever you open a new sessi
 1. Pull the latest changes and install dependencies (if any).
 2. Run the devlog generator when starting a new day.
 
-   ```powershell
-   PowerShell -NoProfile -ExecutionPolicy Bypass -File ./new-devlog.ps1
-   ```
+    ```powershell
+    PowerShell -NoProfile -ExecutionPolicy Bypass -File ./new-devlog.ps1
+    ```
 
 3. Update `Focus` in the freshly created devlog entry.
 4. Review the previous day’s Daily Summary to stay aligned.
@@ -34,9 +34,9 @@ tools\devlog-append.bat -Title "docs: quick headline" -Description "why it matte
 
 1. Run the wrap-up helper to surface the Daily Summary bullets and copy them to the clipboard.
 
-   ```powershell
-   PowerShell -NoProfile -ExecutionPolicy Bypass -File ./tools/devlog-wrapup.ps1
-   ```
+    ```powershell
+    PowerShell -NoProfile -ExecutionPolicy Bypass -File ./tools/devlog-wrapup.ps1
+    ```
 
 2. Use the console output as the PR summary and chat hand-off.
 3. Verify the Commit Digest appended by `new-devlog.ps1` reflects the last commits of the day.
