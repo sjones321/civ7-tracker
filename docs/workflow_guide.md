@@ -65,7 +65,7 @@ _This addendum can be appended near the end of `docs/workflow_guide.md`._
 <!-- START PATCH: Project-file Sync Helper -->
 ## Project-file Sync Helper
 
-We keep a curated set of “project files” in ChatGPT’s project panel so new chats can bootstrap quickly.  
+We keep a curated set of “project files” in ChatGPT’s project panel so new chats can bootstrap quickly.
 Use the one-level-up script **`project-file-sync.bat` (v6.1-Stable)** to gather the files with safe names and produce a MANIFEST.
 
 ### Canonical upload set (names as they appear in ChatGPT)

@@ -18,8 +18,8 @@ A lightweight static website to track Civilization VII info.
 <!-- START PACK: ROOT-README.md (Getting Started section) -->
 ## Getting Started
 
-1. Edit in Notepad++ and save.  
-2. In GitKraken: Stage → Commit → Push.  
+1. Edit in Notepad++ and save.
+2. In GitKraken: Stage → Commit → Push.
 3. Visit the live site and press **Ctrl+F5** to hard refresh.
 
 <!-- START PACK: ROOT-README.md (Getting Started footer note) -->
