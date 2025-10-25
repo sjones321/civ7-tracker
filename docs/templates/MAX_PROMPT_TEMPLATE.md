@@ -15,6 +15,7 @@ remove any sections that do not apply.
 - <artifacts expected>
 
 ## Validation
+
 ```bash
 npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
 npx --yes html-validate "**/*.html"

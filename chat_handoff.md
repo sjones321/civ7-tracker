@@ -21,27 +21,27 @@
 
 ## What to Do Next (choose one)
 
-1) **CI polish (optional):** Add a link checker step and/or HTML validator job.  
+1) **CI polish (optional):** Add a link checker step and/or HTML validator job.
 2) **Base UI:** Start the first content page scaffold using `docs/head-snippet.txt` + version badge slot.
 
-> In a new chat, say **Load project bootstrap**, then name one objective from above.  
+> In a new chat, say **Load project bootstrap**, then name one objective from above.
 > To close any future chat neatly, say **Wrap up this task** and follow the prompts.
 
 ---
 
 ## Working Rules (from Workflow Guide)
 
-- Prefer **Replacement Packs** with markers; use full-file replacements when safer.  
-- Always supply a **Conventional Commit** message and **manual test steps**.  
-- Keep beginner-friendly steps; avoid multi-topic sprawl per chat.  
+- Prefer **Replacement Packs** with markers; use full-file replacements when safer.
+- Always supply a **Conventional Commit** message and **manual test steps**.
+- Keep beginner-friendly steps; avoid multi-topic sprawl per chat.
 - During docs, deliver **Markdown as downloadable files** or **canvas snippets** to avoid formatting issues.
 
 <!-- START PACK: chat_handoff.md (Markdown delivery reminder) -->
 <!-- Replace this block if the reminder text changes -->
 ### Markdown Delivery Reminder
 
-- For **entire files**, ask for a **downloadable full-file replacement** (with `START FILE` and inner `START/END PACK` markers).  
-- For **partial edits**, ask for a **canvas Replacement Pack** with `<!-- START PACK: ... -->` / `<!-- END PACK: ... -->`.  
+- For **entire files**, ask for a **downloadable full-file replacement** (with `START FILE` and inner `START/END PACK` markers).
+- For **partial edits**, ask for a **canvas Replacement Pack** with `<!-- START PACK: ... -->` / `<!-- END PACK: ... -->`.
 - Avoid long Markdown in plain chat—copy/paste from canvas or download instead.
 <!-- END PACK: chat_handoff.md (Markdown delivery reminder) -->
 
