@@ -20,7 +20,7 @@ The format is based on **[Keep a Changelog](https://keepachangelog.com/en/1.1.0/
 
 ### Added
 
-- **Shared version source** at `docs/site.json`; pages render a DOM-ready version badge fed by this JSON.  
+- **Shared version source** at `docs/site.json`; pages render a DOM-ready version badge fed by this JSON.
 - **Pre-commit hook** that refreshes the build date and runs markdownlint with friendly logging.
 
 ### Changed
@@ -29,7 +29,7 @@ The format is based on **[Keep a Changelog](https://keepachangelog.com/en/1.1.0/
 
 ### Fixed
 
-- **Markdown lint reliability** by routing `npx` via `cmd.exe` in the hook; documented quick troubleshooting steps.  
+- **Markdown lint reliability** by routing `npx` via `cmd.exe` in the hook; documented quick troubleshooting steps.
 
 ### Documentation
 

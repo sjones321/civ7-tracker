@@ -28,17 +28,17 @@ This guide explains how ChatGPT integrates with your project files so any new ch
 
 ## How to update files
 
-1. Edit the file in your repo and commit.  
+1. Edit the file in your repo and commit.
 
-2. In the ChatGPT project files area: **delete the old file**, then **upload the updated one** (use the same upload name).  
+2. In the ChatGPT project files area: **delete the old file**, then **upload the updated one** (use the same upload name).
 
 3. In a new chat, say **“Load project bootstrap”** — the assistant will use the latest uploads.
 
 ## Daily Dev Log Flow
 
-- At the end of a session, run `new-devlog-today.bat` (or `new-devlog.ps1`).  
+- At the end of a session, run `new-devlog-today.bat` (or `new-devlog.ps1`).
 
-- It creates/opens `docs/devlog/YYYY-MM-DD.md`, prefilled with a **Commit Digest**.  
+- It creates/opens `docs/devlog/YYYY-MM-DD.md`, prefilled with a **Commit Digest**.
 
 - Ask ChatGPT: *“Generate today’s dev summary for the dev log.”* Paste the human summary into that file and commit/push.
 
@@ -48,23 +48,23 @@ This guide explains how ChatGPT integrates with your project files so any new ch
 
 When you type **“Load project bootstrap”**, the assistant will:
 
-- Use the uploaded **WORKFLOW_GUIDE.md** to drive behavior (beginner mode, markers, commit/test steps).  
+- Use the uploaded **WORKFLOW_GUIDE.md** to drive behavior (beginner mode, markers, commit/test steps).
 
-- Follow your **Project Setup Guide** and prefer uploaded files as the canonical reference.  
+- Follow your **Project Setup Guide** and prefer uploaded files as the canonical reference.
 
 - If you say “read today’s devlog”, it will use the most recently uploaded `DEVLOG-YYYY-MM-DD.md` file.
 
 ## Maintenance Notes
 
-- Keep the **repo** as the canonical source; the ChatGPT project files mirror the latest important docs.  
+- Keep the **repo** as the canonical source; the ChatGPT project files mirror the latest important docs.
 
 - When in doubt, re‑upload the relevant file(s) to refresh the assistant’s context.
 
 ## Future Options
 
-- Add a `CONTRIBUTING.md` for collaborators.  
+- Add a `CONTRIBUTING.md` for collaborators.
 
-- Generate `CHANGELOG.md` releases from Conventional Commits.  
+- Generate `CHANGELOG.md` releases from Conventional Commits.
 
 - Expand CI with link checking / HTML5 validators / badges as needed.
 
