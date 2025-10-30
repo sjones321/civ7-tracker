@@ -3,7 +3,7 @@
 Use this template when preparing a MAX automation prompt. Replace placeholders and
 remove any sections that do not apply.
 
-````md
+```md
 ~~~md
 ## Goal
 - <clear objective>
@@ -24,4 +24,4 @@ npx --yes html-validate "**/*.html"
 ## Notes for Operator
 - <context, risks, or dependencies>
 ~~~
-````
+```

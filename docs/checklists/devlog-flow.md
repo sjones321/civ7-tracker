@@ -28,14 +28,14 @@ Use this checklist to capture a full day in the devlog without missing the autom
 
 - [ ] Keep the DAILY SUMMARY section tidy. It should look like this after a few entries:
 
-    ````md
+    ```md
     <!-- DAILY SUMMARY START -->
     ~~~md
     - docs: close missing code fence in devlog template — Annotated the snippet block with a language tag.
     - chore: pass markdownlint — Resolved MD040 by tagging fences.
     ~~~
     <!-- DAILY SUMMARY END -->
-    ````
+    ```
 
 ## 3. Wrap-up ritual
 
