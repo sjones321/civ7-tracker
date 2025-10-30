@@ -34,10 +34,8 @@ Run the validation trio before signing off:
 
 Record the essentials for the next operator:
 
-```text
-Blockers:
-Follow-up tasks:
-Related tickets:
-```
+    Blockers:
+    Follow-up tasks:
+    Related tickets:
 
 Store the notes in the PR or `chat_handoff.md` as appropriate.
