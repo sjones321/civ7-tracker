@@ -1,139 +1,24 @@
-<!-- START FILE: docs/workflow_guide.md -->
-# Workflow Addendum — Markdown & Hook Reliability
+# Workflow Guide — Operational Playbook
 
-This addendum documents the fixes and rules adopted after the pre-commit/markdownlint hiccup, so future sessions avoid repeats.
+This document describes how we ship changes with Lucy (planning), Max (Codex executor), CI checks, and the devlog automations. Follow these rules to keep the pipeline green and predictable.
 
-## Markdown Hygiene (lint-safe)
+## Lucy ↔ Max Loop
 
-- Put **one blank line** above and below each heading.
+- Plan in Lucy → Hand off to Max → PR with CI → Merge (squash) → Devlog appends.
 
-- Put **one blank line** before a list and after a list (MD032).
+## CI (required)
 
-- Use **dash bullets** (`-`) for lists (MD004).
+- markdownlint
+- html-validate
+- link-check
 
-- Surround fenced code blocks with a blank line **before and after** (MD031).
+## Branch Protection
 
-- Tag fenced blocks with a language (use `text` for plain content) (MD040).
+- Require PR, CI, squash; auto-delete merged branches.
 
-- Avoid bare URLs — use `<...>` or `[label](url)` (MD034).
+## Markdown Hygiene
 
-- End files with **one trailing newline** (MD047).
-
-- Prefer **ASCII** for setup/docs; avoid emojis and smart quotes. If needed, ensure files are saved as **UTF-8 (no BOM)** in Notepad++ (Encoding → UTF-8).
-
-## Delivery Rule for Markdown (during setup/docs)
-
-To avoid chat formatting issues, deliver **Markdown as downloadable full-file replacements**. Reserve inline snippets in chat for short examples only.
-
-## Pre-commit Hook Behavior (expected)
-
-- If no `.html` files are staged: the hook logs `No staged HTML files — skipping badge step.`
-
-- If `.html` files are staged: the hook inserts or bumps the version badge and **re-stages** those files.
-
-- The hook then runs markdownlint via **cmd.exe npx** (bypassing PowerShell’s npx wrapper).
-
-## Quick Troubleshooting
-
-1. **Hook failed (code 1)**: open a terminal at repo root and run:
-
-   ```powershell
-   PowerShell -NoProfile -ExecutionPolicy Bypass -File .githooks\pre-commit.ps1 *>&1 | Tee-Object precommit_log.txt
-   notepad precommit_log.txt
-   ```
-
-2. **If the log shows markdownlint errors**: run
-
-   ```powershell
-   npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
-   ```
-
-   Fix spacing around headings/lists or fences per the rules above.
-
-3. **If npx wrapper errors**: already mitigated — hook calls `cmd.exe /c npx ...`.
-
-4. **Badge step confusion**: to test the badge logic, **stage an `.html` file** and commit.
-
-## CI Alignment
-
-Local lint must pass before commit; CI runs the same checks. If CI fails on docs, replace the affected Markdown using the download rule above and re-run the lint command locally.
-
----
-
-_This addendum can be appended near the end of `docs/workflow_guide.md`._
-
-<!-- START PATCH: Project-file Sync Helper -->
-## Project-file Sync Helper
-
-We keep a curated set of “project files” in ChatGPT’s project panel so new chats can bootstrap quickly.
-Use the one-level-up script **`project-file-sync.bat` (v6.1-Stable)** to gather the files with safe names and produce a MANIFEST.
-
-### Canonical upload set (names as they appear in ChatGPT)
-
-- `ROOT-README.md`  ← from `README.md`
-- `workflow_guide.md`  ← from `docs/workflow_guide.md`
-- `chat_handoff.md`  ← from `chat_handoff.md`
-- `head-snippet.txt`  ← from `docs/head-snippet.txt`
-- `site.json`  ← from `docs/site.json`
-- `DEVLOG-README.md`  ← from `docs/devlog/README.md`
-- `TEMPLATE.md`  ← from `docs/devlog/TEMPLATE.md`
-- `new-devlog.ps1`
-- `new-devlog-today.bat`
-- `new-devlog-date.bat`
-- `pre-commit.ps1`  ← from `.githooks/pre-commit.ps1`
-- `.gitignore`
-- `DEVLOG-YYYY-MM-DD.md`  ← latest devlog from `docs/devlog/`
-
-### Where the script lives
-
-Place `project-file-sync.bat` **one directory above** your repo. It creates `project-file-updates\` beside itself, and writes **`MANIFEST.txt` + `project-file-sync.log`** next to the `.bat`.
-
-### How to run
-
-1. Double-click `project-file-sync.bat` (or pass your repo path as the first argument).
-2. Upload **only** the files listed in `MANIFEST.txt` to ChatGPT’s project-files panel.
-3. Skip `MANIFEST.txt` and the `.bat` itself — they are for your convenience.
-
-### Version
-
-Current stable: **v6.1** — single PowerShell block + .NET write ensures a guaranteed MANIFEST on OneDrive paths.
-<!-- END PATCH: Project-file Sync Helper -->
-
-<!-- START PACK: docs/workflow_guide.md (Markdown Delivery & Formatting Policy addendum) -->
-## Workflow Addendum — Markdown Delivery & Formatting Policy
-
-This addendum codifies how we exchange Markdown safely so chat apps don't mangle formatting.
-
-### Delivery policy (priority order)
-
-1. **Downloadable full-file replacements** (preferred during docs): when changing or adding Markdown files, deliver as a ready-to-save file.
-2. **Canvas document**: for sections/snippets you intend to paste into existing files; the canvas preserves formatting for copy/paste.
-3. **Inline code blocks in chat**: only for short examples (≤ ~20 lines). Avoid for production replacements.
-
-### Formatting hygiene (lint-safe)
-
-- Surround headings and lists with **one blank line** before and after.
-- Use **dash bullets** (`-`) for lists.
-- Surround fenced code blocks with a blank line **before and after** and tag a language (use `text` for plain).
-- Avoid bare URLs — use `<https://...>` or `[label](https://...)`.
-- End files with **one trailing newline**.
-- Prefer **ASCII** for docs; save as **UTF-8 (no BOM)**.
-
-### Requesting deliverables from ChatGPT (ritual)
-
-- Say: **“Deliver as downloadable full-file replacement.”**
-- For partial edits, say: **“Give me a Replacement Pack with START/END markers for section X.”**
-- When you need to preserve formatting for manual paste, say: **“Put it in a canvas document.”**
-
-### Verification
-
-After saving files locally:
-
-```text
-npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
-```
-
-Fix issues shown (normally blank lines or bare links). Re-run until clean.
-<!-- END PACK: docs/workflow_guide.md (Markdown Delivery & Formatting Policy addendum) -->
-
-<!-- END FILE: docs/workflow_guide.md -->
+- Blank lines around headings/lists.
+- Language-tag fences; surround fences with blank lines.
+- Avoid bare URLs; prefer `<https://...>` or `[label](https://...)`.
+- Save as UTF-8 (no BOM).
