@@ -1,0 +1,75 @@
+name: Devlog — write Daily Summary
+
+on:
+  workflow_dispatch:
+    inputs:
+      summary:
+        description: Daily Summary text (top of today's devlog)
+        required: true
+        type: string
+      title:
+        description: Summary title (default: Daily Summary)
+        required: false
+        type: string
+      date_override:
+        description: YYYY-MM-DD (optional; else America/Phoenix today)
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  write-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write/replace summary block
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tz = 'America/Phoenix';
+            function todayTZ(){
+              const now = new Date();
+              const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz, year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(now);
+              const y=parts.find(p=>p.type==='year').value;
+              const m=parts.find(p=>p.type==='month').value;
+              const d=parts.find(p=>p.type==='day').value;
+              return `${y}-${m}-${d}`;
+            }
+            const dateStr = core.getInput('date_override') || todayTZ();
+            const title = core.getInput('title') || 'Daily Summary';
+            const body = core.getInput('summary');
+
+            const fs = require('fs');
+            const path = require('path');
+            const devlogDir = path.join(process.cwd(),'docs','devlog');
+            const filePath = path.join(devlogDir, `${dateStr}.md`);
+            if (!fs.existsSync(devlogDir)) fs.mkdirSync(devlogDir, { recursive: true });
+
+            let content = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
+            if (!content.startsWith(`# Devlog — ${dateStr}`)) {
+              content = `# Devlog — ${dateStr}\n\n` + content;
+            }
+
+            const START = '<!-- DAILY_SUMMARY_START -->';
+            const END = '<!-- DAILY_SUMMARY_END -->';
+            const block = `## ${title}\n${START}\n${body}\n${END}\n\n`;
+
+            if (content.includes(START) && content.includes(END)) {
+              const re = new RegExp(`## .*?\n${START}[\s\S]*?${END}\n\n`, 'm');
+              content = content.replace(re, block);
+            } else {
+              content = content.replace(/^# Devlog — .*?\n\n/m, match => match + block);
+            }
+
+            fs.writeFileSync(filePath, content, 'utf8');
+
+      - name: Commit Daily Summary
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/devlog/*
+          git commit -m "docs(devlog): update Daily Summary [skip ci]" || echo "No changes"
+          git push
