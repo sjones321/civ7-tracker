@@ -1,73 +1,83 @@
-name: Devlog — append on PR merge
+name: Append Devlog Entry on Merge
 
 on:
   pull_request:
-    types: [closed]
-
-permissions:
-  contents: write
+    types:
+      - closed
 
 jobs:
-  append-devlog:
+  append-devlog-entry:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-      - name: Build devlog entry and append
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const tz = 'America/Phoenix';
-            const now = new Date();
-            const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(now);
-            const y = parts.find(p=>p.type==='year').value;
-            const m = parts.find(p=>p.type==='month').value;
-            const d = parts.find(p=>p.type==='day').value;
-            const dateStr = `${y}-${m}-${d}`;
+      - name: Determine devlog date
+        id: determine-date
+        run: |
+          python <<'PY'
+          import os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
 
-            const pr = context.payload.pull_request;
-            const title = pr.title || 'Untitled PR';
-            const number = pr.number;
-            const url = pr.html_url;
-            const branch = pr.head && pr.head.ref ? pr.head.ref : '';
+          merged_at = os.environ.get("MERGED_AT")
+          if not merged_at:
+            raise SystemExit("Missing merged_at timestamp")
 
-            const body = pr.body || '';
-            const START = '<!-- DEVLOG_START -->';
-            const END = '<!-- DEVLOG_END -->';
-            let entryBody = '';
-            if (body.includes(START) && body.includes(END)) {
-              entryBody = body.split(START)[1].split(END)[0].trim();
-            } else {
-              entryBody = `Merged PR #${number} — ${title}`;
-            }
+          dt = datetime.fromisoformat(merged_at.replace("Z", "+00:00"))
+          dt_local = dt.astimezone(ZoneInfo("America/Phoenix"))
 
-            const fs = require('fs');
-            const path = require('path');
-            const devlogDir = path.join(process.cwd(), 'docs', 'devlog');
-            const filePath = path.join(devlogDir, `${dateStr}.md`);
-            if (!fs.existsSync(devlogDir)) fs.mkdirSync(devlogDir, { recursive: true });
+          env_path = os.environ["GITHUB_ENV"]
+          with open(env_path, "a", encoding="utf-8") as env_file:
+            env_file.write(f"DEVLOG_DATE={dt_local:%Y-%m-%d}\n")
+            env_file.write(f"DEVLOG_FILE=docs/devlog/{dt_local:%Y-%m-%d}.md\n")
+          PY
+        env:
+          MERGED_AT: ${{ github.event.pull_request.merged_at }}
 
-            let content = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
-            if (!content.startsWith(`# Devlog — ${dateStr}`)) {
-              content = `# Devlog — ${dateStr}\n\n` + content;
-            }
+      - name: Append entry to devlog
+        run: |
+          python <<'PY'
+          import os
+          from pathlib import Path
 
-            const entry = [
-              `## ${title}`,
-              ``,
-              `${entryBody}`,
-              ``,
-              `- PR: #${number} (${url})`,
-              branch ? `- Branch: ${branch}` : ``,
-              ``
-            ].filter(Boolean).join('\n');
+          default_entry = f"Merged PR #{os.environ['PR_NUMBER']} — {os.environ['PR_TITLE']}."
+          body = os.environ.get("PR_BODY") or ""
+          start_marker = "<!-- DEVLOG_START -->"
+          end_marker = "<!-- DEVLOG_END -->"
 
-            fs.writeFileSync(filePath, content + entry, 'utf8');
-      - name: Commit devlog entry
+          if start_marker in body and end_marker in body:
+            entry = body.split(start_marker, 1)[1].split(end_marker, 1)[0].strip()
+            if not entry:
+              entry = default_entry
+          else:
+            entry = default_entry
+
+          file_path = Path(os.environ["DEVLOG_FILE"])
+          file_path.parent.mkdir(parents=True, exist_ok=True)
+
+          with file_path.open("a", encoding="utf-8") as devlog:
+            devlog.write(f"- {entry}\n")
+          PY
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          DEVLOG_FILE: ${{ env.DEVLOG_FILE }}
+
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/devlog/*
-          git commit -m "docs(devlog): auto-append PR #${{ github.event.pull_request.number }} [skip ci]" || echo "No changes"
-          git push
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$DEVLOG_FILE"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "[skip ci] Add devlog entry for PR #${{ github.event.pull_request.number }}"
+            git push
+          fi
+        env:
+          DEVLOG_FILE: ${{ env.DEVLOG_FILE }}

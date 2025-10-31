@@ -1,75 +1,106 @@
-name: Devlog — write Daily Summary
+name: Update Devlog Daily Summary
 
 on:
   workflow_dispatch:
     inputs:
       summary:
-        description: Daily Summary text (top of today's devlog)
+        description: "Daily summary text"
         required: true
         type: string
       title:
-        description: Summary title (default: Daily Summary)
+        description: "Optional summary title"
         required: false
         type: string
       date_override:
-        description: YYYY-MM-DD (optional; else America/Phoenix today)
+        description: "Override date (YYYY-MM-DD, America/Phoenix)"
         required: false
         type: string
 
-permissions:
-  contents: write
-
 jobs:
-  write-summary:
+  update-daily-summary:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-      - name: Write/replace summary block
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const tz = 'America/Phoenix';
-            function todayTZ(){
-              const now = new Date();
-              const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz, year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(now);
-              const y=parts.find(p=>p.type==='year').value;
-              const m=parts.find(p=>p.type==='month').value;
-              const d=parts.find(p=>p.type==='day').value;
-              return `${y}-${m}-${d}`;
-            }
-            const dateStr = core.getInput('date_override') || todayTZ();
-            const title = core.getInput('title') || 'Daily Summary';
-            const body = core.getInput('summary');
+      - name: Determine devlog date
+        id: determine-date
+        run: |
+          python <<'PY'
+          import os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
 
-            const fs = require('fs');
-            const path = require('path');
-            const devlogDir = path.join(process.cwd(),'docs','devlog');
-            const filePath = path.join(devlogDir, `${dateStr}.md`);
-            if (!fs.existsSync(devlogDir)) fs.mkdirSync(devlogDir, { recursive: true });
+          override = os.environ.get("DATE_OVERRIDE")
+          if override:
+            try:
+              target = datetime.strptime(override, "%Y-%m-%d")
+            except ValueError as exc:
+              raise SystemExit(f"Invalid date_override: {exc}")
+          else:
+            target = datetime.now(ZoneInfo("America/Phoenix"))
 
-            let content = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
-            if (!content.startsWith(`# Devlog — ${dateStr}`)) {
-              content = `# Devlog — ${dateStr}\n\n` + content;
-            }
+          env_path = os.environ["GITHUB_ENV"]
+          with open(env_path, "a", encoding="utf-8") as env_file:
+            env_file.write(f"DEVLOG_DATE={target:%Y-%m-%d}\n")
+            env_file.write(f"DEVLOG_FILE=docs/devlog/{target:%Y-%m-%d}.md\n")
+          PY
+        env:
+          DATE_OVERRIDE: ${{ github.event.inputs.date_override }}
 
-            const START = '<!-- DAILY_SUMMARY_START -->';
-            const END = '<!-- DAILY_SUMMARY_END -->';
-            const block = `## ${title}\n${START}\n${body}\n${END}\n\n`;
+      - name: Update daily summary block
+        run: |
+          python <<'PY'
+          import os
+          from pathlib import Path
 
-            if (content.includes(START) && content.includes(END)) {
-              const re = new RegExp(`## .*?\n${START}[\s\S]*?${END}\n\n`, 'm');
-              content = content.replace(re, block);
-            } else {
-              content = content.replace(/^# Devlog — .*?\n\n/m, match => match + block);
-            }
+          summary = os.environ["SUMMARY"].strip()
+          title = (os.environ.get("TITLE") or "").strip()
+          file_path = Path(os.environ["DEVLOG_FILE"])
+          file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            fs.writeFileSync(filePath, content, 'utf8');
+          block_lines = ["<!-- DAILY_SUMMARY_START -->", "### Daily Summary"]
+          if title:
+            block_lines.append(f"#### {title}")
+          block_lines.append(summary)
+          block_lines.append("<!-- DAILY_SUMMARY_END -->")
+          block = "\n".join(block_lines) + "\n\n"
 
-      - name: Commit Daily Summary
+          if file_path.exists():
+            content = file_path.read_text(encoding="utf-8")
+          else:
+            content = ""
+
+          start_marker = "<!-- DAILY_SUMMARY_START -->"
+          end_marker = "<!-- DAILY_SUMMARY_END -->"
+
+          if start_marker in content and end_marker in content:
+            before, _sep, remainder = content.partition(start_marker)
+            _middle, _sep2, after = remainder.partition(end_marker)
+            updated_content = before + block + after.lstrip("\n")
+          else:
+            updated_content = block + content.lstrip("\n")
+
+          file_path.write_text(updated_content, encoding="utf-8")
+          PY
+        env:
+          SUMMARY: ${{ github.event.inputs.summary }}
+          TITLE: ${{ github.event.inputs.title }}
+          DEVLOG_FILE: ${{ env.DEVLOG_FILE }}
+
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/devlog/*
-          git commit -m "docs(devlog): update Daily Summary [skip ci]" || echo "No changes"
-          git push
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$DEVLOG_FILE"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "[skip ci] Update daily summary for ${{ env.DEVLOG_DATE }}"
+            git push
+          fi
+        env:
+          DEVLOG_FILE: ${{ env.DEVLOG_FILE }}
+          DEVLOG_DATE: ${{ env.DEVLOG_DATE }}
