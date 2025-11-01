@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CIV7 Tracker · World Wonders</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#001a33">
+  <meta name="description" content="Edit Civilization VII World Wonders data.">
+  <meta property="og:title" content="CIV7 Tracker · World Wonders">
+  <meta property="og:description" content="Maintain Civilization VII World Wonders data.">
+  <meta property="og:url" content="https://sjones321.github.io/civ7-tracker/data-wonders.html">
+  <meta property="og:image" content="https://sjones321.github.io/civ7-tracker/img/og-card.png">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; background:#f5f7fa; color:#102542; }
+    header { display:flex; gap:12px; align-items:center; padding:12px 16px; background:#001a33; color:#fff; }
+    header h1 { margin:0; font-size:1.5rem; }
+    nav { background:#0d2b4d; padding:8px 16px; }
+    nav a { color:#e6f1ff; margin-right:12px; text-decoration:none; font-weight:600; }
+    nav a[aria-current="page"] { text-decoration:underline; }
+    main { padding:16px; max-width: 1100px; margin:0 auto; }
+    h1, h2, h3 { color:#001a33; }
+    .layout { display:flex; flex-wrap:wrap; gap:24px; margin-bottom:24px; }
+    .panel { flex:1 1 320px; background:#fff; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1); padding:16px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { border-bottom:1px solid #d9e2ec; padding:8px; text-align:left; vertical-align:top; }
+    th { font-weight:600; }
+    caption { text-align:left; font-weight:600; margin-bottom:8px; }
+    form label { display:block; font-weight:600; margin-top:12px; }
+    form small { display:block; margin-top:4px; color:#52606d; }
+    form input[type="text"],
+    form textarea,
+    form select { width:100%; padding:8px; border:1px solid #bcccdc; border-radius:4px; font-size:1rem; }
+    form textarea { min-height:72px; }
+    .checkbox-label { display:flex; align-items:center; gap:8px; margin-top:12px; font-weight:600; }
+    .form-actions { margin-top:16px; display:flex; gap:12px; flex-wrap:wrap; }
+    button { cursor:pointer; border-radius:4px; border:1px solid transparent; padding:8px 14px; font-size:0.95rem; }
+    button.primary { background:#0077cc; color:#fff; }
+    button.secondary { background:#fff; border-color:#6c8aa4; color:#0d2b4d; margin-left:8px; }
+    button.danger { background:#fff; border-color:#c62828; color:#c62828; margin-left:8px; }
+    .status-region { margin:16px 0; padding:12px; border-radius:6px; background:#eef2f7; border:1px solid #cbd5e0; min-height:48px; }
+    .status-region[data-tone="success"] { background:#e3f9e5; border-color:#2ecc71; color:#1c7c3a; }
+    .status-region[data-tone="error"] { background:#fde8e8; border-color:#f56565; color:#9b2c2c; }
+    .icon-display { display:inline-block; min-width:1.5rem; margin-right:8px; text-align:center; }
+    .history-list { margin-top:12px; padding-left:20px; }
+    .history-list li { margin-bottom:4px; }
+    .data-tools textarea { margin-top:12px; width:100%; padding:8px; border:1px solid #bcccdc; border-radius:4px; font-family:monospace; font-size:0.9rem; background:#f8fafc; color:#102542; }
+    .ownership-summary { max-width:340px; }
+    #new-wonder { margin-top:12px; }
+    footer { text-align:center; padding:24px; color:#52606d; font-size:0.9rem; }
+    @media (max-width: 768px) {
+      header { flex-direction:column; align-items:flex-start; }
+      nav { display:flex; flex-wrap:wrap; gap:12px; }
+    }
+  </style>
+  <script>
+    (function(){
+      function renderBadge() {
+        var els = document.querySelectorAll('[data-version-badge]');
+        if (!els.length) {
+          return;
+        }
+        fetch('docs/site.json', { cache: 'no-store' })
+          .then(function (r) {
+            if (!r.ok) {
+              throw new Error('HTTP ' + r.status);
+            }
+            return r.json();
+          })
+          .then(function (data) {
+            els.forEach(function (el) {
+              el.classList.add('version-badge');
+              el.textContent = 'v' + data.version + ' · ' + data.buildDate;
+              el.setAttribute('title', 'Version ' + data.version + ' built ' + data.buildDate);
+            });
+          })
+          .catch(function (err) {
+            els.forEach(function (el) {
+              el.classList.add('version-badge');
+              el.textContent = 'version unavailable';
+              el.title = err && err.message ? err.message : 'version fetch failed';
+            });
+          });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderBadge);
+      } else {
+        renderBadge();
+      }
+    })();
+  </script>
+  <style>
+    .version-badge { display:inline-block; font:12px/1.2 system-ui,Segoe UI,Roboto,Arial; border:1px solid #ccc; border-radius:6px; padding:2px 6px; vertical-align:middle; background:#fff; color:#001a33; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CIV7 Tracker</h1>
+    <span data-version-badge></span>
+  </header>
+  <nav>
+    <a href="./">Home</a>
+    <a href="data-wonders.html" aria-current="page">World Wonders Editor</a>
+  </nav>
+  <main>
+    <h1>World Wonders Data Editor</h1>
+    <p>Manage Civilization VII World Wonders locally in your browser. Changes are stored in <code>localStorage</code> and survive refreshes.</p>
+
+    <section class="status-region" aria-live="polite" id="status-message" role="status" data-tone="info">Ready to add a new World Wonder.</section>
+
+    <div class="layout">
+      <section class="panel" aria-labelledby="wonders-list-heading">
+        <h2 id="wonders-list-heading">Current Wonders</h2>
+        <table>
+          <caption>Saved World Wonders</caption>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Era</th>
+              <th scope="col">Owner</th>
+              <th scope="col">Big Ticket</th>
+              <th scope="col">Icon &amp; Actions</th>
+            </tr>
+          </thead>
+          <tbody id="wonders-table-body"></tbody>
+        </table>
+        <button type="button" class="primary" id="new-wonder">New Wonder</button>
+      </section>
+
+      <section class="panel" aria-labelledby="editor-heading">
+        <h2 id="editor-heading">Wonder Details</h2>
+        <form id="wonder-form" novalidate>
+          <label for="wonder-id">ID</label>
+          <input id="wonder-id" name="id" type="text" required autocomplete="off" aria-describedby="id-help">
+          <small id="id-help">Use a unique identifier such as <code>pyramids</code>.</small>
+
+          <label for="wonder-name">Name</label>
+          <input id="wonder-name" name="name" type="text" required autocomplete="off">
+
+          <label for="wonder-era">Era</label>
+          <input id="wonder-era" name="era" type="text" required autocomplete="off">
+
+          <label for="wonder-icon">Icon</label>
+          <input id="wonder-icon" name="icon" type="text" autocomplete="off" placeholder="Emoji or icon keyword">
+
+          <label for="wonder-bonus">Bonus</label>
+          <textarea id="wonder-bonus" name="bonus" placeholder="e.g., +2 food for adjacent farms"></textarea>
+          <small>Keywords like <strong>food</strong>, <strong>production</strong>, <strong>culture</strong>, and <strong>science</strong> become placeholders automatically.</small>
+
+          <label for="wonder-owner">Owner</label>
+          <select id="wonder-owner" name="owner" required>
+            <option value="" disabled selected>Select owner</option>
+            <option value="Tiny">Tiny</option>
+            <option value="Steve">Steve</option>
+            <option value="AI">AI</option>
+          </select>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="wonder-bigTicket" name="bigTicket"> Big Ticket Wonder
+          </label>
+
+          <h3>Ownership History</h3>
+          <ul class="history-list" id="ownership-history"></ul>
+
+          <div class="form-actions">
+            <button type="submit" class="primary">Save Wonder</button>
+            <button type="button" class="secondary" id="reset-form">Reset</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <section class="panel ownership-summary" aria-labelledby="ownership-summary-heading">
+      <h2 id="ownership-summary-heading">Ownership Summary</h2>
+      <table>
+        <caption>Total Wonders per Owner</caption>
+        <thead>
+          <tr>
+            <th scope="col">Owner</th>
+            <th scope="col">Count</th>
+          </tr>
+        </thead>
+        <tbody id="ownership-summary-body"></tbody>
+      </table>
+    </section>
+
+    <section class="panel data-tools" aria-labelledby="data-tools-heading">
+      <h2 id="data-tools-heading">Import / Export</h2>
+      <p>Copy data to share or paste JSON to replace your current World Wonders. Use the <a href="docs/data/worldWonders-sample.json">sample JSON</a> as a reference.</p>
+      <div class="form-actions">
+        <button type="button" class="primary" id="export-button">Export JSON</button>
+        <button type="button" class="secondary" id="import-button">Import JSON</button>
+      </div>
+      <textarea id="json-data" aria-label="World Wonders JSON" placeholder="Paste World Wonders JSON here" spellcheck="false" rows="8"></textarea>
+    </section>
+  </main>
+  <footer>© CIV7 Tracker</footer>
+  <script src="js/store.js"></script>
+  <script src="js/data-wonders.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
