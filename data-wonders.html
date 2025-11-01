@@ -46,8 +46,13 @@
     .status-region[data-tone="success"] { background:#e3f9e5; border-color:#2ecc71; color:#1c7c3a; }
     .status-region[data-tone="error"] { background:#fde8e8; border-color:#f56565; color:#9b2c2c; }
     .icon-display { display:inline-block; min-width:1.5rem; margin-right:8px; text-align:center; }
+    .icon-display img { width:40px; height:40px; object-fit:contain; border:1px solid #bcccdc; border-radius:4px; padding:2px; background:#fff; }
+    #wonder-icon-preview { margin-top:8px; min-height:60px; display:flex; align-items:center; justify-content:flex-start; }
+    #wonder-icon-preview img { max-width:72px; max-height:72px; border:1px solid #bcccdc; border-radius:4px; padding:4px; background:#fff; }
+    #wonder-icon-preview span { color:#52606d; }
     .history-list { margin-top:12px; padding-left:20px; }
     .history-list li { margin-bottom:4px; }
+    #log-owner { margin-top:8px; }
     .data-tools textarea { margin-top:12px; width:100%; padding:8px; border:1px solid #bcccdc; border-radius:4px; font-family:monospace; font-size:0.9rem; background:#f8fafc; color:#102542; }
     .ownership-summary { max-width:340px; }
     #new-wonder { margin-top:12px; }
@@ -120,7 +125,7 @@
           <thead>
             <tr>
               <th scope="col">Name</th>
-              <th scope="col">Era</th>
+              <th scope="col">Age</th>
               <th scope="col">Owner</th>
               <th scope="col">Big Ticket</th>
               <th scope="col">Icon &amp; Actions</th>
@@ -141,23 +146,34 @@
           <label for="wonder-name">Name</label>
           <input id="wonder-name" name="name" type="text" required autocomplete="off">
 
-          <label for="wonder-era">Era</label>
-          <input id="wonder-era" name="era" type="text" required autocomplete="off">
+          <label for="wonder-age">Age</label>
+          <select id="wonder-age" name="age" required>
+            <option value="" disabled selected>Select age</option>
+          </select>
 
-          <label for="wonder-icon">Icon</label>
-          <input id="wonder-icon" name="icon" type="text" autocomplete="off" placeholder="Emoji or icon keyword">
+          <label for="wonder-icon-url">Icon URL</label>
+          <input id="wonder-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+          <input id="wonder-icon-file" name="iconFile" type="file" accept="image/*">
+          <div id="wonder-icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+          <small>Icon previews come from the provided URL or uploaded image. TODO: replace with global icon picker.</small>
 
           <label for="wonder-bonus">Bonus</label>
           <textarea id="wonder-bonus" name="bonus" placeholder="e.g., +2 food for adjacent farms"></textarea>
-          <small>Keywords like <strong>food</strong>, <strong>production</strong>, <strong>culture</strong>, and <strong>science</strong> become placeholders automatically.</small>
+          <small>Keywords like <strong>food</strong>, <strong>production</strong>, <strong>culture</strong>, and <strong>science</strong> convert to placeholders on blur.</small>
 
-          <label for="wonder-owner">Owner</label>
-          <select id="wonder-owner" name="owner" required>
-            <option value="" disabled selected>Select owner</option>
+          <label for="wonder-owner-type">Owner Type</label>
+          <select id="wonder-owner-type" name="ownerType" required>
+            <option value="" disabled selected>Select owner type</option>
             <option value="Tiny">Tiny</option>
             <option value="Steve">Steve</option>
             <option value="AI">AI</option>
           </select>
+
+          <label for="wonder-owner-leader">Owner Leader</label>
+          <input id="wonder-owner-leader" name="ownerLeader" type="text" autocomplete="off" placeholder="e.g., Mansa Musa">
+
+          <label for="wonder-owner-civ">Owner Civilization</label>
+          <input id="wonder-owner-civ" name="ownerCiv" type="text" autocomplete="off" placeholder="e.g., Mali">
 
           <label class="checkbox-label">
             <input type="checkbox" id="wonder-bigTicket" name="bigTicket"> Big Ticket Wonder
@@ -165,6 +181,7 @@
 
           <h3>Ownership History</h3>
           <ul class="history-list" id="ownership-history"></ul>
+          <button type="button" class="secondary" id="log-owner">Log current as last owner</button>
 
           <div class="form-actions">
             <button type="submit" class="primary">Save Wonder</button>
@@ -194,6 +211,8 @@
       <div class="form-actions">
         <button type="button" class="primary" id="export-button">Export JSON</button>
         <button type="button" class="secondary" id="import-button">Import JSON</button>
+        <button type="button" class="secondary" id="load-sample">Load sample data</button>
+        <button type="button" class="danger" id="clear-all">Clear all Wonders</button>
       </div>
       <textarea id="json-data" aria-label="World Wonders JSON" placeholder="Paste World Wonders JSON here" spellcheck="false" rows="8"></textarea>
     </section>
