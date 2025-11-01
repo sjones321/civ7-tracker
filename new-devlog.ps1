@@ -21,6 +21,9 @@ $untilIso = $until.ToString("yyyy-MM-ddT00:00:00")
 $commitDigest = ""
 try {
   $commitDigest = git log --since="$sinceIso" --until="$untilIso" --pretty=format:"- %h %ad %s" --date=short 2>$null
+  if ($commitDigest) {
+    $commitDigest = $commitDigest -join "`r`n"
+  }
 } catch { }
 
 $commitSection = @"
@@ -34,7 +37,7 @@ if (!(Test-Path $path)) {
   $content = @"
 # 🌙 CIV7 Tracker — End of Day Summary
 
-**Date:** $Date  
+**Date:** $Date
 **Focus:** <what we focused on today>
 
 ---
@@ -53,9 +56,16 @@ if (!(Test-Path $path)) {
 
 $commitSection
 "@
+  if (-not $content.EndsWith("`n")) {
+    $content += "`r`n"
+  }
   Set-Content -Path $path -Value $content -Encoding utf8
 } else {
-  Add-Content -Path $path -Value "`n$commitSection" -Encoding utf8
+  $appendBlock = "`r`n`r`n$commitSection"
+  if (-not $appendBlock.EndsWith("`n")) {
+    $appendBlock += "`r`n"
+  }
+  Add-Content -Path $path -Value $appendBlock -Encoding utf8
 }
 
 $np = "${env:ProgramFiles}\Notepad++\notepad++.exe"

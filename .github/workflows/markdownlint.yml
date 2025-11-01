@@ -1,0 +1,13 @@
+name: markdownlint
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i -g markdownlint-cli
+      - run: markdownlint "**/*.md" --ignore node_modules --ignore "lychee/**"
