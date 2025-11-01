@@ -1,0 +1,47 @@
+[
+  {
+    "id": "pyramids",
+    "name": "Pyramids",
+    "era": "Ancient",
+    "icon": "🏺",
+    "bonus": "+2 [production] for adjacent desert tiles",
+    "owner": "Tiny",
+    "ownershipHistory": [
+      {
+        "owner": "Tiny",
+        "timestamp": "2024-01-01T00:00:00.000Z"
+      }
+    ],
+    "bigTicket": true
+  },
+  {
+    "id": "hanging-gardens",
+    "name": "Hanging Gardens",
+    "era": "Classical",
+    "icon": "🌿",
+    "bonus": "+3 [food] in the city center",
+    "owner": "Steve",
+    "ownershipHistory": [
+      {
+        "owner": "Steve",
+        "timestamp": "2024-02-15T12:34:56.000Z"
+      }
+    ],
+    "bigTicket": false
+  },
+  {
+    "id": "eiffel-tower",
+    "name": "Eiffel Tower",
+    "era": "Modern",
+    "icon": "🗼",
+    "bonus": "+4 [culture] to all cities",
+    "owner": "AI",
+    "ownershipHistory": [
+      {
+        "owner": "AI",
+        "timestamp": "2024-03-20T08:00:00.000Z"
+      }
+    ],
+    "bigTicket": true
+  }
+]
