@@ -2,13 +2,17 @@
   {
     "id": "pyramids",
     "name": "Pyramids",
-    "era": "Ancient",
-    "icon": "🏺",
+    "age": "Antiquity",
+    "iconUrl": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect fill='%23001a33' width='64' height='64'/><text x='50%' y='55%' font-family='sans-serif' font-size='28' fill='%23ffffff' text-anchor='middle'>P</text></svg>",
     "bonus": "+2 [production] for adjacent desert tiles",
-    "owner": "Tiny",
+    "ownerType": "Tiny",
+    "ownerLeader": "Cleopatra",
+    "ownerCiv": "Egypt",
     "ownershipHistory": [
       {
-        "owner": "Tiny",
+        "ownerType": "Tiny",
+        "ownerLeader": "Cleopatra",
+        "ownerCiv": "Egypt",
         "timestamp": "2024-01-01T00:00:00.000Z"
       }
     ],
@@ -17,13 +21,17 @@
   {
     "id": "hanging-gardens",
     "name": "Hanging Gardens",
-    "era": "Classical",
-    "icon": "🌿",
+    "age": "Exploration",
+    "iconUrl": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect fill='%230d9488' width='64' height='64'/><text x='50%' y='55%' font-family='sans-serif' font-size='28' fill='%23ffffff' text-anchor='middle'>H</text></svg>",
     "bonus": "+3 [food] in the city center",
-    "owner": "Steve",
+    "ownerType": "Steve",
+    "ownerLeader": "Hammurabi",
+    "ownerCiv": "Babylon",
     "ownershipHistory": [
       {
-        "owner": "Steve",
+        "ownerType": "Steve",
+        "ownerLeader": "Hammurabi",
+        "ownerCiv": "Babylon",
         "timestamp": "2024-02-15T12:34:56.000Z"
       }
     ],
@@ -32,13 +40,17 @@
   {
     "id": "eiffel-tower",
     "name": "Eiffel Tower",
-    "era": "Modern",
-    "icon": "🗼",
+    "age": "Modern",
+    "iconUrl": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect fill='%236363ff' width='64' height='64'/><text x='50%' y='55%' font-family='sans-serif' font-size='28' fill='%23ffffff' text-anchor='middle'>E</text></svg>",
     "bonus": "+4 [culture] to all cities",
-    "owner": "AI",
+    "ownerType": "AI",
+    "ownerLeader": "AI Governor",
+    "ownerCiv": "France",
     "ownershipHistory": [
       {
-        "owner": "AI",
+        "ownerType": "AI",
+        "ownerLeader": "AI Governor",
+        "ownerCiv": "France",
         "timestamp": "2024-03-20T08:00:00.000Z"
       }
     ],
