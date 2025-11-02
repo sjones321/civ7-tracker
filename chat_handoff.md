@@ -1,11 +1,11 @@
-# 🍭 CIV7 Tracker — Project Handoff Summary (2025-10-30)
+# CIV7 Tracker — Project Handoff Summary (2025-11-02)
 
-## 📊 Current Status
+## Current Status
 
 * **Devlog automation** — ✅ Fully operational through GitHub Actions.
 
   * Merged PRs append automatically.
-  * “Devlog — write Daily Summary” workflow verified.
+  * "Devlog — write Daily Summary" workflow verified.
 
 * **PR Template** — ✅ Active (`.github/pull_request_template.md`) with DEVLOG markers.
 
@@ -13,59 +13,69 @@
 
 * **Auto-delete branches** — ✅ Enabled on squash merge.
 
-* **Docs and templates** — ✅ Updated via `CIV7_Lint_Safe_Pack_2025-10-30.zip` and `CIV7_MD_Fixes_2025-10-30.zip`.
+* **Supabase Integration** — ✅ Completed (2025-11-02).
 
-  * Lint errors resolved (MD046, MD033).
-  * `.markdownlint.json` added for consistent rules.
+  * Replaced `localStorage` with Supabase backend.
+  * World Wonders editor now saves to shared database.
+  * Database schema created for all game entities.
+  * Documentation complete: setup, integration, and migration guides.
 
-* **Helper scripts** — ✅ `apply-docs-update.bat` now handles:
+* **Workflow Updated** — ✅ Transitioned from Max (Codex) to Bob (Cursor).
 
-  * Timestamped `_backups\docs\<date_time>\`
-  * Archived `_updates\docs\<date_time>\` snapshots
-  * Auto-prunes older runs (keeps 5 most recent)
+  * Bob (Cursor) is primary coding agent — reads files directly, makes edits locally.
+  * Lucy (ChatGPT Voice) used for high-level brainstorming.
+  * Workflow docs updated to reflect Bob-focused approach.
 
-* **Versioning** — ✅ `docs/site.json` auto-bumped (`buildDate: 2025-10-30`).
+* **Hosting** — ✅ GitHub Pages (portable for future migration).
 
----
+  * Codebase designed for portability across static hosts.
+  * Future-proofing guidelines documented.
 
-## 🧩 Next Action for Max (Codex)
-
-1. **Data-layer MVP PR**
-
-   * Add `store.js` for shared game data (load/save/import/export via `localStorage`).
-   * Create `data.html` with editor UI, schema validation, and ARIA status messages.
-   * Include `docs/data/sample.json` as example schema.
-   * Add nav link and ensure version badge still syncs with `docs/site.json`.
-
-2. Confirm CI passes and devlog auto-appends entry.
-
-3. Merge → branches auto-delete → Lucy continues with content-feature planning.
+* **Versioning** — ✅ `docs/site.json` auto-bumped by pre-commit hook.
 
 ---
 
-## 🦩 Next Action for Lucy
+## Workflow Overview
 
-After the PR is live and green:
+**Current workflow:**
 
-* Review the diff with you (Steve).
-* Log in devlog and task tracker (`docs/tasks/_index.md`).
-* Start feature design for city-state and wonder pages, using the new data layer.
+* **Lucy (ChatGPT Voice)** — High-level brainstorming and planning. Provides summaries for Bob.
+* **Bob (Cursor)** — Primary coding agent. Reads files directly, makes edits locally, explains decisions.
+* **Flow:** Brainstorm in Lucy → Summarize for Bob → Bob implements locally → Commit/Push → CI validates → Devlog records.
+
+**Branch strategy:**
+
+* Small, clear changes → Commit directly to `main`.
+* Larger or uncertain changes → Create branch → PR → Review → Merge.
 
 ---
 
-## ✅ Commit Message Used for This Phase
+## Next Actions
 
-`text\ndocs(workflow): finalize lint-safe documentation and backup system\n`
+1. **Continue feature development** with Bob (Cursor).
+
+2. **Add more data editors** — Natural Wonders, City-States, Civilizations, etc. using Supabase backend.
+
+3. **Complete database migration** — Ensure all existing data is migrated to Supabase.
 
 ---
 
-## 🕹️ Notes
+## Key Files & References
 
-Run this before committing any future doc or workflow changes:
+* Workflow Guide: `docs/workflow_guide.md`
+* Contributing Guide: `CONTRIBUTING.md`
+* Supabase Documentation: `docs/supabase/`
+* Pre-Commit Checklist: `docs/checklists/pre-commit-checklist.md`
+* Devlog: `docs/devlog/`
+* Learning Log: `docs/learninglog/`
 
-```powershell
-npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"
-```
+---
+
+## Notes
+
+Before committing:
+
+* Run `npx --yes markdownlint-cli "**/*.md" --ignore node_modules --ignore "lychee/**"`
+* Run `npx --yes html-validate "**/*.html"`
 
 If clean → commit, push, and let the devlog workflow handle the rest.
-Setup is complete — from here we build the site itself.
