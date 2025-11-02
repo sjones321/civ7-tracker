@@ -33,7 +33,8 @@ coverage/
 # markdownlint output (add these lines to your existing .gitignore)
 **/markdownlint.out
 
-# Supabase config (contains API keys - NEVER commit)
-js/supabase-config.js
+# Supabase config: Now committed to repo for GitHub Pages deployment
+# The anon key is safe to be public - it's designed for client-side use with RLS policies
+# js/supabase-config.js (committed for public deployment)
 
 # END PACK: .gitignore (civ7-tracker)
