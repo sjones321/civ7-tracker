@@ -21,4 +21,3 @@ Use this checklist before committing changes to ensure quality and avoid issues.
 - [ ] **Push to remote** — `git push origin main` or `git push origin branch-name`
 - [ ] **CI checks** — Verify CI passes on GitHub (if branch/PR)
 - [ ] **Merge and clean up** — If using branch, squash merge and verify branch auto-deleted
-

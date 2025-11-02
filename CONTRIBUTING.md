@@ -112,6 +112,7 @@ If lint fails, fix spacing around headings/lists/fences; avoid bare URLs by usin
 ## Branching (solo policy)
 
 **With Bob (Cursor) workflow:**
+
 - **Small, clear changes:** Commit directly to `main`.
 - **Larger or uncertain changes:** Create a branch (`feature/short-topic` or `fix/short-topic`) → PR → Review → Merge (squash-merge preferred).
 - Bob can help decide if a change warrants a branch vs direct commit.
@@ -149,6 +150,7 @@ This codebase is designed to be portable across static hosting services (GitHub 
 ### Migration Checklist
 
 If switching hosts:
+
 1. Copy static files to new host.
 2. Update API config files if needed (usually same values).
 3. Configure custom domain (optional).

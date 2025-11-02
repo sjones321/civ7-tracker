@@ -50,6 +50,7 @@ The codebase is designed to be portable across static hosting services (GitHub P
 ### Migration Checklist
 
 If switching hosts:
+
 1. Copy static files to new host.
 2. Update API config files if needed (usually same values).
 3. Configure custom domain (optional).
