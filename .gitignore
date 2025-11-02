@@ -33,4 +33,7 @@ coverage/
 # markdownlint output (add these lines to your existing .gitignore)
 **/markdownlint.out
 
+# Supabase config (contains API keys - NEVER commit)
+js/supabase-config.js
+
 # END PACK: .gitignore (civ7-tracker)

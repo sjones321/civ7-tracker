@@ -116,12 +116,20 @@
     if (!value) {
       return '';
     }
+    // If value already contains bracketed versions, don't process again
+    // Check if any yield keywords are already in bracket format
+    if (/\[(food|production|culture|science)\]/gi.test(value)) {
+      // Already has bracketed keywords, just return as-is
+      return value;
+    }
+    
     var map = {
       food: '[food]',
       production: '[production]',
       culture: '[culture]',
       science: '[science]'
     };
+    // Replace plain words with bracketed versions
     return value.replace(/\b(food|production|culture|science)\b/gi, function (match) {
       var key = match.toLowerCase();
       return map[key] || match;
@@ -287,19 +295,26 @@
   }
 
   function migrateStoredWonders() {
-    var wonders = store.getWorldWonders();
-    var updated = [];
-    var hasChanges = false;
-    for (var i = 0; i < wonders.length; i += 1) {
-      var migrated = migrateWorldWonder(wonders[i]);
-      if (migrated.changed) {
-        hasChanges = true;
+    // Migration is async now - load from Supabase
+    store.getWorldWondersAsync().then(function (wonders) {
+      var updated = [];
+      var hasChanges = false;
+      for (var i = 0; i < wonders.length; i += 1) {
+        var migrated = migrateWorldWonder(wonders[i]);
+        if (migrated.changed) {
+          hasChanges = true;
+        }
+        updated.push(migrated.value);
       }
-      updated.push(migrated.value);
-    }
-    if (hasChanges) {
-      store.setWorldWonders(updated);
-    }
+      if (hasChanges) {
+        store.setWorldWondersAsync(updated).catch(function (err) {
+          console.warn('Migration save failed (non-critical):', err);
+        });
+      }
+    }).catch(function (err) {
+      console.warn('Migration load failed (non-critical):', err);
+      // If migration fails, just continue - not critical
+    });
   }
 
   function renderOwnershipHistory(history) {
@@ -349,7 +364,16 @@
   }
 
   function renderWonderTable() {
-    var wonders = store.getWorldWonders();
+    // Use async version to get fresh data
+    store.getWorldWondersAsync().then(function (wonders) {
+      renderWonderTableWithData(wonders);
+    }).catch(function (err) {
+      console.error('Failed to load wonders:', err);
+      renderWonderTableWithData([]);
+    });
+  }
+
+  function renderWonderTableWithData(wonders) {
     wonders.sort(function (a, b) {
       return (a.name || '').localeCompare(b.name || '');
     });
@@ -518,64 +542,80 @@
   function handleFormSubmit(event) {
     event.preventDefault();
 
-    var wonders = store.getWorldWonders();
-    var formData = {
-      id: form.elements.id.value.trim(),
-      name: form.elements.name.value.trim(),
-      age: ageSelect ? ageSelect.value : '',
-      iconUrl: iconUrlField ? iconUrlField.value.trim() : '',
-      bonus: form.elements.bonus.value.trim(),
-      ownerType: ownerTypeField ? ownerTypeField.value : '',
-      ownerLeader: ownerLeaderField ? ownerLeaderField.value.trim() : '',
-      ownerCiv: ownerCivField ? ownerCivField.value.trim() : '',
-      bigTicket: form.elements.bigTicket.checked
-    };
+    // Get wonders async first for validation
+    store.getWorldWondersAsync().then(function (wonders) {
+      var formData = {
+        id: form.elements.id.value.trim(),
+        name: form.elements.name.value.trim(),
+        age: ageSelect ? ageSelect.value : '',
+        iconUrl: iconUrlField ? iconUrlField.value.trim() : '',
+        bonus: form.elements.bonus.value.trim(),
+        ownerType: ownerTypeField ? ownerTypeField.value : '',
+        ownerLeader: ownerLeaderField ? ownerLeaderField.value.trim() : '',
+        ownerCiv: ownerCivField ? ownerCivField.value.trim() : '',
+        bigTicket: form.elements.bigTicket.checked
+      };
 
-    var error = validateFormData(formData, wonders);
-    if (error) {
-      showStatus(error, 'error');
-      return;
-    }
+      var error = validateFormData(formData, wonders);
+      if (error) {
+        showStatus(error, 'error');
+        return;
+      }
 
-    formData.bonus = applyIconPlaceholders(formData.bonus);
-    if (bonusField) {
-      bonusField.value = formData.bonus;
-    }
+      formData.bonus = applyIconPlaceholders(formData.bonus);
+      if (bonusField) {
+        bonusField.value = formData.bonus;
+      }
 
-    var history = currentHistory.slice();
-    var now = new Date().toISOString();
-    var snapshot = {
-      ownerType: formData.ownerType,
-      ownerLeader: formData.ownerLeader,
-      ownerCiv: formData.ownerCiv,
-      timestamp: now
-    };
+      var history = currentHistory.slice();
+      var now = new Date().toISOString();
+      var snapshot = {
+        ownerType: formData.ownerType,
+        ownerLeader: formData.ownerLeader,
+        ownerCiv: formData.ownerCiv,
+        timestamp: now
+      };
 
-    var lastEntry = history.length ? history[history.length - 1] : null;
-    if (
-      !lastEntry ||
-      lastEntry.ownerType !== snapshot.ownerType ||
-      lastEntry.ownerLeader !== snapshot.ownerLeader ||
-      lastEntry.ownerCiv !== snapshot.ownerCiv
-    ) {
-      history.push(snapshot);
-    }
+      var lastEntry = history.length ? history[history.length - 1] : null;
+      if (
+        !lastEntry ||
+        lastEntry.ownerType !== snapshot.ownerType ||
+        lastEntry.ownerLeader !== snapshot.ownerLeader ||
+        lastEntry.ownerCiv !== snapshot.ownerCiv
+      ) {
+        history.push(snapshot);
+      }
 
-    formData.ownershipHistory = history;
+      formData.ownershipHistory = history;
 
-    var savedWonder = store.saveWorldWonder(formData);
+      // Save async and handle the promise
+      store.saveWorldWonderAsync(formData).then(function (savedWonder) {
+        if (!savedWonder || !savedWonder.id) {
+          showStatus('Failed to save wonder.', 'error');
+          return;
+        }
 
-    if (editingOriginalId && editingOriginalId !== savedWonder.id) {
-      store.deleteWorldWonder(editingOriginalId);
-    }
+        if (editingOriginalId && editingOriginalId !== savedWonder.id) {
+          store.deleteWorldWonderAsync(editingOriginalId).catch(function (err) {
+            console.warn('Failed to delete old wonder:', err);
+          });
+        }
 
-    editingOriginalId = savedWonder.id;
-    currentHistory = savedWonder.ownershipHistory ? savedWonder.ownershipHistory.slice() : [];
+        editingOriginalId = savedWonder.id;
+        currentHistory = savedWonder.ownershipHistory ? savedWonder.ownershipHistory.slice() : [];
 
-    ensureAgeOption(savedWonder.age);
-    renderWonderTable();
-    renderOwnershipHistory(currentHistory);
-    showStatus('Saved "' + savedWonder.name + '".', 'success');
+        ensureAgeOption(savedWonder.age);
+        renderWonderTable();
+        renderOwnershipHistory(currentHistory);
+        showStatus('Saved "' + (savedWonder.name || 'wonder') + '".', 'success');
+      }).catch(function (err) {
+        console.error('Save failed:', err);
+        showStatus('Failed to save: ' + (err.message || err), 'error');
+      });
+    }).catch(function (err) {
+      console.error('Failed to load wonders for validation:', err);
+      showStatus('Error loading data. Please refresh the page.', 'error');
+    });
   }
 
   function handleTableClick(event) {
@@ -589,31 +629,50 @@
       return;
     }
     if (action === 'edit') {
-      var wonder = store.getWorldWonderById(id);
-      if (wonder) {
-        resetForm(wonder);
-      }
+      // Show loading state
+      showStatus('Loading wonder details...', 'info');
+      store.getWorldWonderByIdAsync(id).then(function (wonder) {
+        if (wonder) {
+          resetForm(wonder);
+          showStatus('Loaded "' + wonder.name + '".', 'success');
+        } else {
+          showStatus('Wonder not found.', 'error');
+        }
+      }).catch(function (err) {
+        console.error('Failed to load wonder:', err);
+        showStatus('Failed to load wonder: ' + (err.message || err), 'error');
+      });
     } else if (action === 'delete') {
       var confirmed = window.confirm('Delete this World Wonder?');
       if (!confirmed) {
         return;
       }
-      var removed = store.deleteWorldWonder(id);
-      if (removed) {
-        if (editingOriginalId === id) {
-          resetForm(null);
+      store.deleteWorldWonderAsync(id).then(function (removed) {
+        if (removed) {
+          if (editingOriginalId === id) {
+            resetForm(null);
+          }
+          renderWonderTable();
+          showStatus('Deleted World Wonder.', 'success');
+        } else {
+          showStatus('Wonder not found.', 'error');
         }
-        renderWonderTable();
-        showStatus('Deleted World Wonder.', 'success');
-      }
+      }).catch(function (err) {
+        console.error('Failed to delete wonder:', err);
+        showStatus('Failed to delete: ' + (err.message || err), 'error');
+      });
     }
   }
 
   function handleExport() {
-    var wonders = store.getWorldWonders();
-    jsonArea.value = JSON.stringify(wonders, null, 2);
-    jsonArea.focus();
-    showStatus('Exported ' + wonders.length + ' World Wonder(s).', 'success');
+    store.getWorldWondersAsync().then(function (wonders) {
+      jsonArea.value = JSON.stringify(wonders, null, 2);
+      jsonArea.focus();
+      showStatus('Exported ' + wonders.length + ' World Wonder(s).', 'success');
+    }).catch(function (err) {
+      console.error('Failed to export:', err);
+      showStatus('Failed to export: ' + (err.message || err), 'error');
+    });
   }
 
   function handleIconUrlInput() {
@@ -676,11 +735,15 @@
     if (!confirmed) {
       return;
     }
-    store.setWorldWonders([]);
-    currentHistory = [];
-    resetForm(null);
-    renderWonderTable();
-    showStatus('Cleared all saved World Wonders.', 'success');
+    store.setWorldWondersAsync([]).then(function () {
+      currentHistory = [];
+      resetForm(null);
+      renderWonderTable();
+      showStatus('Cleared all saved World Wonders.', 'success');
+    }).catch(function (err) {
+      console.error('Failed to clear wonders:', err);
+      showStatus('Failed to clear: ' + (err.message || err), 'error');
+    });
   }
 
   function handleLoadSample() {
@@ -709,11 +772,15 @@
           ensureAgeOption(normalized.age);
           return normalized;
         });
-        store.setWorldWonders(wonders);
-        resetForm(null);
-        renderWonderTable();
-        refreshAgeSelect();
-        showStatus('Loaded sample World Wonders.', 'success');
+        store.setWorldWondersAsync(wonders).then(function () {
+          resetForm(null);
+          renderWonderTable();
+          refreshAgeSelect();
+          showStatus('Loaded sample World Wonders.', 'success');
+        }).catch(function (err) {
+          console.error('Failed to save sample wonders:', err);
+          showStatus('Failed to load sample: ' + (err.message || err), 'error');
+        });
       })
       .catch(function (err) {
         console.error(err);
@@ -784,11 +851,15 @@
         return normalized;
       });
 
-      store.setWorldWonders(wonders);
-      resetForm(null);
-      renderWonderTable();
-      refreshAgeSelect();
-      showStatus('Imported ' + wonders.length + ' World Wonder(s).', 'success');
+      store.setWorldWondersAsync(wonders).then(function () {
+        resetForm(null);
+        renderWonderTable();
+        refreshAgeSelect();
+        showStatus('Imported ' + wonders.length + ' World Wonder(s).', 'success');
+      }).catch(function (err) {
+        console.error('Failed to save imported wonders:', err);
+        showStatus('Import failed: ' + (err.message || err), 'error');
+      });
     } catch (err) {
       console.error(err);
       showStatus('Import failed: ' + err.message, 'error');
@@ -802,6 +873,7 @@
     migrateStoredWonders();
     refreshAgeSelect();
     loadAgeOptions();
+    // Load wonders from Supabase on page load
     renderWonderTable();
     resetForm(null);
 
