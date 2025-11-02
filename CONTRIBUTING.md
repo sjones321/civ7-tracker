@@ -12,12 +12,14 @@ A short, practical guide for **future me** (solo maintainer) on how to work in t
 
 ## Quick flow I follow
 
-1. Make a small, focused change.
-2. Stage files in GitKraken.
-3. Write a **Conventional Commit** message (see cheat sheet below).
-4. Commit. The **pre-commit hook** runs: version badge step (if HTML is staged) + markdownlint.
-5. Push to `main`.
-6. Visit the live site and hard refresh (Ctrl+F5).
+1. **Brainstorm** with Lucy (ChatGPT Voice) for high-level planning (optional).
+2. **Work with Bob (Cursor)** — Bob reads files directly, makes edits, explains decisions.
+3. Make a small, focused change.
+4. Stage files (GitKraken or command line).
+5. Write a **Conventional Commit** message (see cheat sheet below).
+6. Commit. The **pre-commit hook** runs: version badge step (if HTML is staged) + markdownlint.
+7. Push to `main` (for small changes) or create a branch + PR (for larger/uncertain changes).
+8. Visit the live site and hard refresh (Ctrl+F5).
 
 Live site: <https://sjones321.github.io/civ7-tracker/>
 
@@ -58,7 +60,7 @@ docs: polish workflow guide and add troubleshooting
 ## Devlog ritual (daily)
 
 - Run `new-devlog-today.bat` (or `new-devlog.ps1`). It creates/opens `docs/devlog/YYYY-MM-DD.md` and inserts a **Commit Digest**.
-- Ask ChatGPT for a human summary using `docs/devlog/TEMPLATE.md`, paste it into the entry.
+- Get a human summary using `docs/devlog/TEMPLATE.md` — ask Bob (Cursor) or ChatGPT (Lucy), paste it into the entry.
 - Commit with `docs: add end-of-day summary` (or similar).
 
 The devlog lives in `docs/devlog/`. Template: `docs/devlog/TEMPLATE.md`.
@@ -109,8 +111,11 @@ If lint fails, fix spacing around headings/lists/fences; avoid bare URLs by usin
 
 ## Branching (solo policy)
 
-- Work directly on `main` for tiny changes.
-- For bigger work, create a short-lived branch: `feature/short-topic` or `fix/short-topic` and squash-merge locally.
+**With Bob (Cursor) workflow:**
+
+- **Small, clear changes:** Commit directly to `main`.
+- **Larger or uncertain changes:** Create a branch (`feature/short-topic` or `fix/short-topic`) → PR → Review → Merge (squash-merge preferred).
+- Bob can help decide if a change warrants a branch vs direct commit.
 
 ---
 
@@ -122,9 +127,41 @@ If lint fails, fix spacing around headings/lists/fences; avoid bare URLs by usin
 
 ---
 
+## Hosting Portability & Future-Proofing
+
+This codebase is designed to be portable across static hosting services (GitHub Pages, Netlify, Cloudflare Pages, Vercel, etc.).
+
+### Best Practices
+
+- **Use standard web APIs** — No platform-specific features.
+- **External API keys in config files** — Easy to swap per environment (e.g., `js/supabase-config.js`).
+- **Relative paths for assets** — No hardcoded domain references.
+- **Static files only** — No server-side dependencies.
+- **External APIs work from any origin** — Backend services (like Supabase) handle CORS properly.
+
+### What to Avoid
+
+- ❌ Platform-specific CI/CD dependencies (e.g., GitHub Actions that only work on GitHub Pages).
+- ❌ Hosting-specific features that lock you to one provider.
+- ❌ Server-side rendering requirements.
+- ❌ Hardcoded domain URLs in code.
+- ❌ Absolute paths that assume a specific deployment structure.
+
+### Migration Checklist
+
+If switching hosts:
+
+1. Copy static files to new host.
+2. Update API config files if needed (usually same values).
+3. Configure custom domain (optional).
+4. Update CORS settings in external APIs (if required).
+
+---
+
 ## Pull requests (future-proof note)
 
-- If collaborators ever appear, accept PRs that follow these rules and pass lint/validate. For now, PRs are optional since I’m solo.
+- For larger or uncertain changes, use branches + PRs (even solo) to review before merging.
+- If collaborators ever appear, accept PRs that follow these rules and pass lint/validate.
 
 ---
 
