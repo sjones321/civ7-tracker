@@ -126,10 +126,12 @@
   }
 
   // Create dropdown element
+  var dropdownCounter = 0;
   function createDropdown() {
+    dropdownCounter++;
     var dropdown = document.createElement('div');
     dropdown.className = 'autocomplete-dropdown';
-    dropdown.id = 'autocomplete-dropdown-' + Date.now(); // Unique ID for debugging
+    dropdown.id = 'autocomplete-dropdown-' + dropdownCounter + '-' + Date.now(); // Truly unique ID
     dropdown.style.cssText = 'position: absolute !important; background: white !important; border: 1px solid #ccc !important; max-height: 200px !important; overflow-y: auto !important; z-index: 10000 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; display: none !important; visibility: visible !important;';
     dropdown.setAttribute('role', 'listbox');
     console.log('[autocomplete] Created dropdown element:', dropdown.id, dropdown);
@@ -169,10 +171,15 @@
 
   // Position dropdown below input
   function positionDropdown(dropdown, input) {
-    var rect = input.getBoundingClientRect();
-    var top = (rect.bottom + window.scrollY) + 'px';
-    var left = (rect.left + window.scrollX) + 'px';
-    var width = rect.width + 'px';
+    var inputRect = input.getBoundingClientRect();
+    var container = dropdown.parentElement;
+    var containerRect = container.getBoundingClientRect();
+    
+    // Calculate position relative to container, not document
+    var top = (inputRect.bottom - containerRect.top + container.scrollTop) + 'px';
+    var left = (inputRect.left - containerRect.left) + 'px';
+    var width = inputRect.width + 'px';
+    
     dropdown.style.top = top;
     dropdown.style.left = left;
     dropdown.style.width = width;
@@ -181,10 +188,14 @@
       left: left,
       width: width,
       inputRect: {
-        top: rect.top,
-        left: rect.left,
-        bottom: rect.bottom,
-        width: rect.width
+        top: inputRect.top,
+        left: inputRect.left,
+        bottom: inputRect.bottom,
+        width: inputRect.width
+      },
+      containerRect: {
+        top: containerRect.top,
+        left: containerRect.left
       }
     });
   }
