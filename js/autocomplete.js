@@ -106,7 +106,6 @@
       query = query.ilike(config.searchField, '%' + searchTerm.trim() + '%');
     }
 
-    console.log('[autocomplete] Fetching', entityType, 'with search:', searchTerm);
     query
       .then(function (response) {
         if (response.error) {
@@ -114,7 +113,6 @@
           callback([]);
           return;
         }
-        console.log('[autocomplete] Received', (response.data || []).length, 'items');
         callback(response.data || []);
       })
       .catch(function (error) {
