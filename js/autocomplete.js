@@ -129,8 +129,10 @@
   function createDropdown() {
     var dropdown = document.createElement('div');
     dropdown.className = 'autocomplete-dropdown';
-    dropdown.style.cssText = 'position: absolute; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none;';
+    dropdown.id = 'autocomplete-dropdown-' + Date.now(); // Unique ID for debugging
+    dropdown.style.cssText = 'position: absolute !important; background: white !important; border: 1px solid #ccc !important; max-height: 200px !important; overflow-y: auto !important; z-index: 10000 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; display: none !important; visibility: visible !important;';
     dropdown.setAttribute('role', 'listbox');
+    console.log('[autocomplete] Created dropdown element:', dropdown.id, dropdown);
     return dropdown;
   }
 
@@ -168,9 +170,23 @@
   // Position dropdown below input
   function positionDropdown(dropdown, input) {
     var rect = input.getBoundingClientRect();
-    dropdown.style.top = (rect.bottom + window.scrollY) + 'px';
-    dropdown.style.left = (rect.left + window.scrollX) + 'px';
-    dropdown.style.width = rect.width + 'px';
+    var top = (rect.bottom + window.scrollY) + 'px';
+    var left = (rect.left + window.scrollX) + 'px';
+    var width = rect.width + 'px';
+    dropdown.style.top = top;
+    dropdown.style.left = left;
+    dropdown.style.width = width;
+    console.log('[autocomplete] Positioned dropdown:', {
+      top: top,
+      left: left,
+      width: width,
+      inputRect: {
+        top: rect.top,
+        left: rect.left,
+        bottom: rect.bottom,
+        width: rect.width
+      }
+    });
   }
 
   // Main autocomplete factory function
@@ -197,17 +213,38 @@
 
     var config = ENTITY_CONFIG[entityType];
     var dropdown = createDropdown();
-    var container = input.parentElement || document.body;
+    
+    // Find a suitable container - prefer parent, but ensure it can position relatively
+    var container = input.parentElement;
+    while (container && container !== document.body) {
+      var computedPosition = window.getComputedStyle(container).position;
+      if (computedPosition === 'relative' || computedPosition === 'absolute' || computedPosition === 'fixed') {
+        break; // Found a positioned ancestor
+      }
+      // If parent is form or section, use it
+      if (container.tagName === 'FORM' || container.tagName === 'SECTION' || container.tagName === 'DIV') {
+        break;
+      }
+      container = container.parentElement;
+    }
+    if (!container || container === document.body) {
+      container = input.parentElement || document.body;
+    }
+    
+    console.log('[autocomplete] Container for dropdown:', container.tagName, container.className, container.id, 'position:', window.getComputedStyle(container).position);
     container.style.position = 'relative'; // For absolute positioning
     container.appendChild(dropdown);
+    console.log('[autocomplete] Dropdown appended to container. Dropdown element:', dropdown, 'isConnected:', dropdown.isConnected);
 
     var debounceTimer = null;
     var selectedItem = null;
 
     // Show dropdown with items
     function showDropdown(items) {
+      console.log('[autocomplete] showDropdown called with', items.length, 'items');
       dropdown.innerHTML = '';
       if (items.length === 0) {
+        console.log('[autocomplete] No items, hiding dropdown');
         dropdown.style.display = 'none';
         return;
       }
@@ -224,6 +261,19 @@
 
       positionDropdown(dropdown, input);
       dropdown.style.display = 'block';
+      dropdown.style.visibility = 'visible';
+      console.log('[autocomplete] Dropdown displayed:', {
+        display: dropdown.style.display,
+        visibility: dropdown.style.visibility,
+        top: dropdown.style.top,
+        left: dropdown.style.left,
+        width: dropdown.style.width,
+        items: items.length,
+        computedDisplay: window.getComputedStyle(dropdown).display,
+        computedVisibility: window.getComputedStyle(dropdown).visibility,
+        computedZIndex: window.getComputedStyle(dropdown).zIndex,
+        parentElement: dropdown.parentElement?.tagName
+      });
     }
 
     // Hide dropdown

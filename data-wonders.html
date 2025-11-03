@@ -58,13 +58,15 @@
     #new-wonder { margin-top:12px; }
     /* Autocomplete dropdown styling */
     .autocomplete-dropdown { 
+      position: absolute !important;
       background: #fff !important;
       border: 1px solid #bcccdc !important;
       border-radius: 4px !important;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
       max-height: 200px !important;
       overflow-y: auto !important;
-      z-index: 1000 !important;
+      z-index: 10000 !important;
+      visibility: visible !important;
     }
     .autocomplete-item {
       padding: 8px 12px !important;
