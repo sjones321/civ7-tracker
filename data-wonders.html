@@ -56,6 +56,29 @@
     .data-tools textarea { margin-top:12px; width:100%; padding:8px; border:1px solid #bcccdc; border-radius:4px; font-family:monospace; font-size:0.9rem; background:#f8fafc; color:#102542; }
     .ownership-summary { max-width:340px; }
     #new-wonder { margin-top:12px; }
+    /* Autocomplete dropdown styling */
+    .autocomplete-dropdown { 
+      background: #fff !important;
+      border: 1px solid #bcccdc !important;
+      border-radius: 4px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+      max-height: 200px !important;
+      overflow-y: auto !important;
+      z-index: 1000 !important;
+    }
+    .autocomplete-item {
+      padding: 8px 12px !important;
+      cursor: pointer !important;
+      border-bottom: 1px solid #eef2f7 !important;
+      color: #102542 !important;
+    }
+    .autocomplete-item:hover,
+    .autocomplete-item[style*="background-color: rgb(240, 240, 240)"] {
+      background-color: #e6f1ff !important;
+    }
+    .autocomplete-item:last-child {
+      border-bottom: none !important;
+    }
     footer { text-align:center; padding:24px; color:#52606d; font-size:0.9rem; }
     @media (max-width: 768px) {
       header { flex-direction:column; align-items:flex-start; }
@@ -161,19 +184,21 @@
           <textarea id="wonder-bonus" name="bonus" placeholder="e.g., +2 food for adjacent farms"></textarea>
           <small>Keywords like <strong>food</strong>, <strong>production</strong>, <strong>culture</strong>, and <strong>science</strong> convert to placeholders on blur.</small>
 
-          <label for="wonder-owner-type">Owner Type</label>
+          <label for="wonder-owner-type">Last Owner</label>
           <select id="wonder-owner-type" name="ownerType" required>
-            <option value="" disabled selected>Select owner type</option>
+            <option value="" disabled selected>Select owner</option>
             <option value="Tiny">Tiny</option>
             <option value="Steve">Steve</option>
             <option value="AI">AI</option>
           </select>
 
           <label for="wonder-owner-leader">Owner Leader</label>
-          <input id="wonder-owner-leader" name="ownerLeader" type="text" autocomplete="off" placeholder="e.g., Mansa Musa">
+          <input id="wonder-owner-leader" name="ownerLeader" type="text" autocomplete="off" placeholder="Start typing leader name...">
+          <small>Type to filter and select from database</small>
 
           <label for="wonder-owner-civ">Owner Civilization</label>
-          <input id="wonder-owner-civ" name="ownerCiv" type="text" autocomplete="off" placeholder="e.g., Mali">
+          <input id="wonder-owner-civ" name="ownerCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+          <small>Type to filter and select from database</small>
 
           <label class="checkbox-label">
             <input type="checkbox" id="wonder-bigTicket" name="bigTicket"> Big Ticket Wonder
@@ -224,6 +249,8 @@
   <script src="js/supabase-config.js"></script>
   <!-- Load the store that uses Supabase -->
   <script src="js/store-supabase.js"></script>
+  <!-- Load autocomplete component -->
+  <script src="js/autocomplete.js"></script>
   <script src="js/data-wonders.js"></script>
   <script src="js/main.js"></script>
 </body>

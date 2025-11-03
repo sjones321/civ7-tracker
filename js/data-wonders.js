@@ -23,6 +23,10 @@
   var ownerLeaderField = document.getElementById('wonder-owner-leader');
   var ownerCivField = document.getElementById('wonder-owner-civ');
   var logOwnerButton = document.getElementById('log-owner');
+  
+  // Autocomplete instances (will be created in init)
+  var leaderAutocomplete = null;
+  var civAutocomplete = null;
 
   var ownerTypes = ['Tiny', 'Steve', 'AI'];
   var DEFAULT_AGES = ['Antiquity', 'Exploration', 'Modern'];
@@ -475,11 +479,21 @@
           ownerTypeField.selectedIndex = 0;
         }
       }
-      if (ownerLeaderField) {
+      if (ownerLeaderField && leaderAutocomplete && wonder.ownerLeader) {
+        // Use autocomplete to load and display the leader name by ID
+        leaderAutocomplete.setValueById(wonder.ownerLeader);
+      } else if (ownerLeaderField) {
         ownerLeaderField.value = wonder.ownerLeader || '';
+        ownerLeaderField.removeAttribute('data-selected-id');
+        ownerLeaderField.removeAttribute('data-selected-name');
       }
-      if (ownerCivField) {
+      if (ownerCivField && civAutocomplete && wonder.ownerCiv) {
+        // Use autocomplete to load and display the civ name by ID
+        civAutocomplete.setValueById(wonder.ownerCiv);
+      } else if (ownerCivField) {
         ownerCivField.value = wonder.ownerCiv || '';
+        ownerCivField.removeAttribute('data-selected-id');
+        ownerCivField.removeAttribute('data-selected-name');
       }
       form.elements.bigTicket.checked = Boolean(wonder.bigTicket);
       showStatus('Editing "' + wonder.name + '".', 'info');
@@ -496,9 +510,13 @@
       }
       if (ownerLeaderField) {
         ownerLeaderField.value = '';
+        ownerLeaderField.removeAttribute('data-selected-id');
+        ownerLeaderField.removeAttribute('data-selected-name');
       }
       if (ownerCivField) {
         ownerCivField.value = '';
+        ownerCivField.removeAttribute('data-selected-id');
+        ownerCivField.removeAttribute('data-selected-name');
       }
       if (bonusField) {
         bonusField.value = '';
@@ -544,6 +562,10 @@
 
     // Get wonders async first for validation
     store.getWorldWondersAsync().then(function (wonders) {
+      // Get selected IDs from autocomplete if available, otherwise use typed value
+      var selectedLeaderId = ownerLeaderField ? (ownerLeaderField.getAttribute('data-selected-id') || ownerLeaderField.value.trim()) : '';
+      var selectedCivId = ownerCivField ? (ownerCivField.getAttribute('data-selected-id') || ownerCivField.value.trim()) : '';
+
       var formData = {
         id: form.elements.id.value.trim(),
         name: form.elements.name.value.trim(),
@@ -551,8 +573,8 @@
         iconUrl: iconUrlField ? iconUrlField.value.trim() : '',
         bonus: form.elements.bonus.value.trim(),
         ownerType: ownerTypeField ? ownerTypeField.value : '',
-        ownerLeader: ownerLeaderField ? ownerLeaderField.value.trim() : '',
-        ownerCiv: ownerCivField ? ownerCivField.value.trim() : '',
+        ownerLeader: selectedLeaderId, // Use ID from autocomplete or typed value
+        ownerCiv: selectedCivId, // Use ID from autocomplete or typed value
         bigTicket: form.elements.bigTicket.checked
       };
 
@@ -870,6 +892,35 @@
     if (!form || !tableBody || !newButton || !exportButton || !importButton || !jsonArea) {
       return;
     }
+
+    // Initialize autocomplete for Owner Leader and Owner Civ fields FIRST
+    // (needed for resetForm to use them)
+    if (ownerLeaderField && window.CivAutocomplete) {
+      leaderAutocomplete = window.CivAutocomplete.create({
+        input: ownerLeaderField,
+        entityType: 'leaders',
+        placeholder: 'Start typing leader name...',
+        onSelect: function (item) {
+          // Store the selected leader ID in a data attribute for form submission
+          ownerLeaderField.setAttribute('data-selected-id', item.id);
+          ownerLeaderField.setAttribute('data-selected-name', item.name);
+        }
+      });
+    }
+
+    if (ownerCivField && window.CivAutocomplete) {
+      civAutocomplete = window.CivAutocomplete.create({
+        input: ownerCivField,
+        entityType: 'civilizations',
+        placeholder: 'Start typing civilization name...',
+        onSelect: function (item) {
+          // Store the selected civ ID in a data attribute for form submission
+          ownerCivField.setAttribute('data-selected-id', item.id);
+          ownerCivField.setAttribute('data-selected-name', item.name);
+        }
+      });
+    }
+
     migrateStoredWonders();
     refreshAgeSelect();
     loadAgeOptions();

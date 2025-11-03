@@ -296,10 +296,51 @@
       input.placeholder = placeholder;
     }
 
+    // Helper to load item by ID and set the input value
+    function loadItemById(itemId) {
+      if (!itemId) {
+        return;
+      }
+      // Try to fetch the specific item by ID
+      var client = getSupabaseClient();
+      if (!client) {
+        return;
+      }
+      client
+        .from(config.table)
+        .select('*')
+        .eq(config.valueField, itemId)
+        .single()
+        .then(function (response) {
+          if (response.error || !response.data) {
+            // If not found, just set the ID as the value
+            input.value = itemId;
+            return;
+          }
+          // Found it - set the display name and store selection
+          selectedItem = response.data;
+          input.value = response.data[displayField] || itemId;
+          input.setAttribute('data-selected-id', itemId);
+          input.setAttribute('data-selected-name', response.data[displayField] || '');
+        })
+        .catch(function (error) {
+          // On error, just set the ID as the value
+          console.warn('[autocomplete] Could not load item by ID:', itemId, error);
+          input.value = itemId;
+        });
+    }
+
     // Return API for programmatic control
     return {
       setValue: function (value) {
         input.value = value;
+        selectedItem = null;
+        input.removeAttribute('data-selected-id');
+        input.removeAttribute('data-selected-name');
+      },
+      setValueById: function (id) {
+        // Load item by ID and display its name
+        loadItemById(id);
       },
       getValue: function () {
         return selectedItem ? selectedItem[valueField] : input.value;
