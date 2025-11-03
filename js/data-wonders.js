@@ -132,6 +132,87 @@
       });
   }
 
+  // Effects array builder functions
+  function addEffectInput(value) {
+    if (!effectsContainer) {
+      return;
+    }
+    effectCounter++;
+    var effectId = 'effect-' + effectCounter;
+    
+    var effectDiv = document.createElement('div');
+    effectDiv.className = 'effect-input-row';
+    effectDiv.style.cssText = 'display: flex; gap: 8px; align-items: center; margin-bottom: 8px;';
+    
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.id = effectId;
+    input.className = 'effect-input';
+    input.value = value || '';
+    input.style.cssText = 'flex: 1; padding: 8px; border: 1px solid #bcccdc; border-radius: 4px;';
+    input.placeholder = 'Enter effect description...';
+    
+    var removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.textContent = 'Remove';
+    removeButton.className = 'secondary';
+    removeButton.addEventListener('click', function () {
+      effectDiv.remove();
+    });
+    
+    effectDiv.appendChild(input);
+    effectDiv.appendChild(removeButton);
+    effectsContainer.appendChild(effectDiv);
+    
+    return input;
+  }
+  
+  function getEffectsArray() {
+    if (!effectsContainer) {
+      return [];
+    }
+    var inputs = effectsContainer.querySelectorAll('.effect-input');
+    var effects = [];
+    inputs.forEach(function (input) {
+      var value = input.value.trim();
+      if (value) {
+        effects.push(value);
+      }
+    });
+    return effects;
+  }
+  
+  function clearEffectsContainer() {
+    if (effectsContainer) {
+      effectsContainer.innerHTML = '';
+      effectCounter = 0;
+    }
+  }
+  
+  function loadEffectsArray(effects) {
+    clearEffectsContainer();
+    if (Array.isArray(effects) && effects.length > 0) {
+      effects.forEach(function (effect) {
+        var value = typeof effect === 'string' ? effect : JSON.stringify(effect);
+        addEffectInput(value);
+      });
+    } else if (effects && typeof effects === 'string') {
+      // Try to parse as JSON array
+      try {
+        var parsed = JSON.parse(effects);
+        if (Array.isArray(parsed)) {
+          parsed.forEach(function (effect) {
+            var value = typeof effect === 'string' ? effect : JSON.stringify(effect);
+            addEffectInput(value);
+          });
+        }
+      } catch (e) {
+        // Not JSON, treat as single effect
+        addEffectInput(effects);
+      }
+    }
+  }
+
   function applyIconPlaceholders(value) {
     if (!value) {
       return '';
