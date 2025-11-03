@@ -599,7 +599,11 @@
         productionCostField.value = wonder.productionCost || '';
       }
       if (associatedCivField && associatedCivAutocomplete && wonder.associatedCiv) {
-        associatedCivAutocomplete.setValueById(wonder.associatedCiv);
+        try {
+          associatedCivAutocomplete.setValueById(wonder.associatedCiv);
+        } catch (e) {
+          associatedCivField.value = wonder.associatedCiv || '';
+        }
       } else if (associatedCivField) {
         associatedCivField.value = wonder.associatedCiv || '';
         associatedCivField.removeAttribute('data-selected-id');
@@ -610,14 +614,22 @@
         if (wonder.unlockTech) {
           unlockTypeField.value = 'tech';
           if (unlockAutocomplete) {
-            unlockAutocomplete.setValueById(wonder.unlockTech);
+            try {
+              unlockAutocomplete.setValueById(wonder.unlockTech);
+            } catch (e) {
+              unlockField.value = wonder.unlockTech || '';
+            }
           } else {
             unlockField.value = wonder.unlockTech || '';
           }
         } else if (wonder.unlockCivic) {
           unlockTypeField.value = 'civic';
           if (unlockAutocomplete) {
-            unlockAutocomplete.setValueById(wonder.unlockCivic);
+            try {
+              unlockAutocomplete.setValueById(wonder.unlockCivic);
+            } catch (e) {
+              unlockField.value = wonder.unlockCivic || '';
+            }
           } else {
             unlockField.value = wonder.unlockCivic || '';
           }
@@ -629,12 +641,20 @@
       // Handle civ-specific unlock (JSON object)
       if (wonder.civSpecificUnlock && typeof wonder.civSpecificUnlock === 'object') {
         if (civSpecificUnlockCivField && civSpecificUnlockCivAutocomplete && wonder.civSpecificUnlock.civId) {
-          civSpecificUnlockCivAutocomplete.setValueById(wonder.civSpecificUnlock.civId);
+          try {
+            civSpecificUnlockCivAutocomplete.setValueById(wonder.civSpecificUnlock.civId);
+          } catch (e) {
+            civSpecificUnlockCivField.value = wonder.civSpecificUnlock.civId || '';
+          }
         } else if (civSpecificUnlockCivField) {
           civSpecificUnlockCivField.value = wonder.civSpecificUnlock.civId || '';
         }
         if (civSpecificUnlockCivicField && civSpecificUnlockCivicAutocomplete && wonder.civSpecificUnlock.civicId) {
-          civSpecificUnlockCivicAutocomplete.setValueById(wonder.civSpecificUnlock.civicId);
+          try {
+            civSpecificUnlockCivicAutocomplete.setValueById(wonder.civSpecificUnlock.civicId);
+          } catch (e) {
+            civSpecificUnlockCivicField.value = wonder.civSpecificUnlock.civicId || '';
+          }
         } else if (civSpecificUnlockCivicField) {
           civSpecificUnlockCivicField.value = wonder.civSpecificUnlock.civicId || '';
         }
@@ -658,7 +678,11 @@
         clearEffectsContainer();
       }
       if (civProductionBonusField && civProductionBonusAutocomplete && wonder.civProductionBonus) {
-        civProductionBonusAutocomplete.setValueById(wonder.civProductionBonus);
+        try {
+          civProductionBonusAutocomplete.setValueById(wonder.civProductionBonus);
+        } catch (e) {
+          civProductionBonusField.value = wonder.civProductionBonus || '';
+        }
       } else if (civProductionBonusField) {
         civProductionBonusField.value = wonder.civProductionBonus || '';
         civProductionBonusField.removeAttribute('data-selected-id');
