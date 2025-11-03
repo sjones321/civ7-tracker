@@ -14,8 +14,6 @@
 
 (function (global) {
   'use strict';
-  
-  console.log('[autocomplete] Script loading...');
 
   // Entity type configuration - maps to Supabase table names and field names
   var ENTITY_CONFIG = {
@@ -134,7 +132,6 @@
     dropdown.id = 'autocomplete-dropdown-' + dropdownCounter + '-' + Date.now(); // Truly unique ID
     dropdown.style.cssText = 'position: absolute !important; background: white !important; border: 1px solid #ccc !important; max-height: 200px !important; overflow-y: auto !important; z-index: 10000 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; display: none !important; visibility: visible !important;';
     dropdown.setAttribute('role', 'listbox');
-    console.log('[autocomplete] Created dropdown element:', dropdown.id, dropdown);
     return dropdown;
   }
 
@@ -183,26 +180,10 @@
     dropdown.style.top = top;
     dropdown.style.left = left;
     dropdown.style.width = width;
-    console.log('[autocomplete] Positioned dropdown:', {
-      top: top,
-      left: left,
-      width: width,
-      inputRect: {
-        top: inputRect.top,
-        left: inputRect.left,
-        bottom: inputRect.bottom,
-        width: inputRect.width
-      },
-      containerRect: {
-        top: containerRect.top,
-        left: containerRect.left
-      }
-    });
   }
 
   // Main autocomplete factory function
   function createAutocomplete(options) {
-    console.log('[autocomplete] createAutocomplete called with:', options);
     var input = options.input;
     var entityType = options.entityType;
     var onSelect = options.onSelect || function () {};
@@ -214,13 +195,11 @@
       console.error('[autocomplete] Input element required');
       return null;
     }
-    console.log('[autocomplete] Input element found:', input.id || input.name);
 
     if (!ENTITY_CONFIG[entityType]) {
       console.error('[autocomplete] Unknown entity type:', entityType);
       return null;
     }
-    console.log('[autocomplete] Entity type valid:', entityType);
 
     var config = ENTITY_CONFIG[entityType];
     var dropdown = createDropdown();
@@ -242,20 +221,16 @@
       container = input.parentElement || document.body;
     }
     
-    console.log('[autocomplete] Container for dropdown:', container.tagName, container.className, container.id, 'position:', window.getComputedStyle(container).position);
     container.style.position = 'relative'; // For absolute positioning
     container.appendChild(dropdown);
-    console.log('[autocomplete] Dropdown appended to container. Dropdown element:', dropdown, 'isConnected:', dropdown.isConnected);
 
     var debounceTimer = null;
     var selectedItem = null;
 
     // Show dropdown with items
     function showDropdown(items) {
-      console.log('[autocomplete] showDropdown called with', items.length, 'items');
       dropdown.innerHTML = '';
       if (items.length === 0) {
-        console.log('[autocomplete] No items, hiding dropdown');
         dropdown.style.display = 'none';
         return;
       }
@@ -273,18 +248,6 @@
       positionDropdown(dropdown, input);
       dropdown.style.display = 'block';
       dropdown.style.visibility = 'visible';
-      console.log('[autocomplete] Dropdown displayed:', {
-        display: dropdown.style.display,
-        visibility: dropdown.style.visibility,
-        top: dropdown.style.top,
-        left: dropdown.style.left,
-        width: dropdown.style.width,
-        items: items.length,
-        computedDisplay: window.getComputedStyle(dropdown).display,
-        computedVisibility: window.getComputedStyle(dropdown).visibility,
-        computedZIndex: window.getComputedStyle(dropdown).zIndex,
-        parentElement: dropdown.parentElement?.tagName
-      });
     }
 
     // Hide dropdown
@@ -294,7 +257,6 @@
 
     // Handle input changes
     input.addEventListener('input', function () {
-      console.log('[autocomplete] Input event fired, value:', input.value);
       clearTimeout(debounceTimer);
       var searchTerm = input.value.trim();
 
@@ -324,9 +286,7 @@
 
     // Handle focus - show all items if no selection yet
     input.addEventListener('focus', function () {
-      console.log('[autocomplete] Focus event fired');
       if (!selectedItem && input.value.trim().length === 0) {
-        console.log('[autocomplete] Showing all items on focus');
         fetchItems(entityType, '', function (items) {
           showDropdown(items);
         });
@@ -443,9 +403,6 @@
       create: createAutocomplete,
       ENTITY_TYPES: Object.keys(ENTITY_CONFIG)
     };
-    console.log('[autocomplete] CivAutocomplete initialized and available');
-  } else {
-    console.warn('[autocomplete] CivAutocomplete already exists');
   }
 
 })(window);

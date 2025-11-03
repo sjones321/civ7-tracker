@@ -982,15 +982,9 @@
     }
   }
 
-  console.log('[data-wonders] Script loaded, readyState:', document.readyState);
   if (document.readyState === 'loading') {
-    console.log('[data-wonders] Waiting for DOMContentLoaded');
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('[data-wonders] DOMContentLoaded fired, calling init');
-      init();
-    });
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    console.log('[data-wonders] DOM already ready, calling init immediately');
     init();
   }
 })();
