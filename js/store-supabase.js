@@ -27,11 +27,13 @@
     return;
   }
 
-  // Initialize Supabase client
+  // Initialize Supabase client (expose globally for reuse)
   var supabaseClient = global.supabase.createClient(
     global.SupabaseConfig.url,
     global.SupabaseConfig.anonKey
   );
+  // Expose globally for other scripts to reuse
+  global.supabaseClient = supabaseClient;
 
   var TABLE_NAME = 'world_wonders';
   var cache = null;
