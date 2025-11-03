@@ -561,9 +561,6 @@
         iconUrlField.value = wonder.iconUrl || '';
         updateIconPreview(wonder.iconUrl || '');
       }
-      if (bonusField) {
-        bonusField.value = wonder.bonus || '';
-      }
       if (ownerTypeField) {
         ownerTypeField.value = wonder.ownerType || '';
       }
@@ -661,9 +658,6 @@
         ownerCivField.value = '';
         ownerCivField.removeAttribute('data-selected-id');
         ownerCivField.removeAttribute('data-selected-name');
-      }
-      if (bonusField) {
-        bonusField.value = '';
       }
       // Clear new fields
       if (productionCostField) {
@@ -792,9 +786,12 @@
 
       formData.ownershipHistory = history;
 
+      console.log('[data-wonders] Attempting to save wonder:', formData);
       // Save async and handle the promise
       store.saveWorldWonderAsync(formData).then(function (savedWonder) {
+        console.log('[data-wonders] Save promise resolved, savedWonder:', savedWonder);
         if (!savedWonder || !savedWonder.id) {
+          console.error('[data-wonders] Saved wonder is invalid:', savedWonder);
           showStatus('Failed to save wonder.', 'error');
           return;
         }
@@ -1159,15 +1156,6 @@
     }
     exportButton.addEventListener('click', handleExport);
     importButton.addEventListener('click', handleImport);
-    if (bonusField) {
-      bonusField.addEventListener('blur', function () {
-        var original = bonusField.value.trim();
-        var replaced = applyIconPlaceholders(original);
-        if (replaced !== original) {
-          bonusField.value = replaced;
-        }
-      });
-    }
     if (iconUrlField) {
       iconUrlField.addEventListener('input', handleIconUrlInput);
     }
