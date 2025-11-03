@@ -228,11 +228,20 @@
       clearTimeout(debounceTimer);
       var searchTerm = input.value.trim();
 
-      // If input is cleared, hide dropdown
+      // If input is cleared, hide dropdown and clear selection
       if (searchTerm.length === 0) {
         hideDropdown();
         selectedItem = null;
+        input.removeAttribute('data-selected-id');
+        input.removeAttribute('data-selected-name');
         return;
+      }
+
+      // If user is typing something different than the selected item, clear selection
+      if (selectedItem && input.value !== selectedItem[displayField]) {
+        selectedItem = null;
+        input.removeAttribute('data-selected-id');
+        input.removeAttribute('data-selected-name');
       }
 
       // Debounce search to avoid too many API calls
