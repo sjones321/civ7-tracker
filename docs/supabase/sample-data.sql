@@ -9,16 +9,10 @@
 -- This is here just for reference
 
 -- ============================================
--- Ideologies (reference data)
+-- Ideologies (reference data) - Already in schema.sql
 -- ============================================
-INSERT INTO ideologies (id, label, description) VALUES
-  ('militaristic', 'Militaristic', 'Focus on military strength and conquest'),
-  ('economic', 'Economic', 'Focus on trade and commerce'),
-  ('scientific', 'Scientific', 'Focus on research and technology'),
-  ('cultural', 'Cultural', 'Focus on arts and culture'),
-  ('diplomatic', 'Diplomatic', 'Focus on diplomacy and alliances'),
-  ('expansionist', 'Expansionist', 'Focus on territorial expansion')
-ON CONFLICT (id) DO NOTHING;
+-- Note: Ideologies are already inserted in database-schema.sql
+-- This is here just for reference
 
 -- ============================================
 -- Civilizations (sample data for testing)
