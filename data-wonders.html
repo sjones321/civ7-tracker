@@ -186,6 +186,53 @@
           <textarea id="wonder-bonus" name="bonus" placeholder="e.g., +2 food for adjacent farms"></textarea>
           <small>Keywords like <strong>food</strong>, <strong>production</strong>, <strong>culture</strong>, and <strong>science</strong> convert to placeholders on blur.</small>
 
+          <h3>Production & Associated Civilization</h3>
+          <label for="wonder-production-cost">Production Cost</label>
+          <input id="wonder-production-cost" name="productionCost" type="number" min="0" placeholder="450">
+          <small>Total production cost to build this wonder</small>
+
+          <label for="wonder-associated-civ">Associated Civilization</label>
+          <input id="wonder-associated-civ" name="associatedCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+          <small>Civilization associated with this wonder</small>
+
+          <label for="wonder-civ-production-bonus">Civ Production Bonus</label>
+          <input id="wonder-civ-production-bonus" name="civProductionBonus" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+          <small>Civilization that gets +30% production bonus toward this wonder</small>
+
+          <h3>Unlock Requirements</h3>
+          <label for="wonder-unlock-type">Unlock Type</label>
+          <select id="wonder-unlock-type" name="unlockType">
+            <option value="">None</option>
+            <option value="tech">Technology</option>
+            <option value="civic">Civic</option>
+          </select>
+          <small>Select whether this wonder unlocks via Technology or Civic</small>
+
+          <label for="wonder-unlock">Unlock</label>
+          <input id="wonder-unlock" name="unlock" type="text" autocomplete="off" placeholder="Start typing technology or civic name...">
+          <small>Type to filter and select from database</small>
+
+          <label for="wonder-civ-specific-unlock-civ">Civ-Specific Unlock - Civilization</label>
+          <input id="wonder-civ-specific-unlock-civ" name="civSpecificUnlockCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+          <small>Civilization that has a unique civic unlock</small>
+
+          <label for="wonder-civ-specific-unlock-civic">Civ-Specific Unlock - Civic</label>
+          <input id="wonder-civ-specific-unlock-civic" name="civSpecificUnlockCivic" type="text" autocomplete="off" placeholder="Start typing civic name...">
+          <small>Civic that unlocks this wonder for the selected civilization</small>
+
+          <h3>Placement & Effects</h3>
+          <label for="wonder-placement">Placement Requirements</label>
+          <input id="wonder-placement" name="placement" type="text" placeholder="e.g., On a Flat Tile">
+          <small>Text description of placement requirements</small>
+
+          <label>Effects</label>
+          <div id="wonder-effects-container">
+            <!-- Effects will be added dynamically here -->
+          </div>
+          <button type="button" class="secondary" id="add-effect-button">+ Add Effect</button>
+          <small>List of distinct effects/bonuses for this wonder</small>
+
+          <h3>Ownership</h3>
           <label for="wonder-owner-type">Last Owner</label>
           <select id="wonder-owner-type" name="ownerType" required>
             <option value="" disabled selected>Select owner</option>

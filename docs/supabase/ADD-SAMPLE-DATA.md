@@ -36,24 +36,29 @@ This guide shows you how to add sample data to your Supabase database for testin
 ## What This Data Includes
 
 ### Civilizations
+
 - 10 civilizations across all ages (Antiquity, Exploration, Modern)
 - Examples: Rome, Egypt, Greece, China, Spain, England, France, America, Russia, Germany
 
 ### Leaders
+
 - 11 leaders matching the civilizations
 - Examples: Julius Caesar, Cleopatra, Pericles, Wukong, Isabella, Elizabeth I, Napoleon, Teddy Roosevelt, JFK, Catherine the Great, Bismarck
 - Some leaders have multiple namesakes (e.g., Napoleon for France)
 
 ### Technologies & Civics
+
 - 12 technologies (Pottery, Writing, Mathematics, etc.)
 - 12 civics (Code of Laws, Philosophy, Drama, etc.)
 - Useful for testing autocomplete in unlock fields
 
 ### Mementos
+
 - 6 sample mementos with different unlock conditions
 - Examples: Warrior King, Scholar Queen, Master Builder, Trade Empire, Conqueror, Explorer
 
 ### World Wonders
+
 - 3 sample wonders including Battersea Power Station (big ticket item)
 - Shows how unlock fields work with autocomplete
 
@@ -76,14 +81,16 @@ Once you've added this data, you can:
 ## Troubleshooting
 
 **"Relation does not exist" error:**
+
 - Make sure you ran `database-schema.sql` first to create the tables
 
 **"Duplicate key" errors:**
+
 - The script handles conflicts, but if you see errors, some data might already exist
 - You can safely ignore or manually delete existing data first
 
 **Can't see data in Table Editor:**
+
 - Refresh the page
 - Make sure you selected the correct table from the dropdown
 - Check that the query actually ran (look for success messages)
-

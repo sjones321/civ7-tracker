@@ -92,15 +92,17 @@
       age: row.last_owner_age || '',
       iconUrl: row.icon_url || '',
       bonus: row.summary_bonus || '',
+      productionCost: row.production_cost || 0,
+      associatedCiv: row.associated_civ_id || '',
       ownerType: row.last_owner_role || '',
       ownerLeader: row.last_owner_leader_id || '',
       ownerCiv: row.last_owner_civ_id || '',
-      bigTicket: Boolean(row.big_ticket), // Read from database
+      bigTicket: Boolean(row.big_ticket),
       unlockTech: row.unlock_tech || '',
       unlockCivic: row.unlock_civic || '',
-      civSpecificUnlock: row.civ_specific_unlock || '',
-      requirements: row.requirements || null,
-      effects: row.effects || null,
+      civSpecificUnlock: row.civ_specific_unlock || null, // JSONB object
+      placement: row.requirements && row.requirements.placement ? row.requirements.placement : (typeof row.requirements === 'string' ? row.requirements : ''),
+      effects: row.effects || null, // JSONB array
       civProductionBonus: row.civ_production_bonus || '',
       ownershipHistory: [] // Will be fetched separately from ownership_history table if needed
     };
@@ -108,24 +110,31 @@
 
   // Convert wonder object to database row format
   function convertToDb(wonder) {
-    // Save ALL fields to database, even if empty/null
-    // This ensures data integrity and future-proofing
+    // Build requirements JSONB (store placement as part of requirements for now)
+    var requirementsJson = null;
+    if (wonder.placement) {
+      requirementsJson = { placement: wonder.placement };
+    } else if (wonder.requirements) {
+      requirementsJson = typeof wonder.requirements === 'string' ? JSON.parse(wonder.requirements) : wonder.requirements;
+    }
+
     return {
       id: wonder.id,
       name: wonder.name,
       summary_bonus: wonder.bonus || '',
       icon_url: wonder.iconUrl || '',
+      production_cost: wonder.productionCost || null,
+      associated_civ_id: wonder.associatedCiv || null,
       last_owner_age: wonder.age || '',
       last_owner_role: wonder.ownerType || '',
       last_owner_leader_id: wonder.ownerLeader || '',
       last_owner_civ_id: wonder.ownerCiv || '',
       big_ticket: Boolean(wonder.bigTicket),
-      // Future fields (from Lucy's model) - save as null if not provided
       unlock_tech: wonder.unlockTech || null,
       unlock_civic: wonder.unlockCivic || null,
-      civ_specific_unlock: wonder.civSpecificUnlock || null,
-      requirements: wonder.requirements || null,
-      effects: wonder.effects || null,
+      civ_specific_unlock: wonder.civSpecificUnlock || null, // JSONB object {civId, civicId}
+      requirements: requirementsJson,
+      effects: Array.isArray(wonder.effects) ? wonder.effects : (wonder.effects || null), // JSONB array
       civ_production_bonus: wonder.civProductionBonus || null
     };
   }
