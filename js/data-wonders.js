@@ -27,11 +27,9 @@
   var associatedCivField = document.getElementById('wonder-associated-civ');
   var unlockField = document.getElementById('wonder-unlock');
   var civSpecificUnlockCivicField = document.getElementById('wonder-civ-specific-unlock-civic');
-  var civSpecificUnlockCivField = document.getElementById('wonder-civ-specific-unlock-civ');
   var placementField = document.getElementById('wonder-placement');
   var effectsContainer = document.getElementById('wonder-effects-container');
   var addEffectButton = document.getElementById('add-effect-button');
-  var civProductionBonusField = document.getElementById('wonder-civ-production-bonus');
   
   // Autocomplete instances (will be created in init)
   var leaderAutocomplete = null;
@@ -39,8 +37,6 @@
   var associatedCivAutocomplete = null;
   var unlockAutocomplete = null;
   var civSpecificUnlockCivicAutocomplete = null;
-  var civSpecificUnlockCivAutocomplete = null;
-  var civProductionBonusAutocomplete = null;
 
   var ownerTypes = ['Tiny', 'Steve', 'AI'];
   var DEFAULT_AGES = ['Antiquity', 'Exploration', 'Modern'];
@@ -571,9 +567,6 @@
       }
       if (ownerTypeField) {
         ownerTypeField.value = wonder.ownerType || '';
-        if (!ownerTypeField.value) {
-          ownerTypeField.selectedIndex = 0;
-        }
       }
       if (ownerLeaderField && leaderAutocomplete && wonder.ownerLeader) {
         // Use autocomplete to load and display the leader name by ID
@@ -631,25 +624,11 @@
         } else if (civSpecificUnlockCivicField) {
           civSpecificUnlockCivicField.value = wonder.civSpecificUnlock.civicId || '';
         }
-        if (civSpecificUnlockCivField && civSpecificUnlockCivAutocomplete && wonder.civSpecificUnlock.civId) {
-          try {
-            civSpecificUnlockCivAutocomplete.setValueById(wonder.civSpecificUnlock.civId);
-          } catch (e) {
-            civSpecificUnlockCivField.value = wonder.civSpecificUnlock.civId || '';
-          }
-        } else if (civSpecificUnlockCivField) {
-          civSpecificUnlockCivField.value = wonder.civSpecificUnlock.civId || '';
-        }
       } else {
         if (civSpecificUnlockCivicField) {
           civSpecificUnlockCivicField.value = '';
           civSpecificUnlockCivicField.removeAttribute('data-selected-id');
           civSpecificUnlockCivicField.removeAttribute('data-selected-name');
-        }
-        if (civSpecificUnlockCivField) {
-          civSpecificUnlockCivField.value = '';
-          civSpecificUnlockCivField.removeAttribute('data-selected-id');
-          civSpecificUnlockCivField.removeAttribute('data-selected-name');
         }
       }
       if (placementField) {
@@ -660,17 +639,6 @@
         loadEffectsArray(wonder.effects);
       } else {
         clearEffectsContainer();
-      }
-      if (civProductionBonusField && civProductionBonusAutocomplete && wonder.civProductionBonus) {
-        try {
-          civProductionBonusAutocomplete.setValueById(wonder.civProductionBonus);
-        } catch (e) {
-          civProductionBonusField.value = wonder.civProductionBonus || '';
-        }
-      } else if (civProductionBonusField) {
-        civProductionBonusField.value = wonder.civProductionBonus || '';
-        civProductionBonusField.removeAttribute('data-selected-id');
-        civProductionBonusField.removeAttribute('data-selected-name');
       }
       
       showStatus('Editing "' + wonder.name + '".', 'info');
@@ -717,20 +685,10 @@
         civSpecificUnlockCivicField.removeAttribute('data-selected-id');
         civSpecificUnlockCivicField.removeAttribute('data-selected-name');
       }
-      if (civSpecificUnlockCivField) {
-        civSpecificUnlockCivField.value = '';
-        civSpecificUnlockCivField.removeAttribute('data-selected-id');
-        civSpecificUnlockCivField.removeAttribute('data-selected-name');
-      }
       if (placementField) {
         placementField.value = '';
       }
       clearEffectsContainer();
-      if (civProductionBonusField) {
-        civProductionBonusField.value = '';
-        civProductionBonusField.removeAttribute('data-selected-id');
-        civProductionBonusField.removeAttribute('data-selected-name');
-      }
       showStatus('Ready to add a new World Wonder.', 'info');
     }
     renderOwnershipHistory(currentHistory);
@@ -746,10 +704,8 @@
     if (!data.age) {
       return 'An age is required.';
     }
-    if (!data.ownerType) {
-      return 'Please choose an owner type.';
-    }
-    if (ownerTypes.indexOf(data.ownerType) === -1) {
+    // Owner type is optional (set during gameplay)
+    if (data.ownerType && ownerTypes.indexOf(data.ownerType) === -1) {
       return 'Owner type must be Tiny, Steve, or AI.';
     }
 
@@ -778,14 +734,12 @@
       var selectedAssociatedCivId = associatedCivField ? (associatedCivField.getAttribute('data-selected-id') || associatedCivField.value.trim()) : '';
       var selectedUnlockCivicId = unlockField ? (unlockField.getAttribute('data-selected-id') || unlockField.value.trim()) : '';
       var selectedCivSpecificCivicId = civSpecificUnlockCivicField ? (civSpecificUnlockCivicField.getAttribute('data-selected-id') || civSpecificUnlockCivicField.value.trim()) : '';
-      var selectedCivSpecificCivId = civSpecificUnlockCivField ? (civSpecificUnlockCivField.getAttribute('data-selected-id') || civSpecificUnlockCivField.value.trim()) : '';
-      var selectedCivProductionId = civProductionBonusField ? (civProductionBonusField.getAttribute('data-selected-id') || civProductionBonusField.value.trim()) : '';
 
-      // Build civ-specific unlock JSON
+      // Build civ-specific unlock JSON (uses associated civ if civic specified)
       var civSpecificUnlockJson = null;
-      if (selectedCivSpecificCivId && selectedCivSpecificCivicId) {
+      if (selectedAssociatedCivId && selectedCivSpecificCivicId) {
         civSpecificUnlockJson = {
-          civId: selectedCivSpecificCivId,
+          civId: selectedAssociatedCivId,
           civicId: selectedCivSpecificCivicId
         };
       }
@@ -798,14 +752,14 @@
         name: form.elements.name.value.trim(),
         age: ageSelect ? ageSelect.value : '',
         iconUrl: iconUrlField ? iconUrlField.value.trim() : '',
-        bonus: form.elements.bonus.value.trim(),
+        bonus: '', // Legacy field - keep empty, use effects array instead
         productionCost: productionCostField ? parseInt(productionCostField.value, 10) || 0 : 0,
         associatedCiv: selectedAssociatedCivId,
         unlockCivic: selectedUnlockCivicId,
         civSpecificUnlock: civSpecificUnlockJson,
         placement: placementField ? placementField.value.trim() : '',
         effects: effectsArray.length > 0 ? effectsArray : null,
-        civProductionBonus: selectedCivProductionId,
+        civProductionBonus: selectedAssociatedCivId, // Same as associated civ
         ownerType: ownerTypeField ? ownerTypeField.value : '',
         ownerLeader: selectedLeaderId,
         ownerCiv: selectedCivId,
@@ -816,11 +770,6 @@
       if (error) {
         showStatus(error, 'error');
         return;
-      }
-
-      formData.bonus = applyIconPlaceholders(formData.bonus);
-      if (bonusField) {
-        bonusField.value = formData.bonus;
       }
 
       var history = currentHistory.slice();
@@ -1185,29 +1134,6 @@
         }
       });
     }
-    if (civSpecificUnlockCivField && window.CivAutocomplete) {
-      civSpecificUnlockCivAutocomplete = window.CivAutocomplete.create({
-        input: civSpecificUnlockCivField,
-        entityType: 'civilizations',
-        placeholder: 'Start typing civilization name...',
-        onSelect: function (item) {
-          civSpecificUnlockCivField.setAttribute('data-selected-id', item.id);
-          civSpecificUnlockCivField.setAttribute('data-selected-name', item.name);
-        }
-      });
-    }
-    if (civProductionBonusField && window.CivAutocomplete) {
-      civProductionBonusAutocomplete = window.CivAutocomplete.create({
-        input: civProductionBonusField,
-        entityType: 'civilizations',
-        placeholder: 'Start typing civilization name...',
-        onSelect: function (item) {
-          civProductionBonusField.setAttribute('data-selected-id', item.id);
-          civProductionBonusField.setAttribute('data-selected-name', item.name);
-        }
-      });
-    }
-
     // Handle Add Effect button
     if (addEffectButton) {
       addEffectButton.addEventListener('click', function () {
