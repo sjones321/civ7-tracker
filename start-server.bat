@@ -19,10 +19,16 @@ echo.
 
 :: Kill any existing processes on this port
 echo Checking for existing server on port %PORT%...
+set "KILLED=0"
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":%PORT%" ^| findstr "LISTENING"') do (
   echo Closing existing server process (PID: %%a)...
   taskkill /PID %%a /F >nul 2>&1
-  timeout /t 1 /nobreak >nul
+  set "KILLED=1"
+)
+if "%KILLED%"=="1" (
+  echo Waiting for port to be released...
+  timeout /t 2 /nobreak >nul
+  echo Port should now be free.
 )
 echo.
 
@@ -37,9 +43,9 @@ if exist "%NPX%" (
   echo Press Ctrl+C to stop the server.
   echo.
   pushd "%ROOT%"
-  "%NPX%" --yes http-server -p %PORT%
+  call "%NPX%" --yes http-server -p %PORT%
   popd
-  goto :done
+  goto :end
 )
 
 :: Fallback: npx on PATH
@@ -50,9 +56,9 @@ if %ERRORLEVEL%==0 (
   echo Press Ctrl+C to stop the server.
   echo.
   pushd "%ROOT%"
-  npx --yes http-server -p %PORT%
+  call npx --yes http-server -p %PORT%
   popd
-  goto :done
+  goto :end
 )
 
 :: Final fallback: Python 3 stdlib server
@@ -65,19 +71,18 @@ if %ERRORLEVEL%==0 (
   pushd "%ROOT%"
   python -m http.server %PORT%
   popd
-  goto :done
+  goto :end
 )
 
+:: If we get here, no server was found
 echo.
 echo ERROR: Neither Node+npx nor Python was found on PATH.
 echo - Install Node.js LTS: https://nodejs.org/
 echo   (then reopen the terminal)
 echo - Or install Python 3: https://www.python.org/downloads/
 echo.
-pause
-goto :done
 
-:done
+:end
 echo.
 echo Server stopped.
 pause
