@@ -896,28 +896,44 @@
     // Initialize autocomplete for Owner Leader and Owner Civ fields FIRST
     // (needed for resetForm to use them)
     if (ownerLeaderField && window.CivAutocomplete) {
+      console.log('[data-wonders] Initializing leader autocomplete');
       leaderAutocomplete = window.CivAutocomplete.create({
         input: ownerLeaderField,
         entityType: 'leaders',
         placeholder: 'Start typing leader name...',
         onSelect: function (item) {
+          console.log('[data-wonders] Leader selected:', item);
           // Store the selected leader ID in a data attribute for form submission
           ownerLeaderField.setAttribute('data-selected-id', item.id);
           ownerLeaderField.setAttribute('data-selected-name', item.name);
         }
       });
+      console.log('[data-wonders] Leader autocomplete created:', leaderAutocomplete);
+    } else {
+      console.warn('[data-wonders] Could not initialize leader autocomplete:', {
+        field: !!ownerLeaderField,
+        autocomplete: !!window.CivAutocomplete
+      });
     }
 
     if (ownerCivField && window.CivAutocomplete) {
+      console.log('[data-wonders] Initializing civ autocomplete');
       civAutocomplete = window.CivAutocomplete.create({
         input: ownerCivField,
         entityType: 'civilizations',
         placeholder: 'Start typing civilization name...',
         onSelect: function (item) {
+          console.log('[data-wonders] Civ selected:', item);
           // Store the selected civ ID in a data attribute for form submission
           ownerCivField.setAttribute('data-selected-id', item.id);
           ownerCivField.setAttribute('data-selected-name', item.name);
         }
+      });
+      console.log('[data-wonders] Civ autocomplete created:', civAutocomplete);
+    } else {
+      console.warn('[data-wonders] Could not initialize civ autocomplete:', {
+        field: !!ownerCivField,
+        autocomplete: !!window.CivAutocomplete
       });
     }
 
