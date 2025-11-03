@@ -14,7 +14,6 @@
   var historyList = document.getElementById('ownership-history');
   var summaryBody = document.getElementById('ownership-summary-body');
   var resetButton = document.getElementById('reset-form');
-  var bonusField = document.getElementById('wonder-bonus');
   var ageSelect = document.getElementById('wonder-age');
   var iconUrlField = document.getElementById('wonder-icon-url');
   var iconFileField = document.getElementById('wonder-icon-file');
