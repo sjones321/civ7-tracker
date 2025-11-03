@@ -18,16 +18,16 @@
 -- Civilizations (sample data for testing)
 -- ============================================
 INSERT INTO civilizations (id, name, age, enduring_capable, passive_bonuses, unique_units, unique_buildings_or_quarters, created_at, updated_at) VALUES
-  ('civ:rome', 'Rome', 'antiquity', false, '["Production bonus to wonders"]', '["Legion"]', '["Forum"]', NOW(), NOW()),
-  ('civ:egypt', 'Egypt', 'antiquity', false, '["Bonus to wonder construction"]', '[]', '["Pyramid"]', NOW(), NOW()),
-  ('civ:greece', 'Greece', 'antiquity', false, '["Cultural bonuses"]', '["Hoplite"]', '["Acropolis"]', NOW(), NOW()),
-  ('civ:china', 'China', 'antiquity', true, '["Great Wall bonus"]', '["Chu-Ko-Nu"]', '["Great Wall"]', NOW(), NOW()),
-  ('civ:spain', 'Spain', 'exploration', false, '["Colonial bonuses"]', '["Conquistador"]', '["Mission"]', NOW(), NOW()),
-  ('civ:england', 'England', 'exploration', false, '["Naval bonuses"]', '["Ship of the Line"]', '["Royal Navy Dockyard"]', NOW(), NOW()),
-  ('civ:france', 'France', 'exploration', true, '["Cultural and diplomatic bonuses"]', '["Garde Impériale"]', '["Château"]', NOW(), NOW()),
-  ('civ:america', 'America', 'modern', false, '["Expansion bonuses"]', '["P-51 Mustang"]', '["Film Studio"]', NOW(), NOW()),
-  ('civ:russia', 'Russia', 'modern', false, '["Territory and production bonuses"]', '["Cossack"]', '["Lavra"]', NOW(), NOW()),
-  ('civ:germany', 'Germany', 'modern', true, '["Production and military bonuses"]', '["U-Boat"]', '["Hansa"]', NOW(), NOW())
+  ('civ:rome', 'Rome', 'Antiquity', false, '["Production bonus to wonders"]', '["Legion"]', '["Forum"]', NOW(), NOW()),
+  ('civ:egypt', 'Egypt', 'Antiquity', false, '["Bonus to wonder construction"]', '[]', '["Pyramid"]', NOW(), NOW()),
+  ('civ:greece', 'Greece', 'Antiquity', false, '["Cultural bonuses"]', '["Hoplite"]', '["Acropolis"]', NOW(), NOW()),
+  ('civ:china', 'China', 'Antiquity', true, '["Great Wall bonus"]', '["Chu-Ko-Nu"]', '["Great Wall"]', NOW(), NOW()),
+  ('civ:spain', 'Spain', 'Exploration', false, '["Colonial bonuses"]', '["Conquistador"]', '["Mission"]', NOW(), NOW()),
+  ('civ:england', 'England', 'Exploration', false, '["Naval bonuses"]', '["Ship of the Line"]', '["Royal Navy Dockyard"]', NOW(), NOW()),
+  ('civ:france', 'France', 'Exploration', true, '["Cultural and diplomatic bonuses"]', '["Garde Impériale"]', '["Château"]', NOW(), NOW()),
+  ('civ:america', 'America', 'Modern', false, '["Expansion bonuses"]', '["P-51 Mustang"]', '["Film Studio"]', NOW(), NOW()),
+  ('civ:russia', 'Russia', 'Modern', false, '["Territory and production bonuses"]', '["Cossack"]', '["Lavra"]', NOW(), NOW()),
+  ('civ:germany', 'Germany', 'Modern', true, '["Production and military bonuses"]', '["U-Boat"]', '["Hansa"]', NOW(), NOW())
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   age = EXCLUDED.age,
@@ -57,18 +57,18 @@ ON CONFLICT (id) DO UPDATE SET
 -- Technologies (sample data for testing)
 -- ============================================
 INSERT INTO technologies (id, name, era, unlocks, created_at, updated_at) VALUES
-  ('tech:pottery', 'Pottery', 'antiquity', '[]', NOW(), NOW()),
-  ('tech:writing', 'Writing', 'antiquity', '[]', NOW(), NOW()),
-  ('tech:mathematics', 'Mathematics', 'antiquity', '[]', NOW(), NOW()),
-  ('tech:engineering', 'Engineering', 'antiquity', '[]', NOW(), NOW()),
-  ('tech:astronomy', 'Astronomy', 'exploration', '[]', NOW(), NOW()),
-  ('tech:navigation', 'Navigation', 'exploration', '[]', NOW(), NOW()),
-  ('tech:gunpowder', 'Gunpowder', 'exploration', '[]', NOW(), NOW()),
-  ('tech:printing', 'Printing Press', 'exploration', '[]', NOW(), NOW()),
-  ('tech:steam', 'Steam Power', 'modern', '[]', NOW(), NOW()),
-  ('tech:electricity', 'Electricity', 'modern', '[]', NOW(), NOW()),
-  ('tech:flight', 'Flight', 'modern', '[]', NOW(), NOW()),
-  ('tech:computers', 'Computers', 'modern', '[]', NOW(), NOW())
+  ('tech:pottery', 'Pottery', 'Antiquity', '[]', NOW(), NOW()),
+  ('tech:writing', 'Writing', 'Antiquity', '[]', NOW(), NOW()),
+  ('tech:mathematics', 'Mathematics', 'Antiquity', '[]', NOW(), NOW()),
+  ('tech:engineering', 'Engineering', 'Antiquity', '[]', NOW(), NOW()),
+  ('tech:astronomy', 'Astronomy', 'Exploration', '[]', NOW(), NOW()),
+  ('tech:navigation', 'Navigation', 'Exploration', '[]', NOW(), NOW()),
+  ('tech:gunpowder', 'Gunpowder', 'Exploration', '[]', NOW(), NOW()),
+  ('tech:printing', 'Printing Press', 'Exploration', '[]', NOW(), NOW()),
+  ('tech:steam', 'Steam Power', 'Modern', '[]', NOW(), NOW()),
+  ('tech:electricity', 'Electricity', 'Modern', '[]', NOW(), NOW()),
+  ('tech:flight', 'Flight', 'Modern', '[]', NOW(), NOW()),
+  ('tech:computers', 'Computers', 'Modern', '[]', NOW(), NOW())
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   era = EXCLUDED.era,
@@ -78,18 +78,18 @@ ON CONFLICT (id) DO UPDATE SET
 -- Civics (sample data for testing)
 -- ============================================
 INSERT INTO civics (id, name, era, unlocks, created_at, updated_at) VALUES
-  ('civic:code-of-laws', 'Code of Laws', 'antiquity', '[]', NOW(), NOW()),
-  ('civic:philosophy', 'Philosophy', 'antiquity', '[]', NOW(), NOW()),
-  ('civic:drama', 'Drama and Poetry', 'antiquity', '[]', NOW(), NOW()),
-  ('civic:theology', 'Theology', 'antiquity', '[]', NOW(), NOW()),
-  ('civic:exploration', 'Exploration', 'exploration', '[]', NOW(), NOW()),
-  ('civic:humanism', 'Humanism', 'exploration', '[]', NOW(), NOW()),
-  ('civic:mercantilism', 'Mercantilism', 'exploration', '[]', NOW(), NOW()),
-  ('civic:enlightenment', 'The Enlightenment', 'exploration', '[]', NOW(), NOW()),
-  ('civic:ideology', 'Ideology', 'modern', '[]', NOW(), NOW()),
-  ('civic:conservation', 'Conservation', 'modern', '[]', NOW(), NOW()),
-  ('civic:mass-media', 'Mass Media', 'modern', '[]', NOW(), NOW()),
-  ('civic:globalization', 'Globalization', 'modern', '[]', NOW(), NOW())
+  ('civic:code-of-laws', 'Code of Laws', 'Antiquity', '[]', NOW(), NOW()),
+  ('civic:philosophy', 'Philosophy', 'Antiquity', '[]', NOW(), NOW()),
+  ('civic:drama', 'Drama and Poetry', 'Antiquity', '[]', NOW(), NOW()),
+  ('civic:theology', 'Theology', 'Antiquity', '[]', NOW(), NOW()),
+  ('civic:exploration', 'Exploration', 'Exploration', '[]', NOW(), NOW()),
+  ('civic:humanism', 'Humanism', 'Exploration', '[]', NOW(), NOW()),
+  ('civic:mercantilism', 'Mercantilism', 'Exploration', '[]', NOW(), NOW()),
+  ('civic:enlightenment', 'The Enlightenment', 'Exploration', '[]', NOW(), NOW()),
+  ('civic:ideology', 'Ideology', 'Modern', '[]', NOW(), NOW()),
+  ('civic:conservation', 'Conservation', 'Modern', '[]', NOW(), NOW()),
+  ('civic:mass-media', 'Mass Media', 'Modern', '[]', NOW(), NOW()),
+  ('civic:globalization', 'Globalization', 'Modern', '[]', NOW(), NOW())
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   era = EXCLUDED.era,
@@ -114,9 +114,9 @@ ON CONFLICT (id) DO UPDATE SET
 -- Sample World Wonder (for testing)
 -- ============================================
 INSERT INTO world_wonders (id, name, summary_bonus, icon_url, unlock_tech, unlock_civic, civ_specific_unlock, requirements, effects, civ_production_bonus, big_ticket, last_owner_role, last_owner_age, created_at, updated_at) VALUES
-  ('wonder:pyramids', 'Pyramids', '+2 [culture], provides additional [culture] per era', NULL, 'tech:engineering', NULL, NULL, '{"tile": "desert", "era": "antiquity"}'::jsonb, '["culture_bonus", "era_culture"]'::jsonb, NULL, false, NULL, 'antiquity', NOW(), NOW()),
-  ('wonder:great-library', 'Great Library', '+2 [science], provides [science] for each technology researched', NULL, 'tech:writing', 'civic:philosophy', NULL, '{"adjacency": "district:campus"}'::jsonb, '["science_bonus", "tech_science"]'::jsonb, NULL, false, NULL, 'antiquity', NOW(), NOW()),
-  ('wonder:battersea', 'Battersea Power Station', '+1 wildcard policy slot', NULL, 'tech:electricity', NULL, NULL, '{"tile": "river", "era": "modern"}'::jsonb, '["wildcard_policy"]'::jsonb, NULL, true, NULL, 'modern', NOW(), NOW())
+  ('wonder:pyramids', 'Pyramids', '+2 [culture], provides additional [culture] per era', NULL, 'tech:engineering', NULL, NULL, '{"tile": "desert", "era": "Antiquity"}'::jsonb, '["culture_bonus", "era_culture"]'::jsonb, NULL, false, NULL, 'Antiquity', NOW(), NOW()),
+  ('wonder:great-library', 'Great Library', '+2 [science], provides [science] for each technology researched', NULL, 'tech:writing', 'civic:philosophy', NULL, '{"adjacency": "district:campus"}'::jsonb, '["science_bonus", "tech_science"]'::jsonb, NULL, false, NULL, 'Antiquity', NOW(), NOW()),
+  ('wonder:battersea', 'Battersea Power Station', '+1 wildcard policy slot', NULL, 'tech:electricity', NULL, NULL, '{"tile": "river", "era": "Modern"}'::jsonb, '["wildcard_policy"]'::jsonb, NULL, true, NULL, 'Modern', NOW(), NOW())
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   updated_at = NOW();
