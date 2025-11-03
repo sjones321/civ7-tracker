@@ -200,25 +200,17 @@
           <small>Civilization that gets +30% production bonus toward this wonder</small>
 
           <h3>Unlock Requirements</h3>
-          <label for="wonder-unlock">Unlock (Tech/Civic)</label>
-          <input id="wonder-unlock" name="unlock" type="text" autocomplete="off" placeholder="e.g., Philosophy">
-          <small>Technology or Civic that unlocks this wonder</small>
+          <label for="wonder-unlock">Research Required to Unlock</label>
+          <input id="wonder-unlock" name="unlock" type="text" autocomplete="off" placeholder="Start typing civic/tech name...">
+          <small>Technology or Civic that unlocks this wonder for all civilizations</small>
 
-          <label for="wonder-unlock-icon">Unlock Icon URL</label>
-          <input id="wonder-unlock-icon" name="unlockIcon" type="text" autocomplete="off" placeholder="Paste icon URL">
-          <small>Icon for the unlock technology/civic</small>
+          <label for="wonder-civ-specific-unlock-civic">Civilization Specific Unlock (Optional)</label>
+          <input id="wonder-civ-specific-unlock-civic" name="civSpecificUnlockCivic" type="text" autocomplete="off" placeholder="Start typing civic name...">
+          <small>Alternative civic that unlocks this wonder for the specific civilization</small>
 
-          <label for="wonder-civ-specific-unlock-civ">Civ-Specific Unlock - Civilization</label>
+          <label for="wonder-civ-specific-unlock-civ">Civ with Specific Unlock</label>
           <input id="wonder-civ-specific-unlock-civ" name="civSpecificUnlockCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
-          <small>Civilization that has a unique unlock for this wonder</small>
-
-          <label for="wonder-civ-specific-unlock-name">Civ-Specific Unlock (Civic Name)</label>
-          <input id="wonder-civ-specific-unlock-name" name="civSpecificUnlockName" type="text" autocomplete="off" placeholder="e.g., Discipline">
-          <small>Name of the specific civic that unlocks this wonder for that civilization</small>
-
-          <label for="wonder-civ-specific-unlock-icon">Civ-Specific Unlock Icon URL</label>
-          <input id="wonder-civ-specific-unlock-icon" name="civSpecificUnlockIcon" type="text" autocomplete="off" placeholder="Paste icon URL">
-          <small>Icon for the civ-specific unlock civic</small>
+          <small>Which civilization can use the alternative unlock above</small>
 
           <h3>Placement & Effects</h3>
           <label for="wonder-placement">Placement Requirements</label>

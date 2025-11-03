@@ -86,22 +86,6 @@
 
   // Convert database row to wonder object (matching localStorage format)
   function convertFromDb(row) {
-    // Handle unlock data - could be old format (unlock_tech/unlock_civic) or new JSONB
-    var unlockName = '';
-    var unlockIconUrl = '';
-    var unlockData = null;
-    if (row.unlock_data && typeof row.unlock_data === 'object') {
-      // New JSONB format
-      unlockName = row.unlock_data.name || '';
-      unlockIconUrl = row.unlock_data.iconUrl || '';
-    } else if (row.unlock_tech) {
-      // Old format - tech reference
-      unlockName = row.unlock_tech;
-    } else if (row.unlock_civic) {
-      // Old format - civic reference
-      unlockName = row.unlock_civic;
-    }
-    
     return {
       id: row.id,
       name: row.name,
@@ -114,9 +98,8 @@
       ownerLeader: row.last_owner_leader_id || '',
       ownerCiv: row.last_owner_civ_id || '',
       bigTicket: Boolean(row.big_ticket),
-      unlockName: unlockName,
-      unlockIconUrl: unlockIconUrl,
-      civSpecificUnlock: row.civ_specific_unlock || null, // JSONB object {civId, name, iconUrl}
+      unlockCivic: row.unlock_civic || '',
+      civSpecificUnlock: row.civ_specific_unlock || null, // JSONB object {civId, civicId}
       placement: row.requirements && row.requirements.placement ? row.requirements.placement : (typeof row.requirements === 'string' ? row.requirements : ''),
       effects: row.effects || null, // JSONB array
       civProductionBonus: row.civ_production_bonus || '',
@@ -134,15 +117,6 @@
       requirementsJson = typeof wonder.requirements === 'string' ? JSON.parse(wonder.requirements) : wonder.requirements;
     }
 
-    // Build unlock_data JSONB (name + icon)
-    var unlockDataJson = null;
-    if (wonder.unlockName || wonder.unlockIconUrl) {
-      unlockDataJson = {
-        name: wonder.unlockName || '',
-        iconUrl: wonder.unlockIconUrl || ''
-      };
-    }
-
     return {
       id: wonder.id,
       name: wonder.name,
@@ -155,8 +129,8 @@
       last_owner_leader_id: wonder.ownerLeader || '',
       last_owner_civ_id: wonder.ownerCiv || '',
       big_ticket: Boolean(wonder.bigTicket),
-      unlock_data: unlockDataJson,
-      civ_specific_unlock: wonder.civSpecificUnlock || null, // JSONB object {civId, name, iconUrl}
+      unlock_civic: wonder.unlockCivic || null,
+      civ_specific_unlock: wonder.civSpecificUnlock || null, // JSONB object {civId, civicId}
       requirements: requirementsJson,
       effects: Array.isArray(wonder.effects) ? wonder.effects : (wonder.effects || null), // JSONB array
       civ_production_bonus: wonder.civProductionBonus || null
