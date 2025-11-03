@@ -14,6 +14,8 @@
 
 (function (global) {
   'use strict';
+  
+  console.log('[autocomplete] Script loading...');
 
   // Entity type configuration - maps to Supabase table names and field names
   var ENTITY_CONFIG = {
