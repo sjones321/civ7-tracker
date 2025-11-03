@@ -173,6 +173,7 @@
 
   // Main autocomplete factory function
   function createAutocomplete(options) {
+    console.log('[autocomplete] createAutocomplete called with:', options);
     var input = options.input;
     var entityType = options.entityType;
     var onSelect = options.onSelect || function () {};
@@ -184,11 +185,13 @@
       console.error('[autocomplete] Input element required');
       return null;
     }
+    console.log('[autocomplete] Input element found:', input.id || input.name);
 
     if (!ENTITY_CONFIG[entityType]) {
       console.error('[autocomplete] Unknown entity type:', entityType);
       return null;
     }
+    console.log('[autocomplete] Entity type valid:', entityType);
 
     var config = ENTITY_CONFIG[entityType];
     var dropdown = createDropdown();
@@ -228,6 +231,7 @@
 
     // Handle input changes
     input.addEventListener('input', function () {
+      console.log('[autocomplete] Input event fired, value:', input.value);
       clearTimeout(debounceTimer);
       var searchTerm = input.value.trim();
 
@@ -257,7 +261,9 @@
 
     // Handle focus - show all items if no selection yet
     input.addEventListener('focus', function () {
+      console.log('[autocomplete] Focus event fired');
       if (!selectedItem && input.value.trim().length === 0) {
+        console.log('[autocomplete] Showing all items on focus');
         fetchItems(entityType, '', function (items) {
           showDropdown(items);
         });
@@ -374,6 +380,9 @@
       create: createAutocomplete,
       ENTITY_TYPES: Object.keys(ENTITY_CONFIG)
     };
+    console.log('[autocomplete] CivAutocomplete initialized and available');
+  } else {
+    console.warn('[autocomplete] CivAutocomplete already exists');
   }
 
 })(window);
