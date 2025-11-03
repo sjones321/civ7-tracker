@@ -125,9 +125,9 @@
       production_cost: wonder.productionCost || null,
       associated_civ_id: wonder.associatedCiv || null,
       last_owner_age: wonder.age || '',
-      last_owner_role: wonder.ownerType || '',
-      last_owner_leader_id: wonder.ownerLeader || '',
-      last_owner_civ_id: wonder.ownerCiv || '',
+      last_owner_role: (wonder.ownerType && wonder.ownerType.trim()) ? wonder.ownerType : null,
+      last_owner_leader_id: wonder.ownerLeader || null,
+      last_owner_civ_id: wonder.ownerCiv || null,
       big_ticket: Boolean(wonder.bigTicket),
       unlock_civic: wonder.unlockCivic || null,
       civ_specific_unlock: wonder.civSpecificUnlock || null, // JSONB object {civId, civicId}
