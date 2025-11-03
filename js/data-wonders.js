@@ -25,10 +25,11 @@
   var logOwnerButton = document.getElementById('log-owner');
   var productionCostField = document.getElementById('wonder-production-cost');
   var associatedCivField = document.getElementById('wonder-associated-civ');
-  var unlockTypeField = document.getElementById('wonder-unlock-type');
   var unlockField = document.getElementById('wonder-unlock');
+  var unlockIconField = document.getElementById('wonder-unlock-icon');
   var civSpecificUnlockCivField = document.getElementById('wonder-civ-specific-unlock-civ');
-  var civSpecificUnlockCivicField = document.getElementById('wonder-civ-specific-unlock-civic');
+  var civSpecificUnlockNameField = document.getElementById('wonder-civ-specific-unlock-name');
+  var civSpecificUnlockIconField = document.getElementById('wonder-civ-specific-unlock-icon');
   var placementField = document.getElementById('wonder-placement');
   var effectsContainer = document.getElementById('wonder-effects-container');
   var addEffectButton = document.getElementById('add-effect-button');
@@ -38,9 +39,7 @@
   var leaderAutocomplete = null;
   var civAutocomplete = null;
   var associatedCivAutocomplete = null;
-  var unlockAutocomplete = null;
   var civSpecificUnlockCivAutocomplete = null;
-  var civSpecificUnlockCivicAutocomplete = null;
   var civProductionBonusAutocomplete = null;
 
   var ownerTypes = ['Tiny', 'Steve', 'AI'];
@@ -609,36 +608,14 @@
         associatedCivField.removeAttribute('data-selected-id');
         associatedCivField.removeAttribute('data-selected-name');
       }
-      // Set unlock type and unlock field
-      if (unlockTypeField && unlockField) {
-        if (wonder.unlockTech) {
-          unlockTypeField.value = 'tech';
-          if (unlockAutocomplete) {
-            try {
-              unlockAutocomplete.setValueById(wonder.unlockTech);
-            } catch (e) {
-              unlockField.value = wonder.unlockTech || '';
-            }
-          } else {
-            unlockField.value = wonder.unlockTech || '';
-          }
-        } else if (wonder.unlockCivic) {
-          unlockTypeField.value = 'civic';
-          if (unlockAutocomplete) {
-            try {
-              unlockAutocomplete.setValueById(wonder.unlockCivic);
-            } catch (e) {
-              unlockField.value = wonder.unlockCivic || '';
-            }
-          } else {
-            unlockField.value = wonder.unlockCivic || '';
-          }
-        } else {
-          unlockTypeField.value = '';
-          unlockField.value = '';
-        }
+      // Handle unlock fields (name and icon)
+      if (unlockField) {
+        unlockField.value = wonder.unlockName || '';
       }
-      // Handle civ-specific unlock (JSON object)
+      if (unlockIconField) {
+        unlockIconField.value = wonder.unlockIconUrl || '';
+      }
+      // Handle civ-specific unlock (JSON object with civ, name, and icon)
       if (wonder.civSpecificUnlock && typeof wonder.civSpecificUnlock === 'object') {
         if (civSpecificUnlockCivField && civSpecificUnlockCivAutocomplete && wonder.civSpecificUnlock.civId) {
           try {
@@ -649,23 +626,22 @@
         } else if (civSpecificUnlockCivField) {
           civSpecificUnlockCivField.value = wonder.civSpecificUnlock.civId || '';
         }
-        if (civSpecificUnlockCivicField && civSpecificUnlockCivicAutocomplete && wonder.civSpecificUnlock.civicId) {
-          try {
-            civSpecificUnlockCivicAutocomplete.setValueById(wonder.civSpecificUnlock.civicId);
-          } catch (e) {
-            civSpecificUnlockCivicField.value = wonder.civSpecificUnlock.civicId || '';
-          }
-        } else if (civSpecificUnlockCivicField) {
-          civSpecificUnlockCivicField.value = wonder.civSpecificUnlock.civicId || '';
+        if (civSpecificUnlockNameField) {
+          civSpecificUnlockNameField.value = wonder.civSpecificUnlock.name || '';
+        }
+        if (civSpecificUnlockIconField) {
+          civSpecificUnlockIconField.value = wonder.civSpecificUnlock.iconUrl || '';
         }
       } else {
         if (civSpecificUnlockCivField) {
           civSpecificUnlockCivField.value = '';
           civSpecificUnlockCivField.removeAttribute('data-selected-id');
         }
-        if (civSpecificUnlockCivicField) {
-          civSpecificUnlockCivicField.value = '';
-          civSpecificUnlockCivicField.removeAttribute('data-selected-id');
+        if (civSpecificUnlockNameField) {
+          civSpecificUnlockNameField.value = '';
+        }
+        if (civSpecificUnlockIconField) {
+          civSpecificUnlockIconField.value = '';
         }
       }
       if (placementField) {
@@ -723,23 +699,22 @@
         associatedCivField.removeAttribute('data-selected-id');
         associatedCivField.removeAttribute('data-selected-name');
       }
-      if (unlockTypeField) {
-        unlockTypeField.value = '';
-      }
       if (unlockField) {
         unlockField.value = '';
-        unlockField.removeAttribute('data-selected-id');
-        unlockField.removeAttribute('data-selected-name');
+      }
+      if (unlockIconField) {
+        unlockIconField.value = '';
       }
       if (civSpecificUnlockCivField) {
         civSpecificUnlockCivField.value = '';
         civSpecificUnlockCivField.removeAttribute('data-selected-id');
         civSpecificUnlockCivField.removeAttribute('data-selected-name');
       }
-      if (civSpecificUnlockCivicField) {
-        civSpecificUnlockCivicField.value = '';
-        civSpecificUnlockCivicField.removeAttribute('data-selected-id');
-        civSpecificUnlockCivicField.removeAttribute('data-selected-name');
+      if (civSpecificUnlockNameField) {
+        civSpecificUnlockNameField.value = '';
+      }
+      if (civSpecificUnlockIconField) {
+        civSpecificUnlockIconField.value = '';
       }
       if (placementField) {
         placementField.value = '';
@@ -795,27 +770,20 @@
       var selectedLeaderId = ownerLeaderField ? (ownerLeaderField.getAttribute('data-selected-id') || ownerLeaderField.value.trim()) : '';
       var selectedCivId = ownerCivField ? (ownerCivField.getAttribute('data-selected-id') || ownerCivField.value.trim()) : '';
       var selectedAssociatedCivId = associatedCivField ? (associatedCivField.getAttribute('data-selected-id') || associatedCivField.value.trim()) : '';
-      var selectedUnlockId = unlockField ? (unlockField.getAttribute('data-selected-id') || unlockField.value.trim()) : '';
+      var unlockName = unlockField ? unlockField.value.trim() : '';
+      var unlockIconUrl = unlockIconField ? unlockIconField.value.trim() : '';
       var selectedCivSpecificCivId = civSpecificUnlockCivField ? (civSpecificUnlockCivField.getAttribute('data-selected-id') || civSpecificUnlockCivField.value.trim()) : '';
-      var selectedCivSpecificCivicId = civSpecificUnlockCivicField ? (civSpecificUnlockCivicField.getAttribute('data-selected-id') || civSpecificUnlockCivicField.value.trim()) : '';
+      var civSpecificUnlockName = civSpecificUnlockNameField ? civSpecificUnlockNameField.value.trim() : '';
+      var civSpecificUnlockIconUrl = civSpecificUnlockIconField ? civSpecificUnlockIconField.value.trim() : '';
       var selectedCivProductionId = civProductionBonusField ? (civProductionBonusField.getAttribute('data-selected-id') || civProductionBonusField.value.trim()) : '';
-
-      // Get unlock type and set unlock_tech or unlock_civic accordingly
-      var unlockType = unlockTypeField ? unlockTypeField.value : '';
-      var unlockTech = '';
-      var unlockCivic = '';
-      if (unlockType === 'tech' && selectedUnlockId) {
-        unlockTech = selectedUnlockId;
-      } else if (unlockType === 'civic' && selectedUnlockId) {
-        unlockCivic = selectedUnlockId;
-      }
 
       // Build civ-specific unlock JSON
       var civSpecificUnlockJson = null;
-      if (selectedCivSpecificCivId && selectedCivSpecificCivicId) {
+      if (selectedCivSpecificCivId && civSpecificUnlockName) {
         civSpecificUnlockJson = {
           civId: selectedCivSpecificCivId,
-          civicId: selectedCivSpecificCivicId
+          name: civSpecificUnlockName,
+          iconUrl: civSpecificUnlockIconUrl
         };
       }
 
@@ -830,8 +798,8 @@
         bonus: form.elements.bonus.value.trim(),
         productionCost: productionCostField ? parseInt(productionCostField.value, 10) || 0 : 0,
         associatedCiv: selectedAssociatedCivId,
-        unlockTech: unlockTech,
-        unlockCivic: unlockCivic,
+        unlockName: unlockName,
+        unlockIconUrl: unlockIconUrl,
         civSpecificUnlock: civSpecificUnlockJson,
         placement: placementField ? placementField.value.trim() : '',
         effects: effectsArray.length > 0 ? effectsArray : null,
@@ -1193,19 +1161,6 @@
         }
       });
     }
-    if (unlockField && window.CivAutocomplete) {
-      // Unlock autocomplete will be recreated when unlock type changes
-      // Initialize as tech by default
-      unlockAutocomplete = window.CivAutocomplete.create({
-        input: unlockField,
-        entityType: 'technologies',
-        placeholder: 'Start typing technology name...',
-        onSelect: function (item) {
-          unlockField.setAttribute('data-selected-id', item.id);
-          unlockField.setAttribute('data-selected-name', item.name);
-        }
-      });
-    }
     if (civSpecificUnlockCivField && window.CivAutocomplete) {
       civSpecificUnlockCivAutocomplete = window.CivAutocomplete.create({
         input: civSpecificUnlockCivField,
@@ -1217,17 +1172,6 @@
         }
       });
     }
-    if (civSpecificUnlockCivicField && window.CivAutocomplete) {
-      civSpecificUnlockCivicAutocomplete = window.CivAutocomplete.create({
-        input: civSpecificUnlockCivicField,
-        entityType: 'civics',
-        placeholder: 'Start typing civic name...',
-        onSelect: function (item) {
-          civSpecificUnlockCivicField.setAttribute('data-selected-id', item.id);
-          civSpecificUnlockCivicField.setAttribute('data-selected-name', item.name);
-        }
-      });
-    }
     if (civProductionBonusField && window.CivAutocomplete) {
       civProductionBonusAutocomplete = window.CivAutocomplete.create({
         input: civProductionBonusField,
@@ -1236,48 +1180,6 @@
         onSelect: function (item) {
           civProductionBonusField.setAttribute('data-selected-id', item.id);
           civProductionBonusField.setAttribute('data-selected-name', item.name);
-        }
-      });
-    }
-
-    // Handle unlock type change
-    if (unlockTypeField && unlockField) {
-      unlockTypeField.addEventListener('change', function () {
-        var unlockType = unlockTypeField.value;
-        // Destroy existing autocomplete
-        if (unlockAutocomplete && unlockAutocomplete.destroy) {
-          unlockAutocomplete.destroy();
-        }
-        // Clear field
-        unlockField.value = '';
-        unlockField.removeAttribute('data-selected-id');
-        unlockField.removeAttribute('data-selected-name');
-        // Recreate with correct entity type
-        if (unlockType === 'tech' && window.CivAutocomplete) {
-          unlockField.placeholder = 'Start typing technology name...';
-          unlockAutocomplete = window.CivAutocomplete.create({
-            input: unlockField,
-            entityType: 'technologies',
-            placeholder: 'Start typing technology name...',
-            onSelect: function (item) {
-              unlockField.setAttribute('data-selected-id', item.id);
-              unlockField.setAttribute('data-selected-name', item.name);
-            }
-          });
-        } else if (unlockType === 'civic' && window.CivAutocomplete) {
-          unlockField.placeholder = 'Start typing civic name...';
-          unlockAutocomplete = window.CivAutocomplete.create({
-            input: unlockField,
-            entityType: 'civics',
-            placeholder: 'Start typing civic name...',
-            onSelect: function (item) {
-              unlockField.setAttribute('data-selected-id', item.id);
-              unlockField.setAttribute('data-selected-name', item.name);
-            }
-          });
-        } else {
-          unlockField.placeholder = 'Select unlock type first';
-          unlockAutocomplete = null;
         }
       });
     }
