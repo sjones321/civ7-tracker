@@ -117,7 +117,7 @@
       requirementsJson = typeof wonder.requirements === 'string' ? JSON.parse(wonder.requirements) : wonder.requirements;
     }
 
-    return {
+    var dbRow = {
       id: wonder.id,
       name: wonder.name,
       summary_bonus: wonder.bonus || '',
@@ -135,6 +135,9 @@
       effects: Array.isArray(wonder.effects) ? wonder.effects : (wonder.effects || null), // JSONB array
       civ_production_bonus: wonder.civProductionBonus || null
     };
+    
+    console.log('[store-supabase] Converting wonder to DB format:', wonder.id, dbRow);
+    return dbRow;
   }
 
   // Get all world wonders
