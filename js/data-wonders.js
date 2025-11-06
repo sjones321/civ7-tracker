@@ -3,18 +3,19 @@
 
   var store = window.CivStore;
   var form = document.getElementById('wonder-form');
-  var statusEl = document.getElementById('status-message');
+  var statusEl = document.getElementById('wonders-status-message');
   var tableBody = document.getElementById('wonders-table-body');
-  var newButton = document.getElementById('new-wonder');
-  var exportButton = document.getElementById('export-button');
-  var importButton = document.getElementById('import-button');
-  var loadSampleButton = document.getElementById('load-sample');
-  var clearAllButton = document.getElementById('clear-all');
-  var jsonArea = document.getElementById('json-data');
+  var newButton = document.getElementById('wonders-new-button');
+  var exportButton = document.getElementById('wonders-export-button');
+  var importButton = document.getElementById('wonders-import-button');
+  var loadSampleButton = document.getElementById('wonders-load-sample');
+  var clearAllButton = document.getElementById('wonders-clear-all');
+  var clearAllStatsButton = document.getElementById('wonders-clear-all-stats');
+  var jsonArea = document.getElementById('wonders-json-data');
   var historyList = document.getElementById('ownership-history');
   var summaryBody = document.getElementById('ownership-summary-body');
-  var resetButton = document.getElementById('reset-form');
-  var bonusField = document.getElementById('wonder-bonus');
+  var resetButton = document.getElementById('wonders-reset-form');
+  var clearStatsButton = document.getElementById('wonders-clear-stats');
   var ageSelect = document.getElementById('wonder-age');
   var iconUrlField = document.getElementById('wonder-icon-url');
   var iconFileField = document.getElementById('wonder-icon-file');
@@ -23,12 +24,27 @@
   var ownerLeaderField = document.getElementById('wonder-owner-leader');
   var ownerCivField = document.getElementById('wonder-owner-civ');
   var logOwnerButton = document.getElementById('log-owner');
+  var productionCostField = document.getElementById('wonder-production-cost');
+  var associatedCivField = document.getElementById('wonder-associated-civ');
+  var unlockField = document.getElementById('wonder-unlock');
+  var civSpecificUnlockCivicField = document.getElementById('wonder-civ-specific-unlock-civic');
+  var placementField = document.getElementById('wonder-placement');
+  var effectsContainer = document.getElementById('wonder-effects-container');
+  var addEffectButton = document.getElementById('wonders-add-effect-button');
+  
+  // Autocomplete instances (will be created in init)
+  var leaderAutocomplete = null;
+  var civAutocomplete = null;
+  var associatedCivAutocomplete = null;
+  var unlockAutocomplete = null;
+  var civSpecificUnlockCivicAutocomplete = null;
 
   var ownerTypes = ['Tiny', 'Steve', 'AI'];
   var DEFAULT_AGES = ['Antiquity', 'Exploration', 'Modern'];
   var ageOptions = DEFAULT_AGES.slice();
   var editingOriginalId = null;
   var currentHistory = [];
+  var effectCounter = 0; // Counter for unique effect input IDs
 
   function showStatus(message, tone) {
     if (!statusEl) {
@@ -110,6 +126,87 @@
       .catch(function () {
         refreshAgeSelect();
       });
+  }
+
+  // Effects array builder functions
+  function addEffectInput(value) {
+    if (!effectsContainer) {
+      return;
+    }
+    effectCounter++;
+    var effectId = 'effect-' + effectCounter;
+    
+    var effectDiv = document.createElement('div');
+    effectDiv.className = 'effect-input-row';
+    effectDiv.style.cssText = 'display: flex; gap: 8px; align-items: center; margin-bottom: 8px;';
+    
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.id = effectId;
+    input.className = 'effect-input';
+    input.value = value || '';
+    input.style.cssText = 'flex: 1; padding: 8px; border: 1px solid #bcccdc; border-radius: 4px;';
+    input.placeholder = 'Enter effect description...';
+    
+    var removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.textContent = 'Remove';
+    removeButton.className = 'secondary';
+    removeButton.addEventListener('click', function () {
+      effectDiv.remove();
+    });
+    
+    effectDiv.appendChild(input);
+    effectDiv.appendChild(removeButton);
+    effectsContainer.appendChild(effectDiv);
+    
+    return input;
+  }
+  
+  function getEffectsArray() {
+    if (!effectsContainer) {
+      return [];
+    }
+    var inputs = effectsContainer.querySelectorAll('.effect-input');
+    var effects = [];
+    inputs.forEach(function (input) {
+      var value = input.value.trim();
+      if (value) {
+        effects.push(value);
+      }
+    });
+    return effects;
+  }
+  
+  function clearEffectsContainer() {
+    if (effectsContainer) {
+      effectsContainer.innerHTML = '';
+      effectCounter = 0;
+    }
+  }
+  
+  function loadEffectsArray(effects) {
+    clearEffectsContainer();
+    if (Array.isArray(effects) && effects.length > 0) {
+      effects.forEach(function (effect) {
+        var value = typeof effect === 'string' ? effect : JSON.stringify(effect);
+        addEffectInput(value);
+      });
+    } else if (effects && typeof effects === 'string') {
+      // Try to parse as JSON array
+      try {
+        var parsed = JSON.parse(effects);
+        if (Array.isArray(parsed)) {
+          parsed.forEach(function (effect) {
+            var value = typeof effect === 'string' ? effect : JSON.stringify(effect);
+            addEffectInput(value);
+          });
+        }
+      } catch (e) {
+        // Not JSON, treat as single effect
+        addEffectInput(effects);
+      }
+    }
   }
 
   function applyIconPlaceholders(value) {
@@ -466,22 +563,82 @@
         iconUrlField.value = wonder.iconUrl || '';
         updateIconPreview(wonder.iconUrl || '');
       }
-      if (bonusField) {
-        bonusField.value = wonder.bonus || '';
-      }
       if (ownerTypeField) {
         ownerTypeField.value = wonder.ownerType || '';
-        if (!ownerTypeField.value) {
-          ownerTypeField.selectedIndex = 0;
-        }
       }
-      if (ownerLeaderField) {
+      if (ownerLeaderField && leaderAutocomplete && wonder.ownerLeader) {
+        // Use autocomplete to load and display the leader name by ID
+        leaderAutocomplete.setValueById(wonder.ownerLeader);
+      } else if (ownerLeaderField) {
         ownerLeaderField.value = wonder.ownerLeader || '';
+        ownerLeaderField.removeAttribute('data-selected-id');
+        ownerLeaderField.removeAttribute('data-selected-name');
       }
-      if (ownerCivField) {
+      if (ownerCivField && civAutocomplete && wonder.ownerCiv) {
+        // Use autocomplete to load and display the civ name by ID
+        civAutocomplete.setValueById(wonder.ownerCiv);
+      } else if (ownerCivField) {
         ownerCivField.value = wonder.ownerCiv || '';
+        ownerCivField.removeAttribute('data-selected-id');
+        ownerCivField.removeAttribute('data-selected-name');
       }
       form.elements.bigTicket.checked = Boolean(wonder.bigTicket);
+      
+      // Handle new fields
+      if (productionCostField) {
+        productionCostField.value = wonder.productionCost || '';
+      }
+      if (associatedCivField && associatedCivAutocomplete && wonder.associatedCiv) {
+        try {
+          associatedCivAutocomplete.setValueById(wonder.associatedCiv);
+        } catch (e) {
+          associatedCivField.value = wonder.associatedCiv || '';
+        }
+      } else if (associatedCivField) {
+        associatedCivField.value = wonder.associatedCiv || '';
+        associatedCivField.removeAttribute('data-selected-id');
+        associatedCivField.removeAttribute('data-selected-name');
+      }
+      // Handle unlock field (civic autocomplete)
+      if (unlockField && unlockAutocomplete && wonder.unlockCivic) {
+        try {
+          unlockAutocomplete.setValueById(wonder.unlockCivic);
+        } catch (e) {
+          unlockField.value = wonder.unlockCivic || '';
+        }
+      } else if (unlockField) {
+        unlockField.value = wonder.unlockCivic || '';
+        unlockField.removeAttribute('data-selected-id');
+        unlockField.removeAttribute('data-selected-name');
+      }
+      // Handle civ-specific unlock (JSON object with civId and civicId)
+      if (wonder.civSpecificUnlock && typeof wonder.civSpecificUnlock === 'object') {
+        if (civSpecificUnlockCivicField && civSpecificUnlockCivicAutocomplete && wonder.civSpecificUnlock.civicId) {
+          try {
+            civSpecificUnlockCivicAutocomplete.setValueById(wonder.civSpecificUnlock.civicId);
+          } catch (e) {
+            civSpecificUnlockCivicField.value = wonder.civSpecificUnlock.civicId || '';
+          }
+        } else if (civSpecificUnlockCivicField) {
+          civSpecificUnlockCivicField.value = wonder.civSpecificUnlock.civicId || '';
+        }
+      } else {
+        if (civSpecificUnlockCivicField) {
+          civSpecificUnlockCivicField.value = '';
+          civSpecificUnlockCivicField.removeAttribute('data-selected-id');
+          civSpecificUnlockCivicField.removeAttribute('data-selected-name');
+        }
+      }
+      if (placementField) {
+        placementField.value = wonder.placement || '';
+      }
+      // Load effects array
+      if (wonder.effects) {
+        loadEffectsArray(wonder.effects);
+      } else {
+        clearEffectsContainer();
+      }
+      
       showStatus('Editing "' + wonder.name + '".', 'info');
     } else {
       if (ageSelect) {
@@ -496,13 +653,37 @@
       }
       if (ownerLeaderField) {
         ownerLeaderField.value = '';
+        ownerLeaderField.removeAttribute('data-selected-id');
+        ownerLeaderField.removeAttribute('data-selected-name');
       }
       if (ownerCivField) {
         ownerCivField.value = '';
+        ownerCivField.removeAttribute('data-selected-id');
+        ownerCivField.removeAttribute('data-selected-name');
       }
-      if (bonusField) {
-        bonusField.value = '';
+      // Clear new fields
+      if (productionCostField) {
+        productionCostField.value = '';
       }
+      if (associatedCivField) {
+        associatedCivField.value = '';
+        associatedCivField.removeAttribute('data-selected-id');
+        associatedCivField.removeAttribute('data-selected-name');
+      }
+      if (unlockField) {
+        unlockField.value = '';
+        unlockField.removeAttribute('data-selected-id');
+        unlockField.removeAttribute('data-selected-name');
+      }
+      if (civSpecificUnlockCivicField) {
+        civSpecificUnlockCivicField.value = '';
+        civSpecificUnlockCivicField.removeAttribute('data-selected-id');
+        civSpecificUnlockCivicField.removeAttribute('data-selected-name');
+      }
+      if (placementField) {
+        placementField.value = '';
+      }
+      clearEffectsContainer();
       showStatus('Ready to add a new World Wonder.', 'info');
     }
     renderOwnershipHistory(currentHistory);
@@ -518,10 +699,8 @@
     if (!data.age) {
       return 'An age is required.';
     }
-    if (!data.ownerType) {
-      return 'Please choose an owner type.';
-    }
-    if (ownerTypes.indexOf(data.ownerType) === -1) {
+    // Owner type is optional (set during gameplay)
+    if (data.ownerType && ownerTypes.indexOf(data.ownerType) === -1) {
       return 'Owner type must be Tiny, Steve, or AI.';
     }
 
@@ -544,15 +723,41 @@
 
     // Get wonders async first for validation
     store.getWorldWondersAsync().then(function (wonders) {
+      // Get selected IDs from autocomplete if available, otherwise use typed value
+      var selectedLeaderId = ownerLeaderField ? (ownerLeaderField.getAttribute('data-selected-id') || ownerLeaderField.value.trim()) : '';
+      var selectedCivId = ownerCivField ? (ownerCivField.getAttribute('data-selected-id') || ownerCivField.value.trim()) : '';
+      var selectedAssociatedCivId = associatedCivField ? (associatedCivField.getAttribute('data-selected-id') || associatedCivField.value.trim()) : '';
+      var selectedUnlockCivicId = unlockField ? (unlockField.getAttribute('data-selected-id') || unlockField.value.trim()) : '';
+      var selectedCivSpecificCivicId = civSpecificUnlockCivicField ? (civSpecificUnlockCivicField.getAttribute('data-selected-id') || civSpecificUnlockCivicField.value.trim()) : '';
+
+      // Build civ-specific unlock JSON (uses associated civ if civic specified)
+      var civSpecificUnlockJson = null;
+      if (selectedAssociatedCivId && selectedCivSpecificCivicId) {
+        civSpecificUnlockJson = {
+          civId: selectedAssociatedCivId,
+          civicId: selectedCivSpecificCivicId
+        };
+      }
+
+      // Get effects array from builder
+      var effectsArray = getEffectsArray();
+
       var formData = {
         id: form.elements.id.value.trim(),
         name: form.elements.name.value.trim(),
         age: ageSelect ? ageSelect.value : '',
         iconUrl: iconUrlField ? iconUrlField.value.trim() : '',
-        bonus: form.elements.bonus.value.trim(),
+        bonus: '', // Legacy field - keep empty, use effects array instead
+        productionCost: productionCostField ? parseInt(productionCostField.value, 10) || 0 : 0,
+        associatedCiv: selectedAssociatedCivId,
+        unlockCivic: selectedUnlockCivicId,
+        civSpecificUnlock: civSpecificUnlockJson,
+        placement: placementField ? placementField.value.trim() : '',
+        effects: effectsArray.length > 0 ? effectsArray : null,
+        civProductionBonus: selectedAssociatedCivId, // Same as associated civ
         ownerType: ownerTypeField ? ownerTypeField.value : '',
-        ownerLeader: ownerLeaderField ? ownerLeaderField.value.trim() : '',
-        ownerCiv: ownerCivField ? ownerCivField.value.trim() : '',
+        ownerLeader: selectedLeaderId,
+        ownerCiv: selectedCivId,
         bigTicket: form.elements.bigTicket.checked
       };
 
@@ -560,11 +765,6 @@
       if (error) {
         showStatus(error, 'error');
         return;
-      }
-
-      formData.bonus = applyIconPlaceholders(formData.bonus);
-      if (bonusField) {
-        bonusField.value = formData.bonus;
       }
 
       var history = currentHistory.slice();
@@ -588,9 +788,12 @@
 
       formData.ownershipHistory = history;
 
+      console.log('[data-wonders] Attempting to save wonder:', formData);
       // Save async and handle the promise
       store.saveWorldWonderAsync(formData).then(function (savedWonder) {
+        console.log('[data-wonders] Save promise resolved, savedWonder:', savedWonder);
         if (!savedWonder || !savedWonder.id) {
+          console.error('[data-wonders] Saved wonder is invalid:', savedWonder);
           showStatus('Failed to save wonder.', 'error');
           return;
         }
@@ -652,8 +855,12 @@
           if (editingOriginalId === id) {
             resetForm(null);
           }
-          renderWonderTable();
-          showStatus('Deleted World Wonder.', 'success');
+          // Force refresh by reloading from database
+          return store.getWorldWondersAsync().then(function (wonders) {
+            renderWonderTableWithData(wonders);
+            renderOwnershipSummary(wonders);
+            showStatus('Deleted World Wonder.', 'success');
+          });
         } else {
           showStatus('Wonder not found.', 'error');
         }
@@ -743,6 +950,81 @@
     }).catch(function (err) {
       console.error('Failed to clear wonders:', err);
       showStatus('Failed to clear: ' + (err.message || err), 'error');
+    });
+  }
+
+  function handleClearStats() {
+    if (!editingOriginalId) {
+      showStatus('No wonder selected. Please edit a wonder first.', 'error');
+      return;
+    }
+    var confirmed = window.confirm('Clear all game statistics for this World Wonder? This will remove current owner, ownership history, and big ticket status, but keep the base wonder details.');
+    if (!confirmed) {
+      return;
+    }
+    
+    // Clear game stats fields
+    if (ownerTypeField) {
+      ownerTypeField.value = '';
+    }
+    if (ownerLeaderField) {
+      ownerLeaderField.value = '';
+      ownerLeaderField.removeAttribute('data-selected-id');
+      ownerLeaderField.removeAttribute('data-selected-name');
+      if (leaderAutocomplete) {
+        leaderAutocomplete.setValue('');
+      }
+    }
+    if (ownerCivField) {
+      ownerCivField.value = '';
+      ownerCivField.removeAttribute('data-selected-id');
+      ownerCivField.removeAttribute('data-selected-name');
+      if (civAutocomplete) {
+        civAutocomplete.setValue('');
+      }
+    }
+    if (form.elements.bigTicket) {
+      form.elements.bigTicket.checked = false;
+    }
+    currentHistory = [];
+    renderOwnershipHistory([]);
+    
+    showStatus('Game stats cleared. Click Save to apply changes.', 'info');
+  }
+
+  function handleClearAllStats() {
+    var confirmed = window.confirm('Clear all game statistics for ALL World Wonders? This will remove current owners, ownership history, and big ticket status for all wonders, but keep the base wonder details.');
+    if (!confirmed) {
+      return;
+    }
+    
+    store.getWorldWondersAsync().then(function (wonders) {
+      var updated = wonders.map(function (wonder) {
+        var updatedWonder = Object.assign({}, wonder);
+        updatedWonder.ownerType = null;
+        updatedWonder.ownerLeader = null;
+        updatedWonder.ownerCiv = null;
+        updatedWonder.bigTicket = false;
+        updatedWonder.ownershipHistory = [];
+        return updatedWonder;
+      });
+      
+      return store.setWorldWondersAsync(updated).then(function () {
+        if (editingOriginalId) {
+          var currentWonder = updated.find(function (w) { return w.id === editingOriginalId; });
+          if (currentWonder) {
+            resetForm(currentWonder);
+          } else {
+            resetForm(null);
+          }
+        }
+        renderWonderTable();
+        renderOwnershipSummary(updated);
+        showStatus('Cleared all game statistics for ' + updated.length + ' World Wonder(s).', 'success');
+      });
+    }).catch(function (err) {
+      console.error('Failed to clear all stats:', err);
+      showStatus('Failed to clear stats: ' + (err.message || err), 'error');
     });
   }
 
@@ -870,6 +1152,72 @@
     if (!form || !tableBody || !newButton || !exportButton || !importButton || !jsonArea) {
       return;
     }
+
+    // Initialize autocomplete for Owner Leader and Owner Civ fields FIRST
+    // (needed for resetForm to use them)
+    if (ownerLeaderField && window.CivAutocomplete) {
+      leaderAutocomplete = window.CivAutocomplete.create({
+        input: ownerLeaderField,
+        entityType: 'leaders',
+        placeholder: 'Start typing leader name...',
+        onSelect: function (item) {
+          // Store the selected leader ID in a data attribute for form submission
+          ownerLeaderField.setAttribute('data-selected-id', item.id);
+          ownerLeaderField.setAttribute('data-selected-name', item.name);
+        }
+      });
+    }
+    if (ownerCivField && window.CivAutocomplete) {
+      civAutocomplete = window.CivAutocomplete.create({
+        input: ownerCivField,
+        entityType: 'civilizations',
+        placeholder: 'Start typing civilization name...',
+        onSelect: function (item) {
+          ownerCivField.setAttribute('data-selected-id', item.id);
+          ownerCivField.setAttribute('data-selected-name', item.name);
+        }
+      });
+    }
+    if (associatedCivField && window.CivAutocomplete) {
+      associatedCivAutocomplete = window.CivAutocomplete.create({
+        input: associatedCivField,
+        entityType: 'civilizations',
+        placeholder: 'Start typing civilization name...',
+        onSelect: function (item) {
+          associatedCivField.setAttribute('data-selected-id', item.id);
+          associatedCivField.setAttribute('data-selected-name', item.name);
+        }
+      });
+    }
+    if (unlockField && window.CivAutocomplete) {
+      unlockAutocomplete = window.CivAutocomplete.create({
+        input: unlockField,
+        entityType: 'civics',
+        placeholder: 'Start typing civic/tech name...',
+        onSelect: function (item) {
+          unlockField.setAttribute('data-selected-id', item.id);
+          unlockField.setAttribute('data-selected-name', item.name);
+        }
+      });
+    }
+    if (civSpecificUnlockCivicField && window.CivAutocomplete) {
+      civSpecificUnlockCivicAutocomplete = window.CivAutocomplete.create({
+        input: civSpecificUnlockCivicField,
+        entityType: 'civics',
+        placeholder: 'Start typing civic name...',
+        onSelect: function (item) {
+          civSpecificUnlockCivicField.setAttribute('data-selected-id', item.id);
+          civSpecificUnlockCivicField.setAttribute('data-selected-name', item.name);
+        }
+      });
+    }
+    // Handle Add Effect button
+    if (addEffectButton) {
+      addEffectButton.addEventListener('click', function () {
+        addEffectInput('');
+      });
+    }
+
     migrateStoredWonders();
     refreshAgeSelect();
     loadAgeOptions();
@@ -889,15 +1237,6 @@
     }
     exportButton.addEventListener('click', handleExport);
     importButton.addEventListener('click', handleImport);
-    if (bonusField) {
-      bonusField.addEventListener('blur', function () {
-        var original = bonusField.value.trim();
-        var replaced = applyIconPlaceholders(original);
-        if (replaced !== original) {
-          bonusField.value = replaced;
-        }
-      });
-    }
     if (iconUrlField) {
       iconUrlField.addEventListener('input', handleIconUrlInput);
     }
@@ -912,6 +1251,12 @@
     }
     if (clearAllButton) {
       clearAllButton.addEventListener('click', handleClearAll);
+    }
+    if (clearStatsButton) {
+      clearStatsButton.addEventListener('click', handleClearStats);
+    }
+    if (clearAllStatsButton) {
+      clearAllStatsButton.addEventListener('click', handleClearAllStats);
     }
   }
 

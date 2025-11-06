@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CIV7 Tracker · Units</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#001a33">
+  <meta name="description" content="Edit Civilization VII Units data.">
+  <meta property="og:title" content="CIV7 Tracker · Units">
+  <meta property="og:description" content="Maintain Civilization VII Units data.">
+  <meta property="og:url" content="https://sjones321.github.io/civ7-tracker/data-units.html">
+  <meta property="og:image" content="https://sjones321.github.io/civ7-tracker/img/og-card.png">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; background:#f5f7fa; color:#102542; }
+    header { display:flex; gap:12px; align-items:center; padding:12px 16px; background:#001a33; color:#fff; }
+    header h1 { margin:0; font-size:1.5rem; }
+    nav { background:#0d2b4d; padding:8px 16px; }
+    nav a { color:#e6f1ff; margin-right:12px; text-decoration:none; font-weight:600; }
+    nav a[aria-current="page"] { text-decoration:underline; }
+    main { padding:16px; max-width: 1100px; margin:0 auto; }
+    h1, h2, h3 { color:#001a33; }
+    .layout { display:flex; flex-wrap:wrap; gap:24px; margin-bottom:24px; }
+    .panel { flex:1 1 320px; background:#fff; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1); padding:16px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { border-bottom:1px solid #d9e2ec; padding:8px; text-align:left; vertical-align:top; }
+    th { font-weight:600; }
+    caption { text-align:left; font-weight:600; margin-bottom:8px; }
+    form label { display:block; font-weight:600; margin-top:12px; }
+    form small { display:block; margin-top:4px; color:#52606d; }
+    form input[type="text"],
+    form input[type="number"],
+    form textarea,
+    form select { width:100%; padding:8px; border:1px solid #bcccdc; border-radius:4px; font-size:1rem; }
+    form textarea { min-height:72px; }
+    .form-actions { margin-top:16px; display:flex; gap:12px; flex-wrap:wrap; }
+    button { cursor:pointer; border-radius:4px; border:1px solid transparent; padding:8px 14px; font-size:0.95rem; }
+    button.primary { background:#0077cc; color:#fff; }
+    button.secondary { background:#fff; border-color:#6c8aa4; color:#0d2b4d; margin-left:8px; }
+    button.danger { background:#fff; border-color:#c62828; color:#c62828; margin-left:8px; }
+    .status-region { margin:16px 0; padding:12px; border-radius:6px; background:#eef2f7; border:1px solid #cbd5e0; min-height:48px; }
+    .status-region[data-tone="success"] { background:#e3f9e5; border-color:#2ecc71; color:#1c7c3a; }
+    .status-region[data-tone="error"] { background:#fde8e8; border-color:#f56565; color:#9b2c2c; }
+    .icon-display { display:inline-block; min-width:1.5rem; margin-right:8px; text-align:center; }
+    .icon-display img { width:40px; height:40px; object-fit:contain; border:1px solid #bcccdc; border-radius:4px; padding:2px; background:#fff; }
+    #unit-icon-preview { margin-top:8px; min-height:60px; display:flex; align-items:center; justify-content:flex-start; }
+    #unit-icon-preview img { max-width:72px; max-height:72px; border:1px solid #bcccdc; border-radius:4px; padding:4px; background:#fff; }
+    #unit-icon-preview span { color:#52606d; }
+    #new-unit { margin-top:12px; }
+    .data-tools textarea { margin-top:12px; width:100%; padding:8px; border:1px solid #bcccdc; border-radius:4px; font-family:monospace; font-size:0.9rem; background:#f8fafc; color:#102542; }
+    .effect-input-row { display:flex; gap:8px; align-items:flex-start; margin-bottom:8px; }
+    .effect-input-row input { flex:1; }
+    .combat-stats { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; margin-top:8px; }
+    footer { text-align:center; padding:24px; color:#52606d; font-size:0.9rem; }
+    @media (max-width: 768px) {
+      header { flex-direction:column; align-items:flex-start; }
+      nav { display:flex; flex-wrap:wrap; gap:12px; }
+      .combat-stats { grid-template-columns:1fr; }
+    }
+    .autocomplete-wrapper { position: relative; }
+  </style>
+  <script>
+    (function(){
+      function renderBadge() {
+        var els = document.querySelectorAll('[data-version-badge]');
+        if (!els.length) {
+          return;
+        }
+        fetch('docs/site.json', { cache: 'no-store' })
+          .then(function (r) {
+            if (!r.ok) {
+              throw new Error('HTTP ' + r.status);
+            }
+            return r.json();
+          })
+          .then(function (data) {
+            els.forEach(function (el) {
+              el.classList.add('version-badge');
+              el.textContent = 'v' + data.version + ' · ' + data.buildDate;
+              el.setAttribute('title', 'Version ' + data.version + ' built ' + data.buildDate);
+            });
+          })
+          .catch(function (err) {
+            els.forEach(function (el) {
+              el.classList.add('version-badge');
+              el.textContent = 'version unavailable';
+              el.title = err && err.message ? err.message : 'version fetch failed';
+            });
+          });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderBadge);
+      } else {
+        renderBadge();
+      }
+    })();
+  </script>
+  <style>
+    .version-badge { display:inline-block; font:12px/1.2 system-ui,Segoe UI,Roboto,Arial; border:1px solid #ccc; border-radius:6px; padding:2px 6px; vertical-align:middle; background:#fff; color:#001a33; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CIV7 Tracker</h1>
+    <span data-version-badge></span>
+  </header>
+  <nav>
+    <a href="./">Home</a>
+    <a href="data-wonders.html">World Wonders Editor</a>
+    <a href="data-leaders.html">Leaders Editor</a>
+    <a href="data-civilizations.html">Civilizations Editor</a>
+    <a href="data-tech-civics.html">Tech/Civics Editor</a>
+    <a href="data-natural-wonders.html">Natural Wonders Editor</a>
+    <a href="data-mementos.html">Mementos Editor</a>
+    <a href="data-social-policies.html">Social Policies Editor</a>
+    <a href="data-units.html" aria-current="page">Units Editor</a>
+  </nav>
+  <main>
+    <h1>Units Data Editor</h1>
+    <p>Manage Civilization VII Units. Track military, civilian, and support units with their stats, unlock methods, and civ-specific variants.</p>
+
+    <section class="status-region" aria-live="polite" id="status-message" role="status" data-tone="info">Ready to add a new Unit.</section>
+
+    <div class="layout">
+      <section class="panel" aria-labelledby="units-list-heading">
+        <h2 id="units-list-heading">Current Units</h2>
+        <table>
+          <caption>Saved Units</caption>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Age</th>
+              <th scope="col">Unit Type</th>
+              <th scope="col">Combat</th>
+              <th scope="col">Icon &amp; Actions</th>
+            </tr>
+          </thead>
+          <tbody id="units-table-body"></tbody>
+        </table>
+        <button type="button" class="primary" id="new-unit">New Unit</button>
+      </section>
+
+      <section class="panel" aria-labelledby="editor-heading">
+        <h2 id="editor-heading">Unit Details</h2>
+        <form id="unit-form" novalidate>
+          <label for="unit-id">ID</label>
+          <input id="unit-id" name="id" type="text" required autocomplete="off" aria-describedby="id-help">
+          <small id="id-help">Use a unique identifier such as <code>warrior</code> or <code>unit:legion</code>.</small>
+
+          <label for="unit-name">Name</label>
+          <input id="unit-name" name="name" type="text" required autocomplete="off">
+
+          <label for="unit-age">Age</label>
+          <select id="unit-age" name="age" required>
+            <option value="" disabled selected>Select age</option>
+            <option value="Antiquity">Antiquity</option>
+            <option value="Exploration">Exploration</option>
+            <option value="Modern">Modern</option>
+          </select>
+
+          <label for="unit-type">Unit Type</label>
+          <select id="unit-type" name="unitType" required>
+            <option value="" disabled selected>Select unit type</option>
+            <option value="Land">Land</option>
+            <option value="Air">Air</option>
+            <option value="Naval">Naval</option>
+            <option value="Civilian">Civilian</option>
+            <option value="Support">Support</option>
+          </select>
+
+          <label for="unit-icon-url">Icon URL</label>
+          <input id="unit-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+          <input id="unit-icon-file" name="iconFile" type="file" accept="image/*">
+          <div id="unit-icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+          <small>Icon previews come from the provided URL or uploaded image.</small>
+
+          <label for="unit-description">Description</label>
+          <textarea id="unit-description" name="description" rows="3" placeholder="Enter unit description..."></textarea>
+
+          <h3>Combat Stats (Optional)</h3>
+          <div class="combat-stats">
+            <div>
+              <label for="unit-combat-strength">Combat Strength</label>
+              <input id="unit-combat-strength" name="combatStrength" type="number" min="0" placeholder="e.g. 20">
+            </div>
+            <div>
+              <label for="unit-ranged-strength">Ranged Strength</label>
+              <input id="unit-ranged-strength" name="rangedStrength" type="number" min="0" placeholder="e.g. 15">
+            </div>
+            <div>
+              <label for="unit-bombard-strength">Bombard Strength</label>
+              <input id="unit-bombard-strength" name="bombardStrength" type="number" min="0" placeholder="e.g. 25">
+            </div>
+            <div>
+              <label for="unit-movement">Movement</label>
+              <input id="unit-movement" name="movement" type="number" min="0" placeholder="e.g. 2">
+            </div>
+          </div>
+          <small>Leave blank for units without combat capabilities.</small>
+
+          <h3>Unlock Method</h3>
+          <label for="unit-unlock-method">Tech/Civic or Age Start</label>
+          <input id="unit-unlock-method" name="unlockMethod" type="text" autocomplete="off" placeholder="Start typing tech/civic name, or leave blank for 'age_start'">
+          <small>Enter a technology or civic ID, or leave blank to default to "age_start" (unlocked at age start).</small>
+
+          <label for="unit-associated-civ">Associated Civilization (Optional)</label>
+          <div class="autocomplete-wrapper">
+            <input id="unit-associated-civ" name="associatedCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+          </div>
+          <small>If this is a unique unit for a specific civilization.</small>
+
+          <h3>Effects</h3>
+          <label>Special Effects</label>
+          <div id="unit-effects-container">
+            <!-- Effects will be added dynamically here -->
+          </div>
+          <button type="button" class="secondary" id="add-effect-button">+ Add Effect</button>
+          <small>List of special abilities and effects for this unit.</small>
+
+          <div class="form-actions">
+            <button type="submit" class="primary">Save Unit</button>
+            <button type="button" class="secondary" id="reset-form">Reset</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <section class="panel data-tools" aria-labelledby="data-tools-heading">
+      <h2 id="data-tools-heading">Import / Export</h2>
+      <p>Copy data to share or paste JSON to replace your current units.</p>
+      <div class="form-actions">
+        <button type="button" class="primary" id="export-button">Export JSON</button>
+        <button type="button" class="secondary" id="import-button">Import JSON</button>
+        <button type="button" class="danger" id="clear-all">Delete All Units</button>
+      </div>
+      <textarea id="json-data" aria-label="Units JSON" placeholder="Paste Units JSON here" spellcheck="false" rows="8"></textarea>
+    </section>
+  </main>
+  <footer>© CIV7 Tracker</footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/store-supabase.js"></script>
+  <script src="js/autocomplete.js"></script>
+  <script src="js/data-units.js"></script>
+</body>
+</html>
+
