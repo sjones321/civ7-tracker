@@ -650,6 +650,32 @@ caption {
   }
 }
 
+/* Utility Classes */
+.text-muted {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+
+.hidden {
+  display: none;
+}
+
+.flex-3 {
+  flex: 3;
+}
+
+.flex-2 {
+  flex: 2;
+}
+
 @media (max-width: 480px) {
   main {
     padding: var(--spacing-sm);

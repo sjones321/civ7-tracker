@@ -169,7 +169,7 @@
     isEditMode = false;
     currentPolicyId = null;
     formHeading.textContent = 'Add / Edit Social Policy';
-    cancelEditButton.style.display = 'none';
+    cancelEditButton.classList.add('hidden');
     selectedAssociatedCivId = null;
     selectedAssociatedLeaderId = null;
     if (iconFileField) {
@@ -297,7 +297,7 @@
     isEditMode = true;
     currentPolicyId = policy.id;
     formHeading.textContent = 'Edit Social Policy: ' + policy.name;
-    cancelEditButton.style.display = 'inline-block';
+    cancelEditButton.classList.remove('hidden');
 
     policyIdField.value = policy.id || '';
     policyIdField.disabled = true;

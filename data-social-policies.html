@@ -55,6 +55,13 @@
     .effect-input-row { display:flex; gap:8px; align-items:flex-start; margin-bottom:8px; }
     .effect-input-row input { flex:1; }
     footer { text-align:center; padding:24px; color:#52606d; font-size:0.9rem; }
+    .version-badge-placeholder { margin-left:auto; color:#a2b9d6; }
+    .hidden { display:none; }
+    .text-muted { color:#52606d; font-size:0.9rem; }
+    .text-center { text-align:center; }
+    .mt-lg { margin-top:16px; }
+    .flex-3 { flex:3; }
+    .flex-2 { flex:2; }
     @media (max-width: 768px) {
       header { flex-direction:column; align-items:flex-start; }
       nav { display:flex; flex-wrap:wrap; gap:12px; }
@@ -97,7 +104,7 @@
 <body>
   <header>
     <h1>🏛️ CIV7 Tracker</h1>
-    <small data-version-badge style="margin-left:auto; color:#a2b9d6;">v0.0.0</small>
+    <small data-version-badge class="version-badge-placeholder">v0.0.0</small>
   </header>
   <nav>
     <a href="index.html">Home</a>
@@ -115,23 +122,23 @@
 
     <div class="layout">
       <!-- List Panel -->
-      <section class="panel" style="flex:3;">
+      <section class="panel flex-3">
         <h3>Social Policies List</h3>
-        <p style="color:#52606d; font-size:0.9rem;">Click a policy to edit it.</p>
+        <p class="text-muted">Click a policy to edit it.</p>
         <div id="policies-table-container">
           <table>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Age</th>
-                <th>Effects</th>
-                <th>Associated</th>
-                <th>Actions</th>
+                <th scope="col">Name</th>
+                <th scope="col">Age</th>
+                <th scope="col">Effects</th>
+                <th scope="col">Associated</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody id="policies-table-body">
               <tr>
-                <td colspan="5" style="text-align:center; color:#52606d;">Loading...</td>
+                <td colspan="5" class="text-center text-muted">Loading...</td>
               </tr>
             </tbody>
           </table>
@@ -139,7 +146,7 @@
       </section>
 
       <!-- Form Panel -->
-      <section class="panel" style="flex:2;">
+      <section class="panel flex-2">
         <h3 id="form-heading">Add / Edit Social Policy</h3>
         <form id="policy-form">
           <label for="policy-id">Policy ID <small>Unique identifier (e.g. "policy:maritime-trade")</small></label>
@@ -180,7 +187,7 @@
 
           <div class="form-actions">
             <button type="submit" class="primary">Save Policy</button>
-            <button type="button" id="cancel-edit" class="secondary" style="display:none;">Cancel</button>
+            <button type="button" id="cancel-edit" class="secondary hidden">Cancel</button>
           </div>
         </form>
 
@@ -188,7 +195,7 @@
           <span id="status-message">Ready to add or edit a social policy.</span>
         </div>
 
-        <div style="margin-top:16px;">
+        <div class="mt-lg">
           <button type="button" id="new-policy" class="secondary">+ New Policy</button>
         </div>
       </section>

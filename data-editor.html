@@ -117,7 +117,7 @@
             <input id="wonder-icon-file" name="iconFile" type="file" accept="image/*">
             <div id="wonder-icon-preview" class="icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
             <small>Icon previews come from the provided URL or uploaded image.</small>
-            <h3>Production & Associated Civilization</h3>
+            <h3>Production &amp; Associated Civilization</h3>
             <label for="wonder-production-cost">Production Cost</label>
             <input id="wonder-production-cost" name="productionCost" type="number" min="0" placeholder="450">
             <small>Total production cost to build this wonder</small>
@@ -131,7 +131,7 @@
             <label for="wonder-civ-specific-unlock-civic">Civilization Specific Unlock (Optional)</label>
             <input id="wonder-civ-specific-unlock-civic" name="civSpecificUnlockCivic" type="text" autocomplete="off" placeholder="Start typing civic name...">
             <small>Alternative civic that unlocks this wonder for the associated civilization</small>
-            <h3>Placement & Effects</h3>
+            <h3>Placement &amp; Effects</h3>
             <label for="wonder-placement">Placement Requirements</label>
             <input id="wonder-placement" name="placement" type="text" placeholder="e.g., On a Flat Tile">
             <small>Text description of placement requirements</small>
@@ -181,7 +181,7 @@
           <tbody id="ownership-summary-body"></tbody>
         </table>
       </section>
-      <section class="panel data-tools" aria-labelledby="wonders-data-tools-heading">
+      <section class="panel data-tools" aria-labelledby="wonders-data-tools-heading" aria-label="Data tools for World Wonders">
         <h2 id="wonders-data-tools-heading">Import / Export</h2>
         <p>Copy data to share or paste JSON to replace your current World Wonders.</p>
         <div class="form-actions">
@@ -257,7 +257,7 @@
           </form>
         </section>
       </div>
-      <section class="panel data-tools" aria-labelledby="leaders-data-tools-heading">
+      <section class="panel data-tools" aria-labelledby="leaders-data-tools-heading" aria-label="Data tools for Leaders">
         <h2 id="leaders-data-tools-heading">Import / Export</h2>
         <p>Copy data to share or paste JSON to replace your current Leaders.</p>
         <div class="form-actions">
@@ -369,7 +369,7 @@
           </form>
         </section>
       </div>
-      <section class="panel data-tools" aria-labelledby="civs-data-tools-heading">
+      <section class="panel data-tools" aria-labelledby="civs-data-tools-heading" aria-label="Data tools for Civilizations">
         <h2 id="civs-data-tools-heading">Import / Export</h2>
         <p>Copy data to share or paste JSON to replace your current Civilizations.</p>
         <div class="form-actions">
@@ -393,7 +393,7 @@
           </div>
           <h2 id="items-list-heading">Current Items</h2>
           <table>
-            <caption>Saved Technologies & Civics</caption>
+            <caption>Saved Technologies &amp; Civics</caption>
             <thead>
               <tr>
                 <th scope="col">Name</th>
@@ -466,7 +466,7 @@
           </form>
         </section>
       </div>
-      <section class="panel data-tools" aria-labelledby="tech-civics-data-tools-heading">
+      <section class="panel data-tools" aria-labelledby="tech-civics-data-tools-heading" aria-label="Data tools for Technologies and Civics">
         <h2 id="tech-civics-data-tools-heading">Import / Export</h2>
         <p>Copy data to share or paste JSON to replace your current items.</p>
         <div class="form-actions">
@@ -533,7 +533,7 @@
             <div id="natural-wonder-effects-container"></div>
             <button type="button" class="secondary" id="natural-wonders-add-effect-button">+ Add Effect</button>
             <small>Bonuses provided by tiles of this natural wonder</small>
-            <h3>Discovery & Control</h3>
+            <h3>Discovery &amp; Control</h3>
             <label for="natural-wonder-discovered-age">Discovered Age</label>
             <select id="natural-wonder-discovered-age" name="discoveredAge">
               <option value="">Not yet discovered</option>
@@ -577,7 +577,7 @@
           </form>
         </section>
       </div>
-      <section class="panel data-tools" aria-labelledby="natural-wonders-data-tools-heading">
+      <section class="panel data-tools" aria-labelledby="natural-wonders-data-tools-heading" aria-label="Data tools for Natural Wonders">
         <h2 id="natural-wonders-data-tools-heading">Import / Export</h2>
         <p>Copy data to share or paste JSON to replace your current Natural Wonders.</p>
         <div class="form-actions">
@@ -638,7 +638,7 @@
           </form>
         </section>
       </div>
-      <section class="panel data-tools" aria-labelledby="mementos-data-tools-heading">
+      <section class="panel data-tools" aria-labelledby="mementos-data-tools-heading" aria-label="Data tools for Mementos">
         <h2 id="mementos-data-tools-heading">Import / Export</h2>
         <p>Copy data to share or paste JSON to replace your current Mementos.</p>
         <div class="form-actions">
@@ -658,21 +658,21 @@
       <div class="layout">
         <section class="panel" aria-labelledby="social-policies-list-heading">
           <h2 id="social-policies-list-heading">Social Policies List</h2>
-          <p style="color:#52606d; font-size:0.9rem;">Click a policy to edit it.</p>
+          <p class="text-muted">Click a policy to edit it.</p>
           <div id="policies-table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Age</th>
-                  <th>Effects</th>
-                  <th>Associated</th>
-                  <th>Actions</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Age</th>
+                  <th scope="col">Effects</th>
+                  <th scope="col">Associated</th>
+                  <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody id="policies-table-body">
                 <tr>
-                  <td colspan="5" style="text-align:center; color:#52606d;">Loading...</td>
+                  <td colspan="5" class="text-center text-muted">Loading...</td>
                 </tr>
               </tbody>
             </table>
@@ -712,15 +712,15 @@
             </div>
             <div class="form-actions">
               <button type="submit" class="primary">Save Policy</button>
-              <button type="button" id="social-policies-cancel-edit" class="secondary" style="display:none;">Cancel</button>
+              <button type="button" id="social-policies-cancel-edit" class="secondary hidden">Cancel</button>
             </div>
           </form>
-          <div style="margin-top:16px;">
+          <div class="mt-lg">
             <button type="button" id="social-policies-new-button" class="secondary">+ New Policy</button>
           </div>
         </section>
       </div>
-      <section class="panel data-tools" aria-labelledby="social-policies-data-tools-heading">
+      <section class="panel data-tools" aria-labelledby="social-policies-data-tools-heading" aria-label="Data tools for Social Policies">
         <h2 id="social-policies-data-tools-heading">Import / Export</h2>
         <p>Copy data to share or paste JSON to replace your current Social Policies.</p>
         <div class="form-actions">
@@ -825,7 +825,7 @@
           </form>
         </section>
       </div>
-      <section class="panel data-tools" aria-labelledby="units-data-tools-heading">
+      <section class="panel data-tools" aria-labelledby="units-data-tools-heading" aria-label="Data tools for Units">
         <h2 id="units-data-tools-heading">Import / Export</h2>
         <p>Copy data to share or paste JSON to replace your current units.</p>
         <div class="form-actions">
@@ -917,7 +917,7 @@
           </form>
         </section>
       </div>
-      <section class="panel data-tools" aria-labelledby="buildings-data-tools-heading">
+      <section class="panel data-tools" aria-labelledby="buildings-data-tools-heading" aria-label="Data tools for Buildings">
         <h2 id="buildings-data-tools-heading">Import / Export</h2>
         <p>Copy data to share or paste JSON to replace your current buildings.</p>
         <div class="form-actions">
@@ -931,7 +931,6 @@
 
   </main>
   <footer>© CIV7 Tracker</footer>
-  
   <!-- Load Supabase library first -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Load your config (with API keys) -->
