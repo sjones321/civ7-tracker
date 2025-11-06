@@ -30,4 +30,3 @@ Each entry should be dated and focused on a specific lesson or insight. Entries 
 - **Learning Log:** "Learned that absolutely positioned dropdowns inside scrollable containers need to calculate position relative to the container, not the document. Used `getBoundingClientRect()` on both input and container, then subtracted container offset. This pattern will be useful for any future overlay components."
 
 Think of the Learning Log as "developer brain notes" for the long haul — the accumulated wisdom that makes you faster and smarter on future problems.
-

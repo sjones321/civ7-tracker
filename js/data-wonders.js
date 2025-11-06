@@ -3,17 +3,19 @@
 
   var store = window.CivStore;
   var form = document.getElementById('wonder-form');
-  var statusEl = document.getElementById('status-message');
+  var statusEl = document.getElementById('wonders-status-message');
   var tableBody = document.getElementById('wonders-table-body');
-  var newButton = document.getElementById('new-wonder');
-  var exportButton = document.getElementById('export-button');
-  var importButton = document.getElementById('import-button');
-  var loadSampleButton = document.getElementById('load-sample');
-  var clearAllButton = document.getElementById('clear-all');
-  var jsonArea = document.getElementById('json-data');
+  var newButton = document.getElementById('wonders-new-button');
+  var exportButton = document.getElementById('wonders-export-button');
+  var importButton = document.getElementById('wonders-import-button');
+  var loadSampleButton = document.getElementById('wonders-load-sample');
+  var clearAllButton = document.getElementById('wonders-clear-all');
+  var clearAllStatsButton = document.getElementById('wonders-clear-all-stats');
+  var jsonArea = document.getElementById('wonders-json-data');
   var historyList = document.getElementById('ownership-history');
   var summaryBody = document.getElementById('ownership-summary-body');
-  var resetButton = document.getElementById('reset-form');
+  var resetButton = document.getElementById('wonders-reset-form');
+  var clearStatsButton = document.getElementById('wonders-clear-stats');
   var ageSelect = document.getElementById('wonder-age');
   var iconUrlField = document.getElementById('wonder-icon-url');
   var iconFileField = document.getElementById('wonder-icon-file');
@@ -28,7 +30,7 @@
   var civSpecificUnlockCivicField = document.getElementById('wonder-civ-specific-unlock-civic');
   var placementField = document.getElementById('wonder-placement');
   var effectsContainer = document.getElementById('wonder-effects-container');
-  var addEffectButton = document.getElementById('add-effect-button');
+  var addEffectButton = document.getElementById('wonders-add-effect-button');
   
   // Autocomplete instances (will be created in init)
   var leaderAutocomplete = null;
@@ -853,8 +855,12 @@
           if (editingOriginalId === id) {
             resetForm(null);
           }
-          renderWonderTable();
-          showStatus('Deleted World Wonder.', 'success');
+          // Force refresh by reloading from database
+          return store.getWorldWondersAsync().then(function (wonders) {
+            renderWonderTableWithData(wonders);
+            renderOwnershipSummary(wonders);
+            showStatus('Deleted World Wonder.', 'success');
+          });
         } else {
           showStatus('Wonder not found.', 'error');
         }
@@ -944,6 +950,81 @@
     }).catch(function (err) {
       console.error('Failed to clear wonders:', err);
       showStatus('Failed to clear: ' + (err.message || err), 'error');
+    });
+  }
+
+  function handleClearStats() {
+    if (!editingOriginalId) {
+      showStatus('No wonder selected. Please edit a wonder first.', 'error');
+      return;
+    }
+    var confirmed = window.confirm('Clear all game statistics for this World Wonder? This will remove current owner, ownership history, and big ticket status, but keep the base wonder details.');
+    if (!confirmed) {
+      return;
+    }
+    
+    // Clear game stats fields
+    if (ownerTypeField) {
+      ownerTypeField.value = '';
+    }
+    if (ownerLeaderField) {
+      ownerLeaderField.value = '';
+      ownerLeaderField.removeAttribute('data-selected-id');
+      ownerLeaderField.removeAttribute('data-selected-name');
+      if (leaderAutocomplete) {
+        leaderAutocomplete.setValue('');
+      }
+    }
+    if (ownerCivField) {
+      ownerCivField.value = '';
+      ownerCivField.removeAttribute('data-selected-id');
+      ownerCivField.removeAttribute('data-selected-name');
+      if (civAutocomplete) {
+        civAutocomplete.setValue('');
+      }
+    }
+    if (form.elements.bigTicket) {
+      form.elements.bigTicket.checked = false;
+    }
+    currentHistory = [];
+    renderOwnershipHistory([]);
+    
+    showStatus('Game stats cleared. Click Save to apply changes.', 'info');
+  }
+
+  function handleClearAllStats() {
+    var confirmed = window.confirm('Clear all game statistics for ALL World Wonders? This will remove current owners, ownership history, and big ticket status for all wonders, but keep the base wonder details.');
+    if (!confirmed) {
+      return;
+    }
+    
+    store.getWorldWondersAsync().then(function (wonders) {
+      var updated = wonders.map(function (wonder) {
+        var updatedWonder = Object.assign({}, wonder);
+        updatedWonder.ownerType = null;
+        updatedWonder.ownerLeader = null;
+        updatedWonder.ownerCiv = null;
+        updatedWonder.bigTicket = false;
+        updatedWonder.ownershipHistory = [];
+        return updatedWonder;
+      });
+      
+      return store.setWorldWondersAsync(updated).then(function () {
+        if (editingOriginalId) {
+          var currentWonder = updated.find(function (w) { return w.id === editingOriginalId; });
+          if (currentWonder) {
+            resetForm(currentWonder);
+          } else {
+            resetForm(null);
+          }
+        }
+        renderWonderTable();
+        renderOwnershipSummary(updated);
+        showStatus('Cleared all game statistics for ' + updated.length + ' World Wonder(s).', 'success');
+      });
+    }).catch(function (err) {
+      console.error('Failed to clear all stats:', err);
+      showStatus('Failed to clear stats: ' + (err.message || err), 'error');
     });
   }
 
@@ -1170,6 +1251,12 @@
     }
     if (clearAllButton) {
       clearAllButton.addEventListener('click', handleClearAll);
+    }
+    if (clearStatsButton) {
+      clearStatsButton.addEventListener('click', handleClearStats);
+    }
+    if (clearAllStatsButton) {
+      clearAllStatsButton.addEventListener('click', handleClearAllStats);
     }
   }
 

@@ -46,6 +46,30 @@
       displayField: 'name',
       valueField: 'id',
       searchField: 'name'
+    },
+    world_wonders: {
+      table: 'world_wonders',
+      displayField: 'name',
+      valueField: 'id',
+      searchField: 'name'
+    },
+    units: {
+      table: 'units',
+      displayField: 'name',
+      valueField: 'id',
+      searchField: 'name'
+    },
+    buildings: {
+      table: 'buildings',
+      displayField: 'name',
+      valueField: 'id',
+      searchField: 'name'
+    },
+    social_policies: {
+      table: 'social_policies',
+      displayField: 'name',
+      valueField: 'id',
+      searchField: 'name'
     }
   };
 

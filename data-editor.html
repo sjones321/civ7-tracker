@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CIV7 Tracker · Data Editor</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#001a33">
+  <meta name="description" content="Edit Civilization VII data.">
+  <meta property="og:title" content="CIV7 Tracker · Data Editor">
+  <meta property="og:description" content="Manage all Civilization VII data in one place.">
+  <meta property="og:url" content="https://sjones321.github.io/civ7-tracker/data-editor.html">
+  <meta property="og:image" content="https://sjones321.github.io/civ7-tracker/img/og-card.png">
+  <link rel="stylesheet" href="css/editors.css">
+  <script>
+    (function(){
+      function renderBadge() {
+        var els = document.querySelectorAll('[data-version-badge]');
+        if (!els.length) {
+          return;
+        }
+        fetch('docs/site.json', { cache: 'no-store' })
+          .then(function (r) {
+            if (!r.ok) {
+              throw new Error('HTTP ' + r.status);
+            }
+            return r.json();
+          })
+          .then(function (data) {
+            els.forEach(function (el) {
+              el.classList.add('version-badge');
+              el.textContent = 'v' + data.version + ' · ' + data.buildDate;
+              el.setAttribute('title', 'Version ' + data.version + ' built ' + data.buildDate);
+            });
+          })
+          .catch(function (err) {
+            els.forEach(function (el) {
+              el.classList.add('version-badge');
+              el.textContent = 'version unavailable';
+              el.title = err && err.message ? err.message : 'version fetch failed';
+            });
+          });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderBadge);
+      } else {
+        renderBadge();
+      }
+    })();
+  </script>
+</head>
+<body>
+  <header>
+    <h1>CIV7 Tracker</h1>
+    <span data-version-badge></span>
+  </header>
+  <nav>
+    <a href="./">Home</a>
+    <a href="data-editor.html" aria-current="page">Data Editor</a>
+  </nav>
+  <main>
+    <h1>Data Editor</h1>
+    <p>Manage all Civilization VII data in one unified editor. Use the tabs below to switch between different entity types.</p>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation" role="tablist">
+      <button type="button" class="tab-button active" data-tab="wonders" role="tab" aria-selected="true">World Wonders</button>
+      <button type="button" class="tab-button" data-tab="leaders" role="tab" aria-selected="false">Leaders</button>
+      <button type="button" class="tab-button" data-tab="civilizations" role="tab" aria-selected="false">Civilizations</button>
+      <button type="button" class="tab-button" data-tab="tech-civics" role="tab" aria-selected="false">Tech/Civics</button>
+      <button type="button" class="tab-button" data-tab="natural-wonders" role="tab" aria-selected="false">Natural Wonders</button>
+      <button type="button" class="tab-button" data-tab="mementos" role="tab" aria-selected="false">Mementos</button>
+      <button type="button" class="tab-button" data-tab="social-policies" role="tab" aria-selected="false">Social Policies</button>
+      <button type="button" class="tab-button" data-tab="units" role="tab" aria-selected="false">Units</button>
+      <button type="button" class="tab-button" data-tab="buildings" role="tab" aria-selected="false">Buildings</button>
+    </div>
+
+    <!-- World Wonders Tab -->
+    <div id="tab-content-wonders" class="tab-content active" role="tabpanel">
+      <section class="status-region" aria-live="polite" id="wonders-status-message" role="status" data-tone="info">Ready to add a new World Wonder.</section>
+      <div class="layout">
+        <section class="panel" aria-labelledby="wonders-list-heading">
+          <h2 id="wonders-list-heading">Current Wonders</h2>
+          <table>
+            <caption>Saved World Wonders</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Age</th>
+                <th scope="col">Owner</th>
+                <th scope="col">Big Ticket</th>
+                <th scope="col">Icon &amp; Actions</th>
+              </tr>
+            </thead>
+            <tbody id="wonders-table-body"></tbody>
+          </table>
+          <button type="button" class="primary" id="wonders-new-button">New Wonder</button>
+        </section>
+        <section class="panel" aria-labelledby="wonders-editor-heading">
+          <h2 id="wonders-editor-heading">Wonder Details</h2>
+          <form id="wonder-form" novalidate>
+            <label for="wonder-id">ID</label>
+            <input id="wonder-id" name="id" type="text" required autocomplete="off" aria-describedby="wonder-id-help">
+            <small id="wonder-id-help">Use a unique identifier such as <code>pyramids</code>.</small>
+            <label for="wonder-name">Name</label>
+            <input id="wonder-name" name="name" type="text" required autocomplete="off">
+            <label for="wonder-age">Age</label>
+            <select id="wonder-age" name="age" required>
+              <option value="" disabled selected>Select age</option>
+            </select>
+            <label for="wonder-icon-url">Icon URL</label>
+            <input id="wonder-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+            <input id="wonder-icon-file" name="iconFile" type="file" accept="image/*">
+            <div id="wonder-icon-preview" class="icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+            <small>Icon previews come from the provided URL or uploaded image.</small>
+            <h3>Production & Associated Civilization</h3>
+            <label for="wonder-production-cost">Production Cost</label>
+            <input id="wonder-production-cost" name="productionCost" type="number" min="0" placeholder="450">
+            <small>Total production cost to build this wonder</small>
+            <label for="wonder-associated-civ">Associated Civilization</label>
+            <input id="wonder-associated-civ" name="associatedCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+            <small>Associated civ (also gets +30% production bonus and may have specific unlock)</small>
+            <h3>Unlock Requirements</h3>
+            <label for="wonder-unlock">Research Required to Unlock</label>
+            <input id="wonder-unlock" name="unlock" type="text" autocomplete="off" placeholder="Start typing civic/tech name...">
+            <small>Technology or Civic that unlocks this wonder for all civilizations</small>
+            <label for="wonder-civ-specific-unlock-civic">Civilization Specific Unlock (Optional)</label>
+            <input id="wonder-civ-specific-unlock-civic" name="civSpecificUnlockCivic" type="text" autocomplete="off" placeholder="Start typing civic name...">
+            <small>Alternative civic that unlocks this wonder for the associated civilization</small>
+            <h3>Placement & Effects</h3>
+            <label for="wonder-placement">Placement Requirements</label>
+            <input id="wonder-placement" name="placement" type="text" placeholder="e.g., On a Flat Tile">
+            <small>Text description of placement requirements</small>
+            <label>Effects</label>
+            <div id="wonder-effects-container"></div>
+            <button type="button" class="secondary" id="wonders-add-effect-button">+ Add Effect</button>
+            <small>List of distinct effects/bonuses for this wonder</small>
+            <h3>Ownership</h3>
+            <label for="wonder-owner-type">Last Owner</label>
+            <select id="wonder-owner-type" name="ownerType">
+              <option value="">No owner yet</option>
+              <option value="Tiny">Tiny</option>
+              <option value="Steve">Steve</option>
+              <option value="AI">AI</option>
+            </select>
+            <small>Set during gameplay - not required for initial entry</small>
+            <label for="wonder-owner-leader">Owner Leader</label>
+            <input id="wonder-owner-leader" name="ownerLeader" type="text" autocomplete="off" placeholder="Start typing leader name...">
+            <small>Type to filter and select from database</small>
+            <label for="wonder-owner-civ">Owner Civilization</label>
+            <input id="wonder-owner-civ" name="ownerCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+            <small>Type to filter and select from database</small>
+            <label class="checkbox-label">
+              <input type="checkbox" id="wonder-bigTicket" name="bigTicket"> Big Ticket Wonder
+            </label>
+            <h3>Ownership History</h3>
+            <ul class="history-list" id="ownership-history"></ul>
+            <button type="button" class="secondary" id="log-owner">Log current as last owner</button>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Wonder</button>
+              <button type="button" class="secondary" id="wonders-reset-form">Reset</button>
+              <button type="button" class="danger" id="wonders-clear-stats">Clear Game Stats</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <section class="panel ownership-summary" aria-labelledby="ownership-summary-heading">
+        <h2 id="ownership-summary-heading">Ownership Summary</h2>
+        <table>
+          <caption>Total Wonders per Owner</caption>
+          <thead>
+            <tr>
+              <th scope="col">Owner</th>
+              <th scope="col">Count</th>
+            </tr>
+          </thead>
+          <tbody id="ownership-summary-body"></tbody>
+        </table>
+      </section>
+      <section class="panel data-tools" aria-labelledby="wonders-data-tools-heading">
+        <h2 id="wonders-data-tools-heading">Import / Export</h2>
+        <p>Copy data to share or paste JSON to replace your current World Wonders.</p>
+        <div class="form-actions">
+          <button type="button" class="primary" id="wonders-export-button">Export JSON</button>
+          <button type="button" class="secondary" id="wonders-import-button">Import JSON</button>
+          <button type="button" class="secondary" id="wonders-load-sample">Load sample data</button>
+          <button type="button" class="danger" id="wonders-clear-all">Clear all Wonders</button>
+          <button type="button" class="danger" id="wonders-clear-all-stats">Clear All Game Stats</button>
+        </div>
+        <textarea id="wonders-json-data" aria-label="World Wonders JSON" placeholder="Paste World Wonders JSON here" spellcheck="false" rows="8"></textarea>
+      </section>
+    </div>
+
+    <!-- Leaders Tab -->
+    <div id="tab-content-leaders" class="tab-content" role="tabpanel">
+      <section class="status-region" aria-live="polite" id="leaders-status-message" role="status" data-tone="info">Ready to add a new Leader.</section>
+      <div class="layout">
+        <section class="panel" aria-labelledby="leaders-list-heading">
+          <h2 id="leaders-list-heading">Current Leaders</h2>
+          <table>
+            <caption>Saved Leaders</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Tiny Level</th>
+                <th scope="col">Steve Level</th>
+                <th scope="col">Icon &amp; Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leaders-table-body"></tbody>
+          </table>
+          <button type="button" class="primary" id="leaders-new-button">New Leader</button>
+        </section>
+        <section class="panel" aria-labelledby="leaders-editor-heading">
+          <h2 id="leaders-editor-heading">Leader Details</h2>
+          <form id="leader-form" novalidate>
+            <label for="leader-id">ID</label>
+            <input id="leader-id" name="id" type="text" required autocomplete="off" aria-describedby="leader-id-help">
+            <small id="leader-id-help">Use a unique identifier such as <code>julius-caesar</code>.</small>
+            <label for="leader-name">Name</label>
+            <input id="leader-name" name="name" type="text" required autocomplete="off">
+            <label for="leader-icon-url">Icon URL</label>
+            <input id="leader-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+            <input id="leader-icon-file" name="iconFile" type="file" accept="image/*">
+            <div id="leader-icon-preview" class="icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+            <small>Icon previews come from the provided URL or uploaded image.</small>
+            <h3>Player Levels</h3>
+            <div class="level-inputs">
+              <div class="level-input-group">
+                <label for="leader-tiny-level">Tiny's Level</label>
+                <input id="leader-tiny-level" name="tinyLevel" type="number" min="1" max="10" value="1">
+              </div>
+              <div class="level-input-group">
+                <label for="leader-steve-level">Steve's Level</label>
+                <input id="leader-steve-level" name="steveLevel" type="number" min="1" max="10" value="1">
+              </div>
+            </div>
+            <small>Current level (1-10) for each player</small>
+            <h3>Effects</h3>
+            <label>Leader Abilities</label>
+            <div id="leader-effects-container"></div>
+            <button type="button" class="secondary" id="leaders-add-effect-button">+ Add Effect</button>
+            <small>List of leader abilities and bonuses</small>
+            <h3>Level Unlocks</h3>
+            <label>Unlock Rewards</label>
+            <div id="leader-unlocks-container"></div>
+            <button type="button" class="secondary" id="leaders-add-unlock-button">+ Add Level Unlock</button>
+            <small>Rewards unlocked at each level (e.g., cosmetics, mementos, titles)</small>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Leader</button>
+              <button type="button" class="secondary" id="leaders-reset-form">Reset</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <section class="panel data-tools" aria-labelledby="leaders-data-tools-heading">
+        <h2 id="leaders-data-tools-heading">Import / Export</h2>
+        <p>Copy data to share or paste JSON to replace your current Leaders.</p>
+        <div class="form-actions">
+          <button type="button" class="primary" id="leaders-export-button">Export JSON</button>
+          <button type="button" class="secondary" id="leaders-import-button">Import JSON</button>
+          <button type="button" class="danger" id="leaders-clear-all">Delete All Leaders</button>
+        </div>
+        <textarea id="leaders-json-data" aria-label="Leaders JSON" placeholder="Paste Leaders JSON here" spellcheck="false" rows="8"></textarea>
+      </section>
+    </div>
+
+    <!-- Civilizations Tab -->
+    <div id="tab-content-civilizations" class="tab-content" role="tabpanel">
+      <section class="status-region" aria-live="polite" id="civs-status-message" role="status" data-tone="info">Ready to add a new Civilization.</section>
+      <div class="layout">
+        <section class="panel" aria-labelledby="civs-list-heading">
+          <h2 id="civs-list-heading">Current Civilizations</h2>
+          <table>
+            <caption>Saved Civilizations</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Age</th>
+                <th scope="col">Icon &amp; Actions</th>
+              </tr>
+            </thead>
+            <tbody id="civs-table-body"></tbody>
+          </table>
+          <button type="button" class="primary" id="civs-new-button">New Civilization</button>
+        </section>
+        <section class="panel" aria-labelledby="civs-editor-heading">
+          <h2 id="civs-editor-heading">Civilization Details</h2>
+          <form id="civ-form" novalidate>
+            <label for="civ-id">ID</label>
+            <input id="civ-id" name="id" type="text" required autocomplete="off" aria-describedby="civ-id-help">
+            <small id="civ-id-help">Use a unique identifier such as <code>rome</code> or <code>civ:rome</code>.</small>
+            <label for="civ-name">Name</label>
+            <input id="civ-name" name="name" type="text" required autocomplete="off">
+            <label for="civ-age">Age</label>
+            <select id="civ-age" name="age" required>
+              <option value="" disabled selected>Select age</option>
+              <option value="Antiquity">Antiquity</option>
+              <option value="Exploration">Exploration</option>
+              <option value="Modern">Modern</option>
+            </select>
+            <label for="civ-icon-url">Icon URL</label>
+            <input id="civ-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+            <input id="civ-icon-file" name="iconFile" type="file" accept="image/*">
+            <div id="civ-icon-preview" class="icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+            <small>Icon previews come from the provided URL or uploaded image.</small>
+            <h3>Unique Units</h3>
+            <label for="civ-unit-military-1">Military Unit 1</label>
+            <div class="autocomplete-wrapper">
+              <input id="civ-unit-military-1" name="unitMilitary1" type="text" autocomplete="off" placeholder="Enter unit name...">
+            </div>
+            <label for="civ-unit-military-2">Military Unit 2 (Optional)</label>
+            <div class="autocomplete-wrapper">
+              <input id="civ-unit-military-2" name="unitMilitary2" type="text" autocomplete="off" placeholder="Enter unit name...">
+            </div>
+            <label for="civ-unit-civilian">Civilian/Commander Unit</label>
+            <div class="autocomplete-wrapper">
+              <input id="civ-unit-civilian" name="unitCivilian" type="text" autocomplete="off" placeholder="Enter unit name...">
+            </div>
+            <small>Unique units for this civilization</small>
+            <h3>Unique Building/Quarter</h3>
+            <div class="building-quarter-toggle">
+              <label class="checkbox-label">
+                <input type="checkbox" id="is-quarter" name="isQuarter">
+                This is a Quarter (2 buildings)
+              </label>
+              <div class="building-fields" id="building-fields">
+                <label for="civ-building">Unique Building</label>
+                <div class="autocomplete-wrapper">
+                  <input id="civ-building" name="building" type="text" autocomplete="off" placeholder="Enter building name...">
+                </div>
+              </div>
+              <div class="quarter-fields" id="quarter-fields">
+                <label for="civ-quarter-name">Quarter Name</label>
+                <input id="civ-quarter-name" name="quarterName" type="text" autocomplete="off" placeholder="Enter quarter name...">
+                <label for="civ-quarter-building-1">Building 1</label>
+                <div class="autocomplete-wrapper">
+                  <input id="civ-quarter-building-1" name="quarterBuilding1" type="text" autocomplete="off" placeholder="Enter building name...">
+                </div>
+                <label for="civ-quarter-building-2">Building 2</label>
+                <div class="autocomplete-wrapper">
+                  <input id="civ-quarter-building-2" name="quarterBuilding2" type="text" autocomplete="off" placeholder="Enter building name...">
+                </div>
+              </div>
+            </div>
+            <small>Unique building or quarter (combination of 2 buildings)</small>
+            <h3>Effects</h3>
+            <label>Civilization Bonuses</label>
+            <div id="civ-effects-container"></div>
+            <button type="button" class="secondary" id="civs-add-effect-button">+ Add Effect</button>
+            <small>List of passive bonuses and abilities</small>
+            <h3>Unique Civics</h3>
+            <label>Civilization-Specific Civics</label>
+            <div id="civ-civics-container"></div>
+            <button type="button" class="secondary" id="civs-add-civic-button">+ Add Unique Civic</button>
+            <small>Civics that are unique to this civilization</small>
+            <h3>Associated Wonder</h3>
+            <label for="civ-wonder">Wonder (Optional)</label>
+            <input id="civ-wonder" name="wonder" type="text" autocomplete="off" placeholder="Start typing wonder name...">
+            <small>The wonder that gives this civ a +30% production bonus</small>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Civilization</button>
+              <button type="button" class="secondary" id="civs-reset-form">Reset</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <section class="panel data-tools" aria-labelledby="civs-data-tools-heading">
+        <h2 id="civs-data-tools-heading">Import / Export</h2>
+        <p>Copy data to share or paste JSON to replace your current Civilizations.</p>
+        <div class="form-actions">
+          <button type="button" class="primary" id="civs-export-button">Export JSON</button>
+          <button type="button" class="secondary" id="civs-import-button">Import JSON</button>
+          <button type="button" class="danger" id="civs-clear-all">Delete All Civilizations</button>
+        </div>
+        <textarea id="civs-json-data" aria-label="Civilizations JSON" placeholder="Paste Civilizations JSON here" spellcheck="false" rows="8"></textarea>
+      </section>
+    </div>
+
+    <!-- Tech/Civics Tab -->
+    <div id="tab-content-tech-civics" class="tab-content" role="tabpanel">
+      <section class="status-region" aria-live="polite" id="tech-civics-status-message" role="status" data-tone="info">Ready to add a new Technology or Civic.</section>
+      <div class="layout">
+        <section class="panel" aria-labelledby="items-list-heading">
+          <div id="type-filter">
+            <button type="button" class="primary active" data-type="all">All</button>
+            <button type="button" class="secondary" data-type="technologies">Technologies</button>
+            <button type="button" class="secondary" data-type="civics">Civics</button>
+          </div>
+          <h2 id="items-list-heading">Current Items</h2>
+          <table>
+            <caption>Saved Technologies & Civics</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Age</th>
+                <th scope="col">Icon &amp; Actions</th>
+              </tr>
+            </thead>
+            <tbody id="items-table-body"></tbody>
+          </table>
+          <button type="button" class="primary" id="tech-civics-new-button">New Item</button>
+        </section>
+        <section class="panel" aria-labelledby="tech-civics-editor-heading">
+          <h2 id="tech-civics-editor-heading">Item Details</h2>
+          <form id="item-form" novalidate>
+            <label for="item-type">Type</label>
+            <select id="item-type" name="type" required>
+              <option value="technologies">Technology</option>
+              <option value="civics">Civic</option>
+            </select>
+            <label for="item-id">ID</label>
+            <input id="item-id" name="id" type="text" required autocomplete="off" aria-describedby="item-id-help">
+            <small id="item-id-help">Use a unique identifier such as <code>pottery</code> or <code>tech:pottery</code>.</small>
+            <label for="item-name">Name</label>
+            <input id="item-name" name="name" type="text" required autocomplete="off">
+            <label for="item-age">Age</label>
+            <select id="item-age" name="age" required>
+              <option value="" disabled selected>Select age</option>
+              <option value="Antiquity">Antiquity</option>
+              <option value="Exploration">Exploration</option>
+              <option value="Modern">Modern</option>
+            </select>
+            <label for="item-production-cost">Production Cost</label>
+            <input id="item-production-cost" name="productionCost" type="number" min="0" placeholder="Science for techs, Culture for civics">
+            <small>Cost to research this tech (science) or civic (culture)</small>
+            <label for="item-icon-url">Icon URL</label>
+            <input id="item-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+            <input id="item-icon-file" name="iconFile" type="file" accept="image/*">
+            <div id="item-icon-preview" class="icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+            <small>Icon previews come from the provided URL or uploaded image.</small>
+            <h3>Effects</h3>
+            <label>Bonuses &amp; Abilities</label>
+            <div id="item-effects-container"></div>
+            <button type="button" class="secondary" id="tech-civics-add-effect-button">+ Add Effect</button>
+            <small>List of bonus strings and abilities</small>
+            <h3>Unlocks</h3>
+            <label for="item-wonder-unlock">Wonder Unlock (Optional)</label>
+            <input id="item-wonder-unlock" name="wonderUnlock" type="text" autocomplete="off" placeholder="Start typing wonder name...">
+            <small>Wonder that this tech/civic unlocks</small>
+            <label>Social Policies</label>
+            <div id="item-policies-container"></div>
+            <button type="button" class="secondary" id="tech-civics-add-policy-button">+ Add Social Policy</button>
+            <small>Social policies unlocked by this tech/civic (0-2+ typical)</small>
+            <label>Unit Unlocks</label>
+            <div id="item-units-container"></div>
+            <button type="button" class="secondary" id="tech-civics-add-unit-button">+ Add Unit Unlock</button>
+            <small>Units unlocked by this tech/civic (most have none, some have 5-6)</small>
+            <label>Building Unlocks</label>
+            <div id="item-buildings-container"></div>
+            <button type="button" class="secondary" id="tech-civics-add-building-button">+ Add Building Unlock</button>
+            <small>Buildings unlocked by this tech/civic</small>
+            <h3>Civ-Specific Variant</h3>
+            <label for="item-civ-specific">Civilization (Optional)</label>
+            <input id="item-civ-specific" name="civSpecific" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+            <small>If this is a civ-specific variant of the tech/civic</small>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Item</button>
+              <button type="button" class="secondary" id="tech-civics-reset-form">Reset</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <section class="panel data-tools" aria-labelledby="tech-civics-data-tools-heading">
+        <h2 id="tech-civics-data-tools-heading">Import / Export</h2>
+        <p>Copy data to share or paste JSON to replace your current items.</p>
+        <div class="form-actions">
+          <button type="button" class="primary" id="tech-civics-export-button">Export JSON</button>
+          <button type="button" class="secondary" id="tech-civics-import-button">Import JSON</button>
+          <button type="button" class="danger" id="tech-civics-clear-all">Delete All Items</button>
+        </div>
+        <textarea id="tech-civics-json-data" aria-label="Tech/Civics JSON" placeholder="Paste Tech/Civics JSON here" spellcheck="false" rows="8"></textarea>
+      </section>
+    </div>
+
+    <!-- Natural Wonders Tab -->
+    <div id="tab-content-natural-wonders" class="tab-content" role="tabpanel">
+      <section class="status-region" aria-live="polite" id="natural-wonders-status-message" role="status" data-tone="info">Ready to add a new Natural Wonder.</section>
+      <div class="layout">
+        <section class="panel" aria-labelledby="natural-wonders-list-heading">
+          <h2 id="natural-wonders-list-heading">Current Natural Wonders</h2>
+          <table>
+            <caption>Saved Natural Wonders</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Tiles</th>
+                <th scope="col">Terrain</th>
+                <th scope="col">Controller</th>
+                <th scope="col">Icon &amp; Actions</th>
+              </tr>
+            </thead>
+            <tbody id="natural-wonders-table-body"></tbody>
+          </table>
+          <button type="button" class="primary" id="natural-wonders-new-button">New Natural Wonder</button>
+        </section>
+        <section class="panel" aria-labelledby="natural-wonders-editor-heading">
+          <h2 id="natural-wonders-editor-heading">Natural Wonder Details</h2>
+          <form id="natural-wonder-form" novalidate>
+            <label for="natural-wonder-id">ID</label>
+            <input id="natural-wonder-id" name="id" type="text" required autocomplete="off" aria-describedby="natural-wonder-id-help">
+            <small id="natural-wonder-id-help">Use a unique identifier such as <code>grand-canyon</code>.</small>
+            <label for="natural-wonder-name">Name</label>
+            <input id="natural-wonder-name" name="name" type="text" required autocomplete="off">
+            <label for="natural-wonder-icon-url">Screenshot/Icon URL (Optional)</label>
+            <input id="natural-wonder-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+            <input id="natural-wonder-icon-file" name="iconFile" type="file" accept="image/*">
+            <div id="natural-wonder-icon-preview" class="icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+            <small>Upload in-game screenshots as you discover them</small>
+            <h3>Physical Characteristics</h3>
+            <label for="natural-wonder-tile-count">Tile Count</label>
+            <select id="natural-wonder-tile-count" name="tileCount" required>
+              <option value="1">1 Tile</option>
+              <option value="2">2 Tiles</option>
+              <option value="3">3 Tiles</option>
+              <option value="4">4 Tiles</option>
+              <option value="5">5 Tiles</option>
+              <option value="6">6 Tiles</option>
+            </select>
+            <label for="natural-wonder-terrain-type">Terrain Type</label>
+            <input id="natural-wonder-terrain-type" name="terrainType" type="text" autocomplete="off" placeholder="e.g., Mountain, Desert, Coast">
+            <small>The primary terrain type (Mountain, Desert, Coast, etc.)</small>
+            <label for="natural-wonder-continent">Continent (Optional)</label>
+            <input id="natural-wonder-continent" name="continent" type="text" autocomplete="off" placeholder="e.g., Africa, South America">
+            <small>Where this natural wonder is located</small>
+            <h3>Effects</h3>
+            <label>Natural Wonder Bonuses</label>
+            <div id="natural-wonder-effects-container"></div>
+            <button type="button" class="secondary" id="natural-wonders-add-effect-button">+ Add Effect</button>
+            <small>Bonuses provided by tiles of this natural wonder</small>
+            <h3>Discovery & Control</h3>
+            <label for="natural-wonder-discovered-age">Discovered Age</label>
+            <select id="natural-wonder-discovered-age" name="discoveredAge">
+              <option value="">Not yet discovered</option>
+              <option value="Antiquity">Antiquity</option>
+              <option value="Exploration">Exploration</option>
+              <option value="Modern">Modern</option>
+            </select>
+            <label for="natural-wonder-controller-role">Controller</label>
+            <select id="natural-wonder-controller-role" name="controllerRole">
+              <option value="">No controller yet</option>
+              <option value="Tiny">Tiny</option>
+              <option value="Steve">Steve</option>
+              <option value="AI">AI</option>
+            </select>
+            <small>Current overall controller (set during gameplay)</small>
+            <label for="natural-wonder-controller-leader">Controller Leader</label>
+            <input id="natural-wonder-controller-leader" name="controllerLeader" type="text" autocomplete="off" placeholder="Start typing leader name...">
+            <label for="natural-wonder-controller-civ">Controller Civilization</label>
+            <input id="natural-wonder-controller-civ" name="controllerCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+            <h3>Tile Ownership (Split Control)</h3>
+            <div class="tile-inputs">
+              <div class="tile-input-group">
+                <label for="natural-wonder-tiles-tiny">Tiny's Tiles</label>
+                <input id="natural-wonder-tiles-tiny" name="tilesTiny" type="number" min="0" max="6" value="0">
+              </div>
+              <div class="tile-input-group">
+                <label for="natural-wonder-tiles-steve">Steve's Tiles</label>
+                <input id="natural-wonder-tiles-steve" name="tilesSteve" type="number" min="0" max="6" value="0">
+              </div>
+              <div class="tile-input-group">
+                <label for="natural-wonder-tiles-ai">AI's Tiles</label>
+                <input id="natural-wonder-tiles-ai" name="tilesAI" type="number" min="0" max="6" value="0">
+              </div>
+            </div>
+            <small>Track individual tile ownership (useful when split between players)</small>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Natural Wonder</button>
+              <button type="button" class="secondary" id="natural-wonders-reset-form">Reset</button>
+              <button type="button" class="danger" id="natural-wonders-clear-stats">Clear Game Stats</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <section class="panel data-tools" aria-labelledby="natural-wonders-data-tools-heading">
+        <h2 id="natural-wonders-data-tools-heading">Import / Export</h2>
+        <p>Copy data to share or paste JSON to replace your current Natural Wonders.</p>
+        <div class="form-actions">
+          <button type="button" class="primary" id="natural-wonders-export-button">Export JSON</button>
+          <button type="button" class="secondary" id="natural-wonders-import-button">Import JSON</button>
+          <button type="button" class="danger" id="natural-wonders-clear-all">Delete All Natural Wonders</button>
+          <button type="button" class="danger" id="natural-wonders-clear-all-stats">Clear All Game Stats</button>
+        </div>
+        <textarea id="natural-wonders-json-data" aria-label="Natural Wonders JSON" placeholder="Paste Natural Wonders JSON here" spellcheck="false" rows="8"></textarea>
+      </section>
+    </div>
+
+    <!-- Mementos Tab -->
+    <div id="tab-content-mementos" class="tab-content" role="tabpanel">
+      <section class="status-region" aria-live="polite" id="mementos-status-message" role="status" data-tone="info">Ready to add a new Memento.</section>
+      <div class="layout">
+        <section class="panel" aria-labelledby="mementos-list-heading">
+          <h2 id="mementos-list-heading">Current Mementos</h2>
+          <table>
+            <caption>Saved Mementos</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Unlock</th>
+                <th scope="col">Icon &amp; Actions</th>
+              </tr>
+            </thead>
+            <tbody id="mementos-table-body"></tbody>
+          </table>
+          <button type="button" class="primary" id="mementos-new-button">New Memento</button>
+        </section>
+        <section class="panel" aria-labelledby="mementos-editor-heading">
+          <h2 id="mementos-editor-heading">Memento Details</h2>
+          <form id="memento-form" novalidate>
+            <label for="memento-id">ID</label>
+            <input id="memento-id" name="id" type="text" required autocomplete="off" aria-describedby="memento-id-help">
+            <small id="memento-id-help">Use a unique identifier such as <code>golden-vase</code>.</small>
+            <label for="memento-name">Name</label>
+            <input id="memento-name" name="name" type="text" required autocomplete="off">
+            <label for="memento-icon-url">Icon URL</label>
+            <input id="memento-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+            <input id="memento-icon-file" name="iconFile" type="file" accept="image/*">
+            <div id="memento-icon-preview" class="icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+            <small>Icon previews come from the provided URL or uploaded image.</small>
+            <h3>Unlock Information</h3>
+            <label for="memento-unlock-description">Unlock Description</label>
+            <textarea id="memento-unlock-description" name="unlockDescription" placeholder="Describe how to unlock this memento..."></textarea>
+            <small>Description of unlock requirements (e.g., byLeaderLevel, byAchievement, byProgress, etc.)</small>
+            <h3>Effects</h3>
+            <label>Bonuses</label>
+            <div id="memento-effects-container"></div>
+            <button type="button" class="secondary" id="mementos-add-effect-button">+ Add Effect</button>
+            <small>List of bonuses/effects provided by this memento</small>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Memento</button>
+              <button type="button" class="secondary" id="mementos-reset-form">Reset</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <section class="panel data-tools" aria-labelledby="mementos-data-tools-heading">
+        <h2 id="mementos-data-tools-heading">Import / Export</h2>
+        <p>Copy data to share or paste JSON to replace your current Mementos.</p>
+        <div class="form-actions">
+          <button type="button" class="primary" id="mementos-export-button">Export JSON</button>
+          <button type="button" class="secondary" id="mementos-import-button">Import JSON</button>
+          <button type="button" class="danger" id="mementos-clear-all">Delete All Mementos</button>
+        </div>
+        <textarea id="mementos-json-data" aria-label="Mementos JSON" placeholder="Paste Mementos JSON here" spellcheck="false" rows="8"></textarea>
+      </section>
+    </div>
+
+    <!-- Social Policies Tab -->
+    <div id="tab-content-social-policies" class="tab-content" role="tabpanel">
+      <section class="status-region" aria-live="polite" id="social-policies-status-region">
+        <span id="social-policies-status-message">Ready to add or edit a social policy.</span>
+      </section>
+      <div class="layout">
+        <section class="panel" aria-labelledby="social-policies-list-heading">
+          <h2 id="social-policies-list-heading">Social Policies List</h2>
+          <p style="color:#52606d; font-size:0.9rem;">Click a policy to edit it.</p>
+          <div id="policies-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Effects</th>
+                  <th>Associated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="policies-table-body">
+                <tr>
+                  <td colspan="5" style="text-align:center; color:#52606d;">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="social-policies-editor-heading">
+          <h2 id="social-policies-editor-heading">Add / Edit Social Policy</h2>
+          <form id="policy-form">
+            <label for="policy-id">Policy ID <small>Unique identifier (e.g. "policy:maritime-trade")</small></label>
+            <input type="text" id="policy-id" required>
+            <label for="policy-name">Policy Name</label>
+            <input type="text" id="policy-name" required>
+            <label for="policy-icon">Icon URL <small>Path or URL to policy icon</small></label>
+            <input type="text" id="policy-icon" placeholder="Paste an image URL or use upload">
+            <input type="file" id="policy-icon-file" accept="image/*">
+            <div id="policy-icon-preview" class="icon-preview">
+              <span>No icon yet.</span>
+            </div>
+            <small>Icon previews come from the provided URL or uploaded image.</small>
+            <label for="policy-age">Age</label>
+            <select id="policy-age">
+              <option value="">-- Select Age --</option>
+              <option value="Antiquity">Antiquity</option>
+              <option value="Exploration">Exploration</option>
+              <option value="Modern">Modern</option>
+            </select>
+            <label>Effects / Bonuses <small>Describe the effects of this policy</small></label>
+            <div id="policy-effects-container"></div>
+            <button type="button" id="social-policies-add-effect-button" class="secondary">+ Add Effect</button>
+            <label for="policy-associated-civ">Associated Civilization <small>Optional: Civ-specific policy</small></label>
+            <div class="autocomplete-wrapper">
+              <input type="text" id="policy-associated-civ" placeholder="Start typing to search...">
+            </div>
+            <label for="policy-associated-leader">Associated Leader <small>Optional: Leader-specific policy</small></label>
+            <div class="autocomplete-wrapper">
+              <input type="text" id="policy-associated-leader" placeholder="Start typing to search...">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Policy</button>
+              <button type="button" id="social-policies-cancel-edit" class="secondary" style="display:none;">Cancel</button>
+            </div>
+          </form>
+          <div style="margin-top:16px;">
+            <button type="button" id="social-policies-new-button" class="secondary">+ New Policy</button>
+          </div>
+        </section>
+      </div>
+      <section class="panel data-tools" aria-labelledby="social-policies-data-tools-heading">
+        <h2 id="social-policies-data-tools-heading">Import / Export</h2>
+        <p>Copy data to share or paste JSON to replace your current Social Policies.</p>
+        <div class="form-actions">
+          <button type="button" class="primary" id="social-policies-export-button">Export JSON</button>
+          <button type="button" class="secondary" id="social-policies-import-button">Import JSON</button>
+          <button type="button" class="danger" id="social-policies-clear-all">Delete All Social Policies</button>
+        </div>
+        <textarea id="social-policies-json-data" aria-label="Social Policies JSON" placeholder="Paste Social Policies JSON here" spellcheck="false" rows="8"></textarea>
+      </section>
+    </div>
+
+    <!-- Units Tab -->
+    <div id="tab-content-units" class="tab-content" role="tabpanel">
+      <section class="status-region" aria-live="polite" id="units-status-message" role="status" data-tone="info">Ready to add a new Unit.</section>
+      <div class="layout">
+        <section class="panel" aria-labelledby="units-list-heading">
+          <h2 id="units-list-heading">Current Units</h2>
+          <table>
+            <caption>Saved Units</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Age</th>
+                <th scope="col">Unit Type</th>
+                <th scope="col">Combat</th>
+                <th scope="col">Icon &amp; Actions</th>
+              </tr>
+            </thead>
+            <tbody id="units-table-body"></tbody>
+          </table>
+          <button type="button" class="primary" id="units-new-button">New Unit</button>
+        </section>
+        <section class="panel" aria-labelledby="units-editor-heading">
+          <h2 id="units-editor-heading">Unit Details</h2>
+          <form id="unit-form" novalidate>
+            <label for="unit-id">ID</label>
+            <input id="unit-id" name="id" type="text" required autocomplete="off" aria-describedby="unit-id-help">
+            <small id="unit-id-help">Use a unique identifier such as <code>warrior</code> or <code>unit:legion</code>.</small>
+            <label for="unit-name">Name</label>
+            <input id="unit-name" name="name" type="text" required autocomplete="off">
+            <label for="unit-age">Age</label>
+            <select id="unit-age" name="age" required>
+              <option value="" disabled selected>Select age</option>
+              <option value="Antiquity">Antiquity</option>
+              <option value="Exploration">Exploration</option>
+              <option value="Modern">Modern</option>
+            </select>
+            <label for="unit-type">Unit Type</label>
+            <select id="unit-type" name="unitType" required>
+              <option value="" disabled selected>Select unit type</option>
+              <option value="Land">Land</option>
+              <option value="Air">Air</option>
+              <option value="Naval">Naval</option>
+              <option value="Civilian">Civilian</option>
+              <option value="Support">Support</option>
+            </select>
+            <label for="unit-icon-url">Icon URL</label>
+            <input id="unit-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+            <input id="unit-icon-file" name="iconFile" type="file" accept="image/*">
+            <div id="unit-icon-preview" class="icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+            <small>Icon previews come from the provided URL or uploaded image.</small>
+            <label for="unit-description">Description</label>
+            <textarea id="unit-description" name="description" rows="3" placeholder="Enter unit description..."></textarea>
+            <h3>Combat Stats (Optional)</h3>
+            <div class="combat-stats">
+              <div>
+                <label for="unit-combat-strength">Combat Strength</label>
+                <input id="unit-combat-strength" name="combatStrength" type="number" min="0" placeholder="e.g. 20">
+              </div>
+              <div>
+                <label for="unit-ranged-strength">Ranged Strength</label>
+                <input id="unit-ranged-strength" name="rangedStrength" type="number" min="0" placeholder="e.g. 15">
+              </div>
+              <div>
+                <label for="unit-bombard-strength">Bombard Strength</label>
+                <input id="unit-bombard-strength" name="bombardStrength" type="number" min="0" placeholder="e.g. 25">
+              </div>
+              <div>
+                <label for="unit-movement">Movement</label>
+                <input id="unit-movement" name="movement" type="number" min="0" placeholder="e.g. 2">
+              </div>
+            </div>
+            <small>Leave blank for units without combat capabilities.</small>
+            <h3>Unlock Method</h3>
+            <label for="unit-unlock-method">Tech/Civic or Age Start</label>
+            <input id="unit-unlock-method" name="unlockMethod" type="text" autocomplete="off" placeholder="Start typing tech/civic name, or leave blank for 'age_start'">
+            <small>Enter a technology or civic ID, or leave blank to default to "age_start" (unlocked at age start).</small>
+            <label for="unit-associated-civ">Associated Civilization (Optional)</label>
+            <div class="autocomplete-wrapper">
+              <input id="unit-associated-civ" name="associatedCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+            </div>
+            <small>If this is a unique unit for a specific civilization.</small>
+            <h3>Effects</h3>
+            <label>Special Effects</label>
+            <div id="unit-effects-container"></div>
+            <button type="button" class="secondary" id="units-add-effect-button">+ Add Effect</button>
+            <small>List of special abilities and effects for this unit.</small>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Unit</button>
+              <button type="button" class="secondary" id="units-reset-form">Reset</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <section class="panel data-tools" aria-labelledby="units-data-tools-heading">
+        <h2 id="units-data-tools-heading">Import / Export</h2>
+        <p>Copy data to share or paste JSON to replace your current units.</p>
+        <div class="form-actions">
+          <button type="button" class="primary" id="units-export-button">Export JSON</button>
+          <button type="button" class="secondary" id="units-import-button">Import JSON</button>
+          <button type="button" class="danger" id="units-clear-all">Delete All Units</button>
+        </div>
+        <textarea id="units-json-data" aria-label="Units JSON" placeholder="Paste Units JSON here" spellcheck="false" rows="8"></textarea>
+      </section>
+    </div>
+
+    <!-- Buildings Tab -->
+    <div id="tab-content-buildings" class="tab-content" role="tabpanel">
+      <section class="status-region" aria-live="polite" id="buildings-status-message" role="status" data-tone="info">Ready to add a new Building.</section>
+      <div class="layout">
+        <section class="panel" aria-labelledby="buildings-list-heading">
+          <h2 id="buildings-list-heading">Current Buildings</h2>
+          <table>
+            <caption>Saved Buildings</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Age</th>
+                <th scope="col">Location Type</th>
+                <th scope="col">Production Cost</th>
+                <th scope="col">Is Warehouse</th>
+                <th scope="col">Icon &amp; Actions</th>
+              </tr>
+            </thead>
+            <tbody id="buildings-table-body"></tbody>
+          </table>
+          <button type="button" class="primary" id="buildings-new-button">New Building</button>
+        </section>
+        <section class="panel" aria-labelledby="buildings-editor-heading">
+          <h2 id="buildings-editor-heading">Building Details</h2>
+          <form id="building-form" novalidate>
+            <label for="building-id">ID</label>
+            <input id="building-id" name="id" type="text" required autocomplete="off" aria-describedby="building-id-help">
+            <small id="building-id-help">Use a unique identifier such as <code>granary</code> or <code>building:library</code>.</small>
+            <label for="building-name">Name</label>
+            <input id="building-name" name="name" type="text" required autocomplete="off">
+            <label for="building-age">Age</label>
+            <select id="building-age" name="age" required>
+              <option value="" disabled selected>Select age</option>
+              <option value="Antiquity">Antiquity</option>
+              <option value="Exploration">Exploration</option>
+              <option value="Modern">Modern</option>
+            </select>
+            <label for="building-location-type">Location Type</label>
+            <select id="building-location-type" name="locationType" required>
+              <option value="" disabled selected>Select location type</option>
+              <option value="Urban">Urban</option>
+              <option value="Rural">Rural</option>
+            </select>
+            <label for="building-production-cost">Production Cost</label>
+            <input id="building-production-cost" name="productionCost" type="number" min="0" placeholder="e.g. 100">
+            <small>Production cost to build this building</small>
+            <label for="building-icon-url">Icon URL</label>
+            <input id="building-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+            <input id="building-icon-file" name="iconFile" type="file" accept="image/*">
+            <div id="building-icon-preview" class="icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+            <small>Icon previews come from the provided URL or uploaded image.</small>
+            <label for="building-placement-requirements">Placement Requirements</label>
+            <textarea id="building-placement-requirements" name="placementRequirements" rows="3" placeholder="Enter placement requirements..."></textarea>
+            <small>Describe where and how this building can be placed</small>
+            <label>
+              <input id="building-is-warehouse" name="isWarehouse" type="checkbox">
+              Is Warehouse
+            </label>
+            <small>Check if this building is a warehouse</small>
+            <h3>Unlock Method</h3>
+            <label for="building-unlock-method">Tech/Civic or Age Start</label>
+            <input id="building-unlock-method" name="unlockMethod" type="text" autocomplete="off" placeholder="Start typing tech/civic name, or leave blank for 'age_start'">
+            <small>Enter a technology or civic ID, or leave blank to default to "age_start" (unlocked at age start).</small>
+            <label for="building-associated-civ">Associated Civilization (Optional)</label>
+            <div class="autocomplete-wrapper">
+              <input id="building-associated-civ" name="associatedCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+            </div>
+            <small>If this is a unique building for a specific civilization.</small>
+            <h3>Effects</h3>
+            <label>Special Effects</label>
+            <div id="building-effects-container"></div>
+            <button type="button" class="secondary" id="buildings-add-effect-button">+ Add Effect</button>
+            <small>List of special abilities and effects for this building.</small>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Building</button>
+              <button type="button" class="secondary" id="buildings-reset-form">Reset</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <section class="panel data-tools" aria-labelledby="buildings-data-tools-heading">
+        <h2 id="buildings-data-tools-heading">Import / Export</h2>
+        <p>Copy data to share or paste JSON to replace your current buildings.</p>
+        <div class="form-actions">
+          <button type="button" class="primary" id="buildings-export-button">Export JSON</button>
+          <button type="button" class="secondary" id="buildings-import-button">Import JSON</button>
+          <button type="button" class="danger" id="buildings-clear-all">Delete All Buildings</button>
+        </div>
+        <textarea id="buildings-json-data" aria-label="Buildings JSON" placeholder="Paste Buildings JSON here" spellcheck="false" rows="8"></textarea>
+      </section>
+    </div>
+
+  </main>
+  <footer>© CIV7 Tracker</footer>
+  
+  <!-- Load Supabase library first -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Load your config (with API keys) -->
+  <script src="js/supabase-config.js"></script>
+  <!-- Load the store that uses Supabase -->
+  <script src="js/store-supabase.js"></script>
+  <!-- Load autocomplete component -->
+  <script src="js/autocomplete.js"></script>
+  <!-- Load tab controller -->
+  <script src="js/data-editor.js"></script>
+  <!-- Load all entity editor modules -->
+  <script src="js/data-wonders.js"></script>
+  <script src="js/data-leaders.js"></script>
+  <script src="js/data-civilizations.js"></script>
+  <script src="js/data-tech-civics.js"></script>
+  <script src="js/data-natural-wonders.js"></script>
+  <script src="js/data-mementos.js"></script>
+  <script src="js/data-social-policies.js"></script>
+  <script src="js/data-units.js"></script>
+  <script src="js/data-buildings.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+

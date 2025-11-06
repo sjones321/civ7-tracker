@@ -121,3 +121,115 @@ ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   updated_at = NOW();
 
+-- ============================================
+-- Natural Wonders (sample data for testing)
+-- ============================================
+INSERT INTO natural_wonders (id, name, summary_bonus, icon_url, tile_count, terrain_type, continent, discovered_age, last_controller_role, last_controller_leader_id, last_controller_civ_id, effects, tiles_owned_by, created_at, updated_at) VALUES
+  ('natural:grand-canyon', 'Grand Canyon', 'Provides [culture] and [tourism] bonuses', NULL, 2, 'Desert', 'North America', 'Exploration', NULL, NULL, NULL, '["+2 culture per tile", "+1 tourism per tile"]'::jsonb, NULL, NOW(), NOW()),
+  ('natural:mount-fuji', 'Mount Fuji', 'Provides [culture] and [faith] bonuses', NULL, 1, 'Mountain', 'Asia', 'Antiquity', NULL, NULL, NULL, '["+3 culture", "+2 faith"]'::jsonb, NULL, NOW(), NOW()),
+  ('natural:great-barrier-reef', 'Great Barrier Reef', 'Provides [science] and [food] bonuses', NULL, 3, 'Coast', 'Australia', 'Exploration', NULL, NULL, NULL, '["+2 science per tile", "+1 food per tile"]'::jsonb, NULL, NOW(), NOW()),
+  ('natural:kilimanjaro', 'Mount Kilimanjaro', 'Provides [culture] and [science] bonuses', NULL, 2, 'Mountain', 'Africa', 'Exploration', NULL, NULL, NULL, '["+2 culture per tile", "+1 science per tile"]'::jsonb, NULL, NOW(), NOW()),
+  ('natural:dead-sea', 'Dead Sea', 'Provides [gold] bonuses', NULL, 1, 'Desert', 'Asia', 'Antiquity', NULL, NULL, NULL, '["+4 gold"]'::jsonb, NULL, NOW(), NOW())
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  updated_at = NOW();
+
+-- ============================================
+-- Social Policies (sample data for testing)
+-- ============================================
+INSERT INTO social_policies (id, name, icon_url, age, effects, associated_civ_id, associated_leader_id, created_at, updated_at) VALUES
+  -- Universal Policies - Antiquity
+  ('policy:agrarian-society', 'Agrarian Society', NULL, 'Antiquity', '["+1 food from farms", "+1 food from pastures"]'::jsonb, NULL, NULL, NOW(), NOW()),
+  ('policy:military-tradition', 'Military Tradition', NULL, 'Antiquity', '["+1 combat strength for land units", "+25% experience gained by units"]'::jsonb, NULL, NULL, NOW(), NOW()),
+  ('policy:republican-legacy', 'Republican Legacy', NULL, 'Antiquity', '["+1 culture per city", "+1 production per city"]'::jsonb, NULL, NULL, NOW(), NOW()),
+  
+  -- Universal Policies - Exploration
+  ('policy:merchant-navy', 'Merchant Navy', NULL, 'Exploration', '["+2 gold from trade routes", "+1 production for harbors"]'::jsonb, NULL, NULL, NOW(), NOW()),
+  ('policy:colonial-settlements', 'Colonial Settlements', NULL, 'Exploration', '["+15% production toward settlers", "Settlers gain +2 movement"]'::jsonb, NULL, NULL, NOW(), NOW()),
+  
+  -- Universal Policies - Modern
+  ('policy:democracy', 'Democracy', NULL, 'Modern', '["+1 amenity per city", "+10% production toward buildings"]'::jsonb, NULL, NULL, NOW(), NOW()),
+  ('policy:free-market', 'Free Market', NULL, 'Modern', '["+2 gold per trade route", "+1 gold per district"]'::jsonb, NULL, NULL, NOW(), NOW()),
+  
+  -- Civ-Specific Policies
+  ('policy:roman-engineering', 'Roman Engineering', NULL, 'Antiquity', '["+15% production toward wonders", "+1 production for all cities"]'::jsonb, 'civ:rome', NULL, NOW(), NOW()),
+  ('policy:egyptian-monumentalism', 'Egyptian Monumentalism', NULL, 'Antiquity', '["+20% production toward wonders", "+2 culture per wonder"]'::jsonb, 'civ:egypt', NULL, NOW(), NOW()),
+  ('policy:greek-democracy', 'Greek Democracy', NULL, 'Antiquity', '["+1 culture per specialist", "+2 culture per district"]'::jsonb, 'civ:greece', NULL, NOW(), NOW()),
+  
+  -- Leader-Specific Policies
+  ('policy:caesars-legion', 'Caesar''s Legion', NULL, 'Antiquity', '["+2 combat strength for melee units", "+1 movement for legions"]'::jsonb, NULL, 'leader:caesar', NOW(), NOW()),
+  ('policy:cleopatras-diplomacy', 'Cleopatra''s Diplomacy', NULL, 'Antiquity', '["+2 gold per trade route", "+1 diplomatic favor per turn"]'::jsonb, NULL, 'leader:cleopatra', NOW(), NOW()),
+  ('policy:napoleonic-code', 'Napoleonic Code', NULL, 'Exploration', '["+1 production per city", "+10% production toward military units"]'::jsonb, NULL, 'leader:napoleon', NOW(), NOW()),
+  ('policy:teddy-conservation', 'Conservation Act', NULL, 'Modern', '["+2 culture from national parks", "+1 amenity per natural wonder"]'::jsonb, NULL, 'leader:teddy', NOW(), NOW())
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  age = EXCLUDED.age,
+  updated_at = NOW();
+
+-- ============================================
+-- Units (sample data for testing)
+-- ============================================
+INSERT INTO units (id, name, icon_url, age, description, effects, combat_strength, ranged_strength, bombard_strength, movement, unlock_method, associated_civ_id, unit_type, created_at, updated_at) VALUES
+  -- Land Units - Antiquity
+  ('unit:warrior', 'Warrior', NULL, 'Antiquity', 'Basic melee unit', '[]'::jsonb, 20, NULL, NULL, 2, 'age_start', NULL, 'Land', NOW(), NOW()),
+  ('unit:spearman', 'Spearman', NULL, 'Antiquity', 'Anti-cavalry melee unit', '[]'::jsonb, 25, NULL, NULL, 2, 'age_start', NULL, 'Land', NOW(), NOW()),
+  ('unit:archer', 'Archer', NULL, 'Antiquity', 'Ranged unit', '[]'::jsonb, 7, 15, NULL, 2, 'age_start', NULL, 'Land', NOW(), NOW()),
+  ('unit:scout', 'Scout', NULL, 'Antiquity', 'Exploration unit', '[]'::jsonb, NULL, NULL, NULL, 3, 'age_start', NULL, 'Civilian', NOW(), NOW()),
+  
+  -- Civ-Specific Units - Antiquity
+  ('unit:legion', 'Legion', NULL, 'Antiquity', 'Unique Roman melee unit', '["Can build roads", "+5 combat strength vs cities"]'::jsonb, 40, NULL, NULL, 2, 'age_start', 'civ:rome', 'Land', NOW(), NOW()),
+  ('unit:immortal', 'Immortal', NULL, 'Antiquity', 'Unique Persian melee unit', '["Heals at end of turn"]'::jsonb, 30, NULL, NULL, 2, 'age_start', 'civ:persia', 'Land', NOW(), NOW()),
+  
+  -- Naval Units - Antiquity
+  ('unit:galley', 'Galley', NULL, 'Antiquity', 'Early naval unit', '[]'::jsonb, 25, NULL, NULL, 3, 'age_start', NULL, 'Naval', NOW(), NOW()),
+  
+  -- Land Units - Exploration
+  ('unit:musketman', 'Musketman', NULL, 'Exploration', 'Gunpowder infantry', '[]'::jsonb, 55, NULL, NULL, 2, 'tech:gunpowder', NULL, 'Land', NOW(), NOW()),
+  ('unit:cannon', 'Cannon', NULL, 'Exploration', 'Siege unit', '[]'::jsonb, NULL, NULL, 50, 2, 'tech:gunpowder', NULL, 'Support', NOW(), NOW()),
+  
+  -- Naval Units - Exploration
+  ('unit:caravel', 'Caravel', NULL, 'Exploration', 'Exploration ship', '[]'::jsonb, 35, NULL, NULL, 4, 'tech:astronomy', NULL, 'Naval', NOW(), NOW()),
+  ('unit:frigate', 'Frigate', NULL, 'Exploration', 'Warship', '[]'::jsonb, 55, 60, NULL, 4, 'tech:navigation', NULL, 'Naval', NOW(), NOW()),
+  
+  -- Land Units - Modern
+  ('unit:infantry', 'Infantry', NULL, 'Modern', 'Modern infantry', '[]'::jsonb, 70, NULL, NULL, 2, 'tech:steam', NULL, 'Land', NOW(), NOW()),
+  ('unit:tank', 'Tank', NULL, 'Modern', 'Armored unit', '[]'::jsonb, 80, NULL, NULL, 4, 'tech:electricity', NULL, 'Land', NOW(), NOW())
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  age = EXCLUDED.age,
+  updated_at = NOW();
+
+-- ============================================
+-- Buildings (sample data for testing)
+-- ============================================
+INSERT INTO buildings (id, name, icon_url, age, effects, production_cost, placement_requirements, location_type, is_warehouse, unlock_method, associated_civ_id, created_at, updated_at) VALUES
+  -- Urban Buildings - Antiquity
+  ('building:granary', 'Granary', NULL, 'Antiquity', '["+2 food"]'::jsonb, 60, 'Must be built in a city', 'Urban', false, 'age_start', NULL, NOW(), NOW()),
+  ('building:library', 'Library', NULL, 'Antiquity', '["+2 science"]'::jsonb, 75, 'Must be built in a city', 'Urban', false, 'tech:writing', NULL, NOW(), NOW()),
+  ('building:monument', 'Monument', NULL, 'Antiquity', '["+1 culture"]'::jsonb, 40, 'Must be built in a city', 'Urban', false, 'age_start', NULL, NOW(), NOW()),
+  ('building:warehouse', 'Warehouse', NULL, 'Antiquity', '["+2 production", "Stores resources"]'::jsonb, 100, 'Must be built in a city', 'Urban', true, 'age_start', NULL, NOW(), NOW()),
+  
+  -- Rural Buildings - Antiquity
+  ('building:pasture', 'Pasture', NULL, 'Antiquity', '["+1 food from livestock"]'::jsonb, 50, 'Must be built on a tile with livestock', 'Rural', false, 'age_start', NULL, NOW(), NOW()),
+  ('building:mine', 'Mine', NULL, 'Antiquity', '["+2 production from resources"]'::jsonb, 60, 'Must be built on a tile with mining resources', 'Rural', false, 'age_start', NULL, NOW(), NOW()),
+  
+  -- Urban Buildings - Exploration
+  ('building:university', 'University', NULL, 'Exploration', '["+4 science", "+1 science per specialist"]'::jsonb, 200, 'Must be built in a city with a library', 'Urban', false, 'tech:astronomy', NULL, NOW(), NOW()),
+  ('building:market', 'Market', NULL, 'Exploration', '["+3 gold", "+1 trade route capacity"]'::jsonb, 150, 'Must be built in a city', 'Urban', false, 'age_start', NULL, NOW(), NOW()),
+  ('building:warehouse-exploration', 'Warehouse (Exploration)', NULL, 'Exploration', '["+3 production", "Stores resources"]'::jsonb, 180, 'Must be built in a city', 'Urban', true, 'tech:engineering', NULL, NOW(), NOW()),
+  
+  -- Rural Buildings - Exploration
+  ('building:plantation', 'Plantation', NULL, 'Exploration', '["+2 food", "+1 gold from plantations"]'::jsonb, 120, 'Must be built on a tile with plantation resources', 'Rural', false, 'tech:navigation', NULL, NOW(), NOW()),
+  
+  -- Urban Buildings - Modern
+  ('building:factory', 'Factory', NULL, 'Modern', '["+5 production", "+1 production per specialist"]'::jsonb, 300, 'Must be built in a city', 'Urban', false, 'tech:steam', NULL, NOW(), NOW()),
+  ('building:research-lab', 'Research Lab', NULL, 'Modern', '["+6 science", "+2 science per specialist"]'::jsonb, 350, 'Must be built in a city with a university', 'Urban', false, 'tech:electricity', NULL, NOW(), NOW()),
+  
+  -- Civ-Specific Buildings - Antiquity
+  ('building:roman-forum', 'Forum', NULL, 'Antiquity', '["+2 culture", "+1 production", "+1 trade route"]'::jsonb, 100, 'Must be built in a city', 'Urban', false, 'age_start', 'civ:rome', NOW(), NOW()),
+  ('building:egyptian-temple', 'Temple of Amun', NULL, 'Antiquity', '["+3 culture", "+1 faith per turn"]'::jsonb, 90, 'Must be built in a city', 'Urban', false, 'age_start', 'civ:egypt', NOW(), NOW())
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  age = EXCLUDED.age,
+  updated_at = NOW();
+

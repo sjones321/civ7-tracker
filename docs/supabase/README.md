@@ -1,87 +1,69 @@
-# Supabase Integration for CIV7 Tracker
+# Supabase Database Migrations
 
-This directory contains everything you need to integrate Supabase (cloud database) into CIV7 Tracker, replacing localStorage with centralized storage so Tiny and Steve can share the same data.
+This directory contains SQL migration scripts for the Civ 7 Tracker database.
 
-## Quick Start
+## Running Migrations
 
-1. **Read the setup guide:** [`setup-guide.md`](./setup-guide.md) - Step-by-step account creation
-2. **Run the schema:** Copy [`database-schema.sql`](./database-schema.sql) into Supabase SQL Editor
-3. **Create config:** Copy `js/supabase-config.example.js` to `js/supabase-config.js` and add your keys
-4. **Follow integration:** [`integration-guide.md`](./integration-guide.md) - How to update your pages
+### Option 1: Supabase Dashboard (Recommended for beginners)
 
-## Files in This Directory
+1. Go to your Supabase project dashboard at <https://supabase.com/dashboard>
+2. Click on your project
+3. Navigate to **SQL Editor** in the left sidebar
+4. Click **New query**
+5. Copy and paste the contents of the migration file you want to run
+6. Click **Run** (or press Cmd/Ctrl + Enter)
+7. Check the Results panel for any errors
 
-### Documentation
+### Option 2: Supabase CLI (For advanced users)
 
-- **`README.md`** (this file) - Overview and quick start
-- **`setup-guide.md`** - Beginner-friendly Supabase account setup
-- **`integration-guide.md`** - Step-by-step integration instructions
-- **`comparison-firebase-vs-supabase.md`** - Why we chose Supabase
+If you have the Supabase CLI installed:
 
-### Database
-
-- **`database-schema.sql`** - Complete SQL schema for all tables
-  - Run this in Supabase SQL Editor to create all tables
-  - Based on Lucy's data model brainstorming
-
-## Project Files
-
-These files are in the main project (not this docs folder):
-
-- **`js/supabase-config.example.js`** - Template for your API keys (copy to `supabase-config.js`)
-- **`js/store-supabase.js`** - New store implementation (replaces `store.js`)
-- **`.gitignore`** - Updated to exclude your actual config file
-
-## Architecture
-
-```text
-┌─────────────┐
-│ HTML Pages  │  (data-wonders.html, etc.)
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────────┐
-│ store-supabase.js   │  (API wrapper)
-└──────┬──────────────┘
-       │
-       ▼
-┌─────────────────────┐
-│ Supabase API        │  (Auto-generated REST APIs)
-└──────┬──────────────┘
-       │
-       ▼
-┌─────────────────────┐
-│ PostgreSQL Database  │  (Cloud-hosted)
-└─────────────────────┘
+```bash
+supabase db push
 ```
 
-## Benefits
+Or run a specific migration:
 
-✅ **Shared data** - Tiny and Steve see the same data in real-time  
-✅ **No server needed** - Supabase handles everything  
-✅ **Free tier** - More than enough for 2 users  
-✅ **Auto-APIs** - No backend code to write  
-✅ **Future-proof** - Easy to add more sites/projects  
+```bash
+supabase db execute --file docs/supabase/migration-add-leader-fields.sql
+```
 
-## Cost
+## Migrations List
 
-- **Free tier:** $0/month (500MB database, 2GB bandwidth)
-- **Your usage:** ~200MB estimated → well within limits
-- **If you outgrow:** $25/month Pro plan (unlikely for 2 users)
+### `migration-add-wonder-fields.sql`
 
-## Support
+- Adds production cost and associated civilization fields to world_wonders table
+- Creates wonder_ownership_history table for tracking game history
+- **Status**: Applied
 
-- **Supabase docs:** <https://supabase.com/docs>
-- **SQL help:** Check `database-schema.sql` comments
-- **Integration issues:** See troubleshooting in `integration-guide.md`
+### `migration-add-leader-fields.sql`
 
-## Next Steps After Setup
+- Adds level tracking (tiny_level, steve_level) to leaders table
+- Adds effects and level_unlocks JSONB columns
+- Creates leader_game_history table for tracking games played
+- **Status**: Ready to apply
 
-1. ✅ Set up Supabase account
-2. ✅ Create database tables
-3. ✅ Integrate into pages
-4. ⏭️ Test multi-user sync
-5. ⏭️ Add other entities (civilizations, leaders, etc.)
-6. ⏭️ Enable real-time subscriptions (optional)
+## Migration Order
 
-Ready to start? Begin with [`setup-guide.md`](./setup-guide.md)!
+Run migrations in the order they appear in this list. Each migration is designed to be idempotent (safe to run multiple times).
+
+## Troubleshooting
+
+### "relation already exists"
+
+This is normal if you're re-running a migration. The `IF NOT EXISTS` clauses prevent errors.
+
+### "permission denied"
+
+Make sure you're logged in to the correct Supabase project and have admin access.
+
+### "syntax error"
+
+Double-check that you copied the entire migration file, including all semicolons.
+
+## Best Practices
+
+1. Always backup your data before running migrations
+2. Test migrations on a development/staging database first
+3. Run migrations during low-traffic periods
+4. Keep this README updated with migration status

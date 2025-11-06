@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>CIV7 Tracker · World Wonders</title>
+  <title>CIV7 Tracker · Technologies & Civics</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#001a33">
-  <meta name="description" content="Edit Civilization VII World Wonders data.">
-  <meta property="og:title" content="CIV7 Tracker · World Wonders">
-  <meta property="og:description" content="Maintain Civilization VII World Wonders data.">
-  <meta property="og:url" content="https://sjones321.github.io/civ7-tracker/data-wonders.html">
+  <meta name="description" content="Edit Civilization VII Technologies and Civics data.">
+  <meta property="og:title" content="CIV7 Tracker · Technologies & Civics">
+  <meta property="og:description" content="Maintain Civilization VII Technologies and Civics data.">
+  <meta property="og:url" content="https://sjones321.github.io/civ7-tracker/data-tech-civics.html">
   <meta property="og:image" content="https://sjones321.github.io/civ7-tracker/img/og-card.png">
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; background:#f5f7fa; color:#102542; }
@@ -36,7 +36,6 @@
     form textarea,
     form select { width:100%; padding:8px; border:1px solid #bcccdc; border-radius:4px; font-size:1rem; }
     form textarea { min-height:72px; }
-    .checkbox-label { display:flex; align-items:center; gap:8px; margin-top:12px; font-weight:600; }
     .form-actions { margin-top:16px; display:flex; gap:12px; flex-wrap:wrap; }
     button { cursor:pointer; border-radius:4px; border:1px solid transparent; padding:8px 14px; font-size:0.95rem; }
     button.primary { background:#0077cc; color:#fff; }
@@ -47,16 +46,14 @@
     .status-region[data-tone="error"] { background:#fde8e8; border-color:#f56565; color:#9b2c2c; }
     .icon-display { display:inline-block; min-width:1.5rem; margin-right:8px; text-align:center; }
     .icon-display img { width:40px; height:40px; object-fit:contain; border:1px solid #bcccdc; border-radius:4px; padding:2px; background:#fff; }
-    #wonder-icon-preview { margin-top:8px; min-height:60px; display:flex; align-items:center; justify-content:flex-start; }
-    #wonder-icon-preview img { max-width:72px; max-height:72px; border:1px solid #bcccdc; border-radius:4px; padding:4px; background:#fff; }
-    #wonder-icon-preview span { color:#52606d; }
-    .history-list { margin-top:12px; padding-left:20px; }
-    .history-list li { margin-bottom:4px; }
-    #log-owner { margin-top:8px; }
+    #item-icon-preview { margin-top:8px; min-height:60px; display:flex; align-items:center; justify-content:flex-start; }
+    #item-icon-preview img { max-width:72px; max-height:72px; border:1px solid #bcccdc; border-radius:4px; padding:4px; background:#fff; }
+    #item-icon-preview span { color:#52606d; }
+    #new-item { margin-top:12px; }
     .data-tools textarea { margin-top:12px; width:100%; padding:8px; border:1px solid #bcccdc; border-radius:4px; font-family:monospace; font-size:0.9rem; background:#f8fafc; color:#102542; }
-    .ownership-summary { max-width:340px; }
-    #new-wonder { margin-top:12px; }
-    /* Autocomplete dropdown styling */
+    #type-filter { margin-bottom:16px; display:flex; gap:12px; }
+    #type-filter button { flex:1; }
+    #type-filter button.active { background:#0077cc; color:#fff; border-color:#0077cc; }
     .autocomplete-dropdown { 
       position: absolute !important;
       background: #fff !important;
@@ -134,148 +131,133 @@
   </header>
   <nav>
     <a href="./">Home</a>
-    <a href="data-wonders.html" aria-current="page">World Wonders Editor</a>
+    <a href="data-wonders.html">World Wonders Editor</a>
     <a href="data-leaders.html">Leaders Editor</a>
     <a href="data-civilizations.html">Civilizations Editor</a>
-    <a href="data-tech-civics.html">Tech/Civics Editor</a>
+    <a href="data-tech-civics.html" aria-current="page">Tech/Civics Editor</a>
     <a href="data-natural-wonders.html">Natural Wonders Editor</a>
     <a href="data-mementos.html">Mementos Editor</a>
     <a href="data-social-policies.html">Social Policies Editor</a>
   </nav>
   <main>
-    <h1>World Wonders Data Editor</h1>
-    <p>Manage Civilization VII World Wonders locally in your browser. Changes are stored in <code>localStorage</code> and survive refreshes.</p>
+    <h1>Technologies & Civics Data Editor</h1>
+    <p>Manage Civilization VII Technologies and Civics. Track effects, unlocks, social policies, and civ-specific variants.</p>
 
-    <section class="status-region" aria-live="polite" id="status-message" role="status" data-tone="info">Ready to add a new World Wonder.</section>
+    <section class="status-region" aria-live="polite" id="status-message" role="status" data-tone="info">Ready to add a new Technology or Civic.</section>
 
     <div class="layout">
-      <section class="panel" aria-labelledby="wonders-list-heading">
-        <h2 id="wonders-list-heading">Current Wonders</h2>
+      <section class="panel" aria-labelledby="items-list-heading">
+        <div id="type-filter">
+          <button type="button" class="primary active" data-type="all">All</button>
+          <button type="button" class="secondary" data-type="technologies">Technologies</button>
+          <button type="button" class="secondary" data-type="civics">Civics</button>
+        </div>
+        <h2 id="items-list-heading">Current Items</h2>
         <table>
-          <caption>Saved World Wonders</caption>
+          <caption>Saved Technologies & Civics</caption>
           <thead>
             <tr>
               <th scope="col">Name</th>
+              <th scope="col">Type</th>
               <th scope="col">Age</th>
-              <th scope="col">Owner</th>
-              <th scope="col">Big Ticket</th>
               <th scope="col">Icon &amp; Actions</th>
             </tr>
           </thead>
-          <tbody id="wonders-table-body"></tbody>
+          <tbody id="items-table-body"></tbody>
         </table>
-        <button type="button" class="primary" id="new-wonder">New Wonder</button>
+        <button type="button" class="primary" id="new-item">New Item</button>
       </section>
 
       <section class="panel" aria-labelledby="editor-heading">
-        <h2 id="editor-heading">Wonder Details</h2>
-        <form id="wonder-form" novalidate>
-          <label for="wonder-id">ID</label>
-          <input id="wonder-id" name="id" type="text" required autocomplete="off" aria-describedby="id-help">
-          <small id="id-help">Use a unique identifier such as <code>pyramids</code>.</small>
-
-          <label for="wonder-name">Name</label>
-          <input id="wonder-name" name="name" type="text" required autocomplete="off">
-
-          <label for="wonder-age">Age</label>
-          <select id="wonder-age" name="age" required>
-            <option value="" disabled selected>Select age</option>
+        <h2 id="editor-heading">Item Details</h2>
+        <form id="item-form" novalidate>
+          <label for="item-type">Type</label>
+          <select id="item-type" name="type" required>
+            <option value="technologies">Technology</option>
+            <option value="civics">Civic</option>
           </select>
 
-          <label for="wonder-icon-url">Icon URL</label>
-          <input id="wonder-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
-          <input id="wonder-icon-file" name="iconFile" type="file" accept="image/*">
-          <div id="wonder-icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
-          <small>Icon previews come from the provided URL or uploaded image. TODO: replace with global icon picker.</small>
+          <label for="item-id">ID</label>
+          <input id="item-id" name="id" type="text" required autocomplete="off" aria-describedby="id-help">
+          <small id="id-help">Use a unique identifier such as <code>pottery</code> or <code>tech:pottery</code>.</small>
 
-          <h3>Production & Associated Civilization</h3>
-          <label for="wonder-production-cost">Production Cost</label>
-          <input id="wonder-production-cost" name="productionCost" type="number" min="0" placeholder="450">
-          <small>Total production cost to build this wonder</small>
+          <label for="item-name">Name</label>
+          <input id="item-name" name="name" type="text" required autocomplete="off">
 
-          <label for="wonder-associated-civ">Associated Civilization</label>
-          <input id="wonder-associated-civ" name="associatedCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
-          <small>Associated civ (also gets +30% production bonus and may have specific unlock)</small>
+          <label for="item-age">Age</label>
+          <select id="item-age" name="age" required>
+            <option value="" disabled selected>Select age</option>
+            <option value="Antiquity">Antiquity</option>
+            <option value="Exploration">Exploration</option>
+            <option value="Modern">Modern</option>
+          </select>
 
-          <h3>Unlock Requirements</h3>
-          <label for="wonder-unlock">Research Required to Unlock</label>
-          <input id="wonder-unlock" name="unlock" type="text" autocomplete="off" placeholder="Start typing civic/tech name...">
-          <small>Technology or Civic that unlocks this wonder for all civilizations</small>
+          <label for="item-production-cost">Production Cost</label>
+          <input id="item-production-cost" name="productionCost" type="number" min="0" placeholder="Science for techs, Culture for civics">
+          <small>Cost to research this tech (science) or civic (culture)</small>
 
-          <label for="wonder-civ-specific-unlock-civic">Civilization Specific Unlock (Optional)</label>
-          <input id="wonder-civ-specific-unlock-civic" name="civSpecificUnlockCivic" type="text" autocomplete="off" placeholder="Start typing civic name...">
-          <small>Alternative civic that unlocks this wonder for the associated civilization</small>
+          <label for="item-icon-url">Icon URL</label>
+          <input id="item-icon-url" name="iconUrl" type="text" autocomplete="off" placeholder="Paste an image URL or use upload">
+          <input id="item-icon-file" name="iconFile" type="file" accept="image/*">
+          <div id="item-icon-preview" aria-live="polite" aria-label="Icon preview" role="img"></div>
+          <small>Icon previews come from the provided URL or uploaded image.</small>
 
-          <h3>Placement & Effects</h3>
-          <label for="wonder-placement">Placement Requirements</label>
-          <input id="wonder-placement" name="placement" type="text" placeholder="e.g., On a Flat Tile">
-          <small>Text description of placement requirements</small>
-
-          <label>Effects</label>
-          <div id="wonder-effects-container">
+          <h3>Effects</h3>
+          <label>Bonuses &amp; Abilities</label>
+          <div id="item-effects-container">
             <!-- Effects will be added dynamically here -->
           </div>
           <button type="button" class="secondary" id="add-effect-button">+ Add Effect</button>
-          <small>List of distinct effects/bonuses for this wonder</small>
+          <small>List of bonus strings and abilities</small>
 
-          <h3>Ownership</h3>
-          <label for="wonder-owner-type">Last Owner</label>
-          <select id="wonder-owner-type" name="ownerType">
-            <option value="">No owner yet</option>
-            <option value="Tiny">Tiny</option>
-            <option value="Steve">Steve</option>
-            <option value="AI">AI</option>
-          </select>
-          <small>Set during gameplay - not required for initial entry</small>
+          <h3>Unlocks</h3>
+          <label for="item-wonder-unlock">Wonder Unlock (Optional)</label>
+          <input id="item-wonder-unlock" name="wonderUnlock" type="text" autocomplete="off" placeholder="Start typing wonder name...">
+          <small>Wonder that this tech/civic unlocks</small>
 
-          <label for="wonder-owner-leader">Owner Leader</label>
-          <input id="wonder-owner-leader" name="ownerLeader" type="text" autocomplete="off" placeholder="Start typing leader name...">
-          <small>Type to filter and select from database</small>
+          <label>Social Policies</label>
+          <div id="item-policies-container">
+            <!-- Social policies will be added dynamically here -->
+          </div>
+          <button type="button" class="secondary" id="add-policy-button">+ Add Social Policy</button>
+          <small>Social policies unlocked by this tech/civic (0-2+ typical)</small>
 
-          <label for="wonder-owner-civ">Owner Civilization</label>
-          <input id="wonder-owner-civ" name="ownerCiv" type="text" autocomplete="off" placeholder="Start typing civilization name...">
-          <small>Type to filter and select from database</small>
+          <label>Unit Unlocks</label>
+          <div id="item-units-container">
+            <!-- Unit unlocks will be added dynamically here -->
+          </div>
+          <button type="button" class="secondary" id="add-unit-button">+ Add Unit Unlock</button>
+          <small>Units unlocked by this tech/civic (most have none, some have 5-6)</small>
 
-          <label class="checkbox-label">
-            <input type="checkbox" id="wonder-bigTicket" name="bigTicket"> Big Ticket Wonder
-          </label>
+          <label>Building Unlocks</label>
+          <div id="item-buildings-container">
+            <!-- Building unlocks will be added dynamically here -->
+          </div>
+          <button type="button" class="secondary" id="add-building-button">+ Add Building Unlock</button>
+          <small>Buildings unlocked by this tech/civic</small>
 
-          <h3>Ownership History</h3>
-          <ul class="history-list" id="ownership-history"></ul>
-          <button type="button" class="secondary" id="log-owner">Log current as last owner</button>
+          <h3>Civ-Specific Variant</h3>
+          <label for="item-civ-specific">Civilization (Optional)</label>
+          <input id="item-civ-specific" name="civSpecific" type="text" autocomplete="off" placeholder="Start typing civilization name...">
+          <small>If this is a civ-specific variant of the tech/civic</small>
 
           <div class="form-actions">
-            <button type="submit" class="primary">Save Wonder</button>
+            <button type="submit" class="primary">Save Item</button>
             <button type="button" class="secondary" id="reset-form">Reset</button>
           </div>
         </form>
       </section>
     </div>
 
-    <section class="panel ownership-summary" aria-labelledby="ownership-summary-heading">
-      <h2 id="ownership-summary-heading">Ownership Summary</h2>
-      <table>
-        <caption>Total Wonders per Owner</caption>
-        <thead>
-          <tr>
-            <th scope="col">Owner</th>
-            <th scope="col">Count</th>
-          </tr>
-        </thead>
-        <tbody id="ownership-summary-body"></tbody>
-      </table>
-    </section>
-
     <section class="panel data-tools" aria-labelledby="data-tools-heading">
       <h2 id="data-tools-heading">Import / Export</h2>
-      <p>Copy data to share or paste JSON to replace your current World Wonders. Use the <a href="docs/data/worldWonders-sample.json">sample JSON</a> as a reference.</p>
+      <p>Copy data to share or paste JSON to replace your current items.</p>
       <div class="form-actions">
         <button type="button" class="primary" id="export-button">Export JSON</button>
         <button type="button" class="secondary" id="import-button">Import JSON</button>
-        <button type="button" class="secondary" id="load-sample">Load sample data</button>
-        <button type="button" class="danger" id="clear-all">Clear all Wonders</button>
+        <button type="button" class="danger" id="clear-all">Delete All Items</button>
       </div>
-      <textarea id="json-data" aria-label="World Wonders JSON" placeholder="Paste World Wonders JSON here" spellcheck="false" rows="8"></textarea>
+      <textarea id="json-data" aria-label="Tech/Civics JSON" placeholder="Paste Tech/Civics JSON here" spellcheck="false" rows="8"></textarea>
     </section>
   </main>
   <footer>© CIV7 Tracker</footer>
@@ -287,7 +269,8 @@
   <script src="js/store-supabase.js"></script>
   <!-- Load autocomplete component -->
   <script src="js/autocomplete.js"></script>
-  <script src="js/data-wonders.js"></script>
+  <script src="js/data-tech-civics.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
+
